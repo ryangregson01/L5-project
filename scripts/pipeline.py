@@ -1,6 +1,6 @@
 from dataset import load_sara
 from preprocess_sara import get_preprocessed_sara
-from models import get_model
+from models import get_model, get_model_version
 from prompts import *
 from model import llm_experiment
 import time
@@ -12,10 +12,10 @@ import json
 sara_df = load_sara()
 # Sample before preprocessing, otherwise split documents make less sense.
 processed_sara_df = get_preprocessed_sara(sara_df)
-preprocessed_sara = processed_sara_df.sample(n=2, random_state=1)
+preprocessed_sara = processed_sara_df.sample(frac=0.2, random_state=1)
 
-tokenizer, model = get_model('get_thebloke_l2') #'get_meta_l2')
-prompts = ['base_prompt_template', 'explain_base_prompt_template']
+tokenizer, model = get_model('get_mistral_mistral7b')  #get_model('get_openai_distilgpt2') #'get_meta_l2')
+prompts = ['base', 'persona', 'cot'] #, 'explain_base_prompt_template']
 #prompt = get_prompt('base_prompt_template')
 
 for prompt in prompts:

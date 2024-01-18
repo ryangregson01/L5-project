@@ -8,19 +8,34 @@ from prompts import *
 
 
 def llm_inference(document, prompt, model, tokenizer):
+  messages = [
+    {"role": "user", "content": prompt(document)}
+  ]
+  encodeds = tokenizer.apply_chat_template(messages, return_tensors="pt")
+  inputs = encodeds.to('cuda')
+  arr_like = torch.ones_like(inputs)
+  attention_mask = arr_like.to('cuda')
+  generated_ids = model.generate(inputs=inputs, attention_mask=attention_mask, max_new_tokens=50, do_sample=False)
+  decoded = tokenizer.batch_decode(generated_ids)
+  return decoded[0]
+
+'''
+def llm_inference(document, prompt, model, tokenizer):
+  if tokenizer.pad_token is None:
+    tokenizer.pad_token = tokenizer.eos_token
+  pad_token_id=tokenizer.pad_token_id
   inputs = tokenizer(prompt(document), return_tensors='pt')
   generation_config = GenerationConfig(
     # Unable to set temperature to 0 - https://github.com/facebookresearch/llama/issues/687 - use do_sample=False for greedy decoding
     do_sample=False,
     max_new_tokens=20,
   )
-  output = model.generate(inputs=inputs.input_ids.cuda(), attention_mask=inputs.attention_mask.cuda(), generation_config=generation_config)
+  output = model.generate(inputs=inputs.input_ids.cuda(), attention_mask=inputs.attention_mask.cuda(), pad_token_id=tokenizer.pad_token_id, generation_config=generation_config)
   return tokenizer.decode(output[0], skip_special_tokens=True)
-
+'''
 
 def display_gen_text(output):
-  #return output[-80:]
-  end_template = output.find('\n  Attribute') #'output only the attribute after'
+  end_template = output.find('\nAnswer:')
   return output[end_template:]
 
 

@@ -1,7 +1,8 @@
 import pandas as pd
-from sklearn.metrics import accuracy_score, balanced_accuracy_score, f1_score
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, f1_score, classification_report, confusion_matrix, ConfusionMatrixDisplay
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
 
 def get_metric_dict(method, labels, preds):
     acc = accuracy_score(labels, preds)
@@ -18,17 +19,22 @@ def evaluation_summary(description, true_labels, predictions):
     print(classification_report(true_labels, predictions, digits=3, zero_division=0, target_names=target_classes))
     print('\n\nConfusion matrix:')
     confusionMatrix = confusion_matrix(true_labels, predictions)
+    fig = plt.figure(1, figsize=(5, 5))
     disp = ConfusionMatrixDisplay(confusion_matrix=confusionMatrix, display_labels=target_classes)
     disp.plot()
+    plt.savefig(description+'.pdf', bbox_inches='tight', format='svg', dpi=1200)
     plt.show()
 
 
-prompts = ['base_prompt_template', 'explain_base_prompt_template']
+folder_name = sys.argv[1]
+prompts = ['base', 'persona', 'cot'] #['base_prompt_template', 'explain_base_prompt_template']
 metrics_data = {}
 for prompt in prompts:
-    ground_truths = np.loadtxt('results/'+prompt+'/truth_labs.txt')
-    preds = np.loadtxt('results/'+prompt+'/preds.txt')
-    get_metric_dict('Llama-2_'+prompt, ground_truths, preds)
+    ground_truths = np.loadtxt(f'results/{folder_name}/{prompt}/truth_labs.txt')
+    preds = np.loadtxt(f'results/{folder_name}/{prompt}/preds.txt')
+    get_metric_dict(folder_name+'_'+prompt, ground_truths, preds)
+    #evaluation_summary(folder_name+prompt, ground_truths, preds)
    
 metrics_df = pd.DataFrame.from_dict(metrics_data, orient='index')
 print(metrics_df)
+metrics_df.to_csv(f'results/{folder_name}.csv', index=True)

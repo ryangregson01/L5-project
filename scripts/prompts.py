@@ -22,6 +22,27 @@ def explain_base_prompt_template(document):
   Attribute:
   """
 
+def base(document):
+  return f"""Sensitivity is a measure of sensitive personal information in a purely personal and personal in a professional context. 
+The Text is delimited by [TEXT]. Which one of the attributes “sensitive”, “non-sensitive” classifies the Text. Only respond with the attribute after 'Answer:'.
+[TEXT]{document}[/TEXT].
+Answer:
+"""
+
+def persona(document):
+  return f"""Sensitivity is a measure of sensitive personal information in a purely personal and personal in a professional context. From now on, act as an expert sensitivity reviewer. Pay close attention to the personal information details within the document.
+The Text is delimited by [TEXT]. Which one of the attributes “sensitive”, “non-sensitive” classifies the Text. Only respond with the attribute after 'Answer:'.
+[TEXT]{document}[/TEXT].
+Answer:
+"""
+
+def cot(document):
+  return f"""Sensitivity is a measure of sensitive personal information in a purely personal and personal in a professional context. 
+The Text is delimited by [TEXT]. Which one of the attributes “sensitive”, “non-sensitive” classifies the Text. Only respond with the attribute after 'Answer:'. Lets think step by step.
+[TEXT]{document}[/TEXT].
+Answer:
+"""
+
 
 def display_gen_textans(output):
   end_template = output.find('\n  <ANSWER>')
@@ -31,9 +52,16 @@ def display_gen_textattr(output):
   end_template = output.find('\n  Attribute:')
   return output[end_template:]
 
+def display_gen_text(output):
+  end_template = output.find('\nAnswer:')
+  return output[end_template:]
+
 
 def get_prompt(prompt_name):
     prompt_dict = {'base_prompt_template' : base_prompt_template, 
-                  'explain_base_prompt_template': explain_base_prompt_template}
+                  'explain_base_prompt_template': explain_base_prompt_template,
+                  'base': base,
+                  'persona': persona,
+                  'cot': cot}
     return prompt_dict.get(prompt_name)
 
