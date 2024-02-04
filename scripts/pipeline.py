@@ -1,8 +1,8 @@
 from dataset import load_sara
-from preprocess_sara import get_preprocessed_sara
+from preprocess_sara import proc3
 from models import get_model, get_model_version
 from prompts import *
-from model import llm_experiment
+from model import llm_experiment, post_process_split_docs
 import time
 import numpy as np
 import os
@@ -10,25 +10,26 @@ import json
 
 
 sara_df = load_sara()
-# Sample before preprocessing, otherwise split documents make less sense.
-processed_sara_df = get_preprocessed_sara(sara_df)
-preprocessed_sara = processed_sara_df.sample(frac=0.2, random_state=1)
+samp = sara_df.sample(n=3, random_state=1)
+processed_sara_df = proc3(samp)
 
-tokenizer, model = get_model('get_meta_l2')
-prompts = ['base', 'persona', 'cot']
-#prompt = get_prompt('base_prompt_template')
+tokenizer, model = get_model_version('get_l2', 'TheBloke/Llama-2-13B-chat-GPTQ', 'gptq-8bit-64g-actorder_True')
+prompts = ['b1', 'b2', 'b3']
+end_prompt = '[/INST]'
 
 for prompt in prompts:
     prompt_str = 'results/' + prompt + '/'
     prompt = get_prompt(prompt)
     print('Starting experiment')
     start = time.time()
-    predictions, further_processing_required, model_responses, truths_list, preds_list = llm_experiment(preprocessed_sara, prompt, model, tokenizer)
+    predictions, further_processing_required, model_responses, truths_list, preds_list = llm_experiment(processed_sara_df, prompt, model, tokenizer, end_prompt)
     end = time.time()
     duration = end-start
 
-    truth_labs = np.array(truths_list)
-    preds = np.array(preds_list)
+    new_preds, new_truths = post_process_split_docs(model_responses, further_processing_required, preds_list, sara_df)
+
+    truth_labs = np.array(new_truths)
+    preds = np.array(new_preds)
     if not os.path.exists(prompt_str):
         os.makedirs(prompt_str)
     np.savetxt(prompt_str+'truth_labs.txt', truth_labs)

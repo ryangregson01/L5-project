@@ -8,29 +8,19 @@ from prompts import *
 
 
 def llm_inference(document, prompt, model, tokenizer):
-  inputs = tokenizer(prompt(document), return_tensors='pt')
-  generation_config = GenerationConfig(
-      # Unable to set temperature to 0 - https://github.com/facebookresearch/llama/issues/687 - use do_sample=False for greedy decoding
-      do_sample=False,
-      max_new_tokens=10,
-      max_time=180
-  )
-  output = model.generate(inputs=inputs.input_ids.cuda(), attention_mask=inputs.attention_mask.cuda(), generation_config=generation_config)
-  response = tokenizer.decode(output[0], skip_special_tokens=True)
-  return response
+    messages = [
+    {"role": "user", "content": prompt(document)},
+    #{"role": "assistant", "content": "This text is {'mask'}"}
+    ]
+    encodeds = tokenizer.apply_chat_template(messages, return_tensors="pt")
+    device = 'cuda'
+    model_inputs = encodeds.to(device)
+    arr_like = torch.ones_like(model_inputs)
+    attention_mask = arr_like.to(device)
+    generated_ids = model.generate(inputs=model_inputs, attention_mask=attention_mask, max_new_tokens=30, do_sample=True)
+    decoded = tokenizer.batch_decode(generated_ids)
+    return decoded[0]
 '''
-def llm_inference(document, prompt, model, tokenizer):
-  messages = [
-    {"role": "user", "content": prompt(document)}
-  ]
-  encodeds = tokenizer.apply_chat_template(messages, return_tensors="pt")
-  inputs = encodeds.to('cuda')
-  arr_like = torch.ones_like(inputs)
-  attention_mask = arr_like.to('cuda')
-  generated_ids = model.generate(inputs=inputs, attention_mask=attention_mask, max_new_tokens=50, do_sample=False)
-  decoded = tokenizer.batch_decode(generated_ids)
-  return decoded[0]
-
 def llm_inference(document, prompt, model, tokenizer):
   if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
@@ -45,14 +35,14 @@ def llm_inference(document, prompt, model, tokenizer):
   return tokenizer.decode(output[0], skip_special_tokens=True)
 '''
 
-def display_gen_text(output):
-  end_template = output.find('\nAnswer:')
+def display_gen_text(output, e):
+  end_template = output.find(e)
   return output[end_template:]
 
 
-def prompt_to_reply(d, p, m, t):
+def prompt_to_reply(d, p, m, t, e):
   response = llm_inference(d, p, m, t)
-  return display_gen_text(response)
+  return display_gen_text(response, e)
 
 
 # String matching on model response
@@ -82,7 +72,7 @@ def clear_memory():
 
 
 # Dataset - dataframe, prompt_strategy - prompt function name, model - LLM
-def llm_experiment(dataset, prompt_strategy, model, tokenizer):
+def llm_experiment(dataset, prompt_strategy, model, tokenizer, end_prompt=None):
     predictions = {
         'TP' : 0, # Sensitive
         'FP' : 0, # Non-sensitive document classified as sensitive
@@ -105,7 +95,7 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer):
         if len(sample_text) > 12000:
             continue
 
-        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer)
+        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt)
         model_responses[sample[1].doc_id] = classification
 
         quadrant, pred = post_process_classification(classification, ground_truth)
@@ -121,3 +111,31 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer):
 
     return predictions, further_processing_required, model_responses, scikit_true, scikit_pred
 
+
+def post_process_split_docs(mr, fpr, pre, df):
+    clean_doc_id = {}
+    ground_truths = []
+    ite = -1
+    for s in mr.keys(): #samp.doc_id():
+        if s in fpr.keys():
+            continue
+
+        if '_' in s:
+            s = s[:s.find('_')]
+
+        val = clean_doc_id.get(s, -1)
+        ite += 1
+
+        if val == -1:
+
+            clean_doc_id[s] = pre[ite]
+            ground_truths.append((df[df.doc_id == s].sensitivity).iloc[0])
+            continue
+
+        if (val == pre[ite] or val == 1):
+            continue
+        
+        clean_doc_id[s] = pre[ite]
+
+    values_array = np.array(list(clean_doc_id.values()))
+    return values_array, ground_truths
