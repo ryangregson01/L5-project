@@ -1,6 +1,6 @@
 from dataset import load_sara
-from preprocess_sara import proc3
-from models import get_model, get_model_version
+from preprocess_sara import proc3, proc2, proc2smol
+from models import get_model_version
 from prompts import *
 from model import llm_experiment, post_process_split_docs
 import time
@@ -10,15 +10,20 @@ import json
 
 
 sara_df = load_sara()
-samp = sara_df.sample(n=3, random_state=1)
-processed_sara_df = proc3(samp)
+samp = sara_df #.sample(n=2, random_state=1)
+processed_sara_df = proc3(samp) #proc2smol(samp)
 
-tokenizer, model = get_model_version('get_l2', 'TheBloke/Llama-2-13B-chat-GPTQ', 'gptq-8bit-64g-actorder_True')
-prompts = ['b1', 'b2', 'b3']
+#tokenizer, model = get_model_version('get_l2', 'TheBloke/Llama-2-13B-chat-GPTQ', 'gptq-8bit-64g-actorder_True')
+#tokenizer, model = get_model_version('get_l2', "meta-llama/Llama-2-7b-chat-hf")
+tokenizer, model = get_model_version('get_mistral', "mistralai/Mistral-7B-Instruct-v0.2")
+#tokenizer, model = get_model_version('get_l2', 'TheBloke/Llama-2-70B-chat-GPTQ')
+prompts = ['b1sys', 'b2sys', 'b3sys', 'b1_2sys', 'b2_2sys'] #['b1', 'b2', 'b3']
+#prompts = ['bfor70b', 'bfor70b_2'] #, 'b2', 'b3', 'b1_2', 'b2_2', 'b3_2']
 end_prompt = '[/INST]'
+model_name = 'mist7b-mist'#'l270B-GPTQ'
 
 for prompt in prompts:
-    prompt_str = 'results/' + prompt + '/'
+    prompt_str = 'results/' + model_name + '/' + prompt + '/'
     prompt = get_prompt(prompt)
     print('Starting experiment')
     start = time.time()
@@ -41,3 +46,4 @@ for prompt in prompts:
     with open(prompt_str+'resp.json', 'w') as f:
         json.dump(model_responses, f, indent=2)
 
+print('DONE')

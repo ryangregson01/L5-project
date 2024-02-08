@@ -8,7 +8,20 @@ from prompts import *
 
 
 def llm_inference(document, prompt, model, tokenizer):
+    encodeds = tokenizer(prompt(document), return_tensors="pt")
+    device = 'cuda'
+    model_inputs = encodeds.to(device)
+    generated_ids = model.generate(inputs=model_inputs.input_ids, attention_mask=model_inputs.attention_mask, max_new_tokens=10, do_sample=True)
+    decoded = tokenizer.batch_decode(generated_ids)
+    del model_inputs
+    torch.cuda.empty_cache()
+    gc.collect()
+    return decoded[0]
+
+'''
+def llm_inference(document, prompt, model, tokenizer):
     messages = [
+    #{"role": "system", "content": "You are identifying documents containing personal sensitive information."},
     {"role": "user", "content": prompt(document)},
     #{"role": "assistant", "content": "This text is {'mask'}"}
     ]
@@ -17,9 +30,11 @@ def llm_inference(document, prompt, model, tokenizer):
     model_inputs = encodeds.to(device)
     arr_like = torch.ones_like(model_inputs)
     attention_mask = arr_like.to(device)
-    generated_ids = model.generate(inputs=model_inputs, attention_mask=attention_mask, max_new_tokens=30, do_sample=True)
+    generated_ids = model.generate(inputs=model_inputs, attention_mask=attention_mask, max_new_tokens=10, do_sample=True)
     decoded = tokenizer.batch_decode(generated_ids)
+    #print(decoded)
     return decoded[0]
+'''
 '''
 def llm_inference(document, prompt, model, tokenizer):
   if tokenizer.pad_token is None:

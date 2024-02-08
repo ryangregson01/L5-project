@@ -1,6 +1,7 @@
 import email
 import pandas as pd
 import re
+import numpy as np
 
 def proc3(dataset):
     def get_orig(message, find_orig_message):
@@ -81,3 +82,69 @@ def proc3(dataset):
         return preproc_df
 
     return get_preprocessed_sara_p3(dataset)
+
+
+def proc2smol(dataset):
+    def process_text(input_text):
+        clean = input_text
+        clean = re.sub(r'=20', ' ', clean)
+        clean = re.sub(r'=09', ' ', clean)
+        # Also > Whitespace1+ > 
+        clean = re.sub(r'\n\>', '\n', clean)
+        #clean = re.sub(r'\n\n\t', '\n', clean)
+        # Replace whitespace between two newline characters with a single newline
+        #cleaned_text = re.sub(r'\n\s*\n', '\n\n', input_text)
+        #clean = re.sub(r'\n \n', '\n\n', clean)
+        #clean = re.sub(r'\n \n', '\n', clean)
+        return clean
+
+    def get_separate_paras(doc):
+        paras = []
+        payload = doc.split('\r\n\r\n')[1]
+        payload = process_text(payload)
+        #print(payload)
+
+
+        m = payload
+        cut_spade = 1000
+        if len(m) > cut_spade:
+            cut = np.ceil(len(m) / cut_spade)
+            #print(cut)
+            #print(len(m))
+            for i in range(int(cut)):
+                paras.append(m[(i*cut_spade):((i+1)*cut_spade)])
+                #print(paras)
+        else:
+            paras.append(m)
+
+        #print(paras)
+
+        return paras
+
+    def preproc(sample):
+        sep_docs = []
+        sep_docs_ids = []
+        sep_docs_sens = []
+        i = 0
+        for s in sample.iterrows():
+
+            separate_messages = get_separate_paras(s[1].text)
+            for i, m in enumerate(separate_messages):
+                id_part = s[1].doc_id + '_' + str(i)
+                sep_docs_ids.append(id_part)
+                sep_docs.append(m)
+                sep_docs_sens.append(s[1].sensitivity)
+
+        preproc = {}
+        preproc['doc_id'] = sep_docs_ids
+        preproc['text'] = sep_docs
+        preproc['sensitivity'] = sep_docs_sens
+        preproc_df = pd.DataFrame.from_dict(preproc)
+        return preproc_df
+
+    def get_preprocessed_sara_paras(dataset):
+        preproc_data = preproc(dataset)
+        preproc_df = pd.DataFrame.from_dict(preproc_data)
+        return preproc_df
+
+    return get_preprocessed_sara_paras(dataset)
