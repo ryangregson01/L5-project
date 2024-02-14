@@ -107,7 +107,7 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, end_prompt=None):
         ground_truth = sample[1].sensitivity
 
         # To replace with appropriate pre-processing
-        if len(sample_text) > 12000:
+        if len(sample_text) > 10000:
             continue
 
         classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt)
