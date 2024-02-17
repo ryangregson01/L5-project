@@ -13,7 +13,15 @@ def proccutit(dataset):
             v = s[1].text
             sens = s[1].sensitivity
             v = v.split('\r\n\r\n')[1]
+
+            multi_split = s[1].text.split('\r\n\r\n')
+            if len(multi_split) > 2:
+                reconnect = multi_split[1:]
+                v = '\n\n'.join(reconnect)
+
             cleaned_text = v
+            cleaned_text = re.sub(r'=\r\n', '\n', cleaned_text)
+            cleaned_text = re.sub(r'\r\n', '\n', cleaned_text)
             cleaned_text = re.sub(r'\n>\n', '\n\n', cleaned_text)
             # Or replace with ''
             # Put space in #cleaned_text = re.sub(r'\n> ', '\n', cleaned_text)
@@ -25,7 +33,6 @@ def proccutit(dataset):
             cleaned_text = re.sub(r'\?{2,}', '', cleaned_text)
             cleaned_text = re.sub(r'=20', ' ', cleaned_text)
             cleaned_text = re.sub(r'=09', ' ', cleaned_text)
-            cleaned_text = re.sub(r'=\r\n', '\n', cleaned_text)
             clean.append(cleaned_text)
 
             cutit = cleaned_text.split('\n\n')

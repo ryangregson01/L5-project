@@ -27,7 +27,7 @@ def evaluation_summary(description, true_labels, predictions):
 
 
 folder_name = sys.argv[1]
-prompts = ['b1', 'b2', 'b3', 'b1_2', 'b2_2', 'b3_2', 'b1sys', 'b2sys', 'b3sys', 'b1_2sys', 'b2_2sys', 'b3_2sys']
+prompts = ['b1', 'b2', 'b1_2', 'b2_2', 'b1sys', 'b2sys', 'b1_2sys', 'b2_2sys']
 metrics_data = {}
 for prompt in prompts:
     ground_truths = np.loadtxt(f'results/{folder_name}/{prompt}/truth_labs.txt')
