@@ -65,6 +65,18 @@ def proccutit(dataset):
             else:
                 for i, m in enumerate(v):
                     connected_m = []
+
+                    # Catch footer
+                    if len(m) > 1:
+                        if len(m[-1]) < 4:
+                            m = m[:-1]
+                        
+                        if '@' in m[-1] or 'fax:' in m[-1].lower() or 'Sent by:' in m[-1]:
+                            m = m[:-1]
+                        else:
+                            pass
+                            #print(m[-1])
+
                     for para in m:
                         message = ''.join(para.split('\n'))
                         connected_m.append(message)

@@ -8,10 +8,12 @@ from prompts import *
 
 
 def llm_inference(document, prompt, model, tokenizer):
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
     encodeds = tokenizer(prompt(document), return_tensors="pt")
     device = 'cuda'
     model_inputs = encodeds.to(device)
-    generated_ids = model.generate(inputs=model_inputs.input_ids, attention_mask=model_inputs.attention_mask, max_new_tokens=10, do_sample=True)
+    generated_ids = model.generate(inputs=model_inputs.input_ids, attention_mask=model_inputs.attention_mask, pad_token_id=tokenizer.pad_token_id, max_new_tokens=10, do_sample=False)
     decoded = tokenizer.batch_decode(generated_ids)
     del model_inputs
     torch.cuda.empty_cache()
@@ -62,17 +64,17 @@ def prompt_to_reply(d, p, m, t, e):
 
 # String matching on model response
 def post_process_classification(classification, ground_truth):
-    if 'non-sensitive' in classification.lower():
-        if ground_truth == 0:
-            return 'TN', 0
-        else:
-            return 'FN', 0
-
-    elif 'sensitive' in classification.lower() and 'non-sensitive' not in classification.lower():
+    if "does contain" in classification.lower():
         if ground_truth == 1:
             return 'TP', 1
         else:
             return 'FP', 1
+    
+    elif "does not" in classification.lower():
+        if ground_truth == 0:
+            return 'TN', 0
+        else:
+            return 'FN', 0
 
     else:
         # Further processing required
