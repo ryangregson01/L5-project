@@ -8,23 +8,18 @@ import numpy as np
 import os
 import json
 
-
 sara_df = load_sara()
 samp = sara_df #.sample(n=50, random_state=1)
 processed_sara_df = proccutit(samp)
 
-#print(processed_sara_df.head())
-#lens = [len(text) for text in processed_sara_df.text]
-#print(sorted(lens))
-
+#tokenizer, model = get_model_version('get_l2', "meta-llama/Llama-2-7b-chat-hf")
 #tokenizer, model = get_model_version('get_l2', 'TheBloke/Llama-2-13B-chat-GPTQ', 'gptq-8bit-64g-actorder_True')
-tokenizer, model = get_model_version('get_l2', "meta-llama/Llama-2-7b-chat-hf")
-#tokenizer, model = get_model_version('get_mistral', "mistralai/Mistral-7B-Instruct-v0.2")
 #tokenizer, model = get_model_version('get_l2', 'TheBloke/Llama-2-70B-chat-GPTQ')
-prompts = ['itspersonal', 'itspersonal_2', 'itspersonalfewshot'] #['b1', 'b2', 'b1_2', 'b2_2', 'b1sys', 'b2sys', 'b1_2sys', 'b2_2sys'] #['b1', 'b2', 'b3']
-#prompts = ['bfor70b', 'bfor70b_2'] #, 'b2', 'b3', 'b1_2', 'b2_2', 'b3_2']
+#tokenizer, model = get_model_version('get_mistral', "mistralai/Mistral-7B-Instruct-v0.2")
+#tokenizer, model = get_model_version('get_mixtral', "TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ")
+prompts = ['itspersonal', 'itspersonal_2', 'itspersonalfewshot'] #['b1', 'b2', 'b1_2', 'b2_2', 'b1sys', 'b2sys', 'b1_2sys', 'b2_2sys']
 end_prompt = '[/INST]'
-model_name = 'l27b-meta' #'mist7b-mist'#'l270B-GPTQ'
+model_name = 'mixt4bit' #'l27b-meta' #'mist7b-mist'
 
 for prompt in prompts:
     prompt_str = 'results/' + model_name + '/' + prompt + '/'
