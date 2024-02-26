@@ -38,15 +38,15 @@ def jupyter_evaluation(labels, preds):
     plt.show()
 
 
-def run_evaluation():
-    folder_name = sys.argv[1]
+def run_evaluation(name):
+    folder_name = name
     prompts = ['itspersonal'] #, 'itspersonal_2', 'itspersonalfewshot']#['b1', 'b2', 'b1_2', 'b2_2', 'b1sys', 'b2sys', 'b1_2sys', 'b2_2sys']
     metrics_data = {}
     for prompt in prompts:
-        ground_truths = np.loadtxt(f'results/{folder_name}/{prompt}/truth_labs.txt')
-        preds = np.loadtxt(f'results/{folder_name}/{prompt}/preds.txt')
+        ground_truths = np.loadtxt(f'results/model_results/{folder_name}/{prompt}/truth_labs.txt')
+        preds = np.loadtxt(f'results/model_results/{folder_name}/{prompt}/preds.txt')
         metrics_data[folder_name+'_'+prompt] = get_metric_dict(ground_truths, preds)
-        cm_path = f'results/{folder_name}/cm/'
+        cm_path = f'results/model_results/{folder_name}/cm/'
         if not os.path.exists(cm_path):
             os.makedirs(cm_path)
         
@@ -55,6 +55,9 @@ def run_evaluation():
         disp.figure_.savefig(cm_path+"CM_"+prompt+".pdf")
 
     metrics_df = pd.DataFrame.from_dict(metrics_data, orient='index')
-    metrics_df.to_csv(f'results/{folder_name}.csv', index=True)
+    metric_path = f'results/metric_overview/'
+    if not os.path.exists(metric_path):
+        os.makedirs(metric_path)
+    metrics_df.to_csv(f'{metric_path}{folder_name}.csv', index=True)
 
 #run_evaluation()

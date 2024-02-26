@@ -154,4 +154,5 @@ def post_process_split_docs(mr, fpr, pre, df):
         clean_doc_id[s] = pre[ite]
 
     values_array = np.array(list(clean_doc_id.values()))
-    return values_array, ground_truths
+    clean_doc_keys = np.array(list(clean_doc_id.keys()))
+    return values_array, ground_truths, clean_doc_keys
