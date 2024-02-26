@@ -18,6 +18,7 @@ def dataset_to_df(dataset):
     return df
 
 def load_sara():
+    '''Retrieves SARA dataset and converts dataset to dataframe'''
     sara_dataset = get_sara()
     sara_df = dataset_to_df(sara_dataset)
     return sara_df

@@ -8,12 +8,13 @@ from prompts import *
 
 
 def llm_inference(document, prompt, model, tokenizer):
+    '''Tokenizes input prompt with document, generates text, decodes text.'''
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     encodeds = tokenizer(prompt(document), return_tensors="pt")
     device = 'cuda'
     model_inputs = encodeds.to(device)
-    generated_ids = model.generate(inputs=model_inputs.input_ids, attention_mask=model_inputs.attention_mask, pad_token_id=tokenizer.pad_token_id, max_new_tokens=10, do_sample=False)
+    generated_ids = model.generate(inputs=model_inputs.input_ids, attention_mask=model_inputs.attention_mask, pad_token_id=tokenizer.pad_token_id, max_new_tokens=10, do_sample=True, top_p=None)
     decoded = tokenizer.batch_decode(generated_ids)
     del model_inputs
     torch.cuda.empty_cache()
@@ -22,6 +23,7 @@ def llm_inference(document, prompt, model, tokenizer):
 
 '''
 def llm_inference(document, prompt, model, tokenizer):
+    #Tokenizes input prompt with document using a chat template, generates text, decodes text.
     messages = [
     #{"role": "system", "content": "You are identifying documents containing personal sensitive information."},
     {"role": "user", "content": prompt(document)},
@@ -39,33 +41,27 @@ def llm_inference(document, prompt, model, tokenizer):
 '''
 
 def display_gen_text(output, e):
-  end_template = output.find(e)
-  return output[end_template:]
+    '''Segments response to only new generated text.'''
+    end_template = output.find(e)
+    return output[end_template:]
 
 
 def prompt_to_reply(d, p, m, t, e):
-  response = llm_inference(d, p, m, t)
-  return display_gen_text(response, e)
+    '''Gets response from model.'''
+    response = llm_inference(d, p, m, t)
+    return display_gen_text(response, e)
 
 
-# String matching on model response
-def post_process_classification(classification, ground_truth):
-    if "does contain" in classification.lower():
-        if ground_truth == 1:
-            return 'TP', 1
-        else:
-            return 'FP', 1
-    
-    elif "does not" in classification.lower():
-        if ground_truth == 0:
-            return 'TN', 0
-        else:
-            return 'FN', 0
-
+def post_process_classification(classification):
+    '''String matching on model response'''
+    match_string = classification.lower()
+    if "does contain" in match_string:
+        return 1
+    elif "does not" in match_string:
+        return 0
     else:
         # Further processing required
-        return classification, None
-        further_processing_required[sample[1].doc_id] = classification
+        return None
 
 
 def clear_memory():
@@ -74,8 +70,24 @@ def clear_memory():
     gc.collect()
 
 
-# Dataset - dataframe, prompt_strategy - prompt function name, model - LLM
 def llm_experiment(dataset, prompt_strategy, model, tokenizer, end_prompt=None):
+    """
+    Run main experiment.
+    
+    Parameters:
+    dataset (pandas dataframe): Dataframe with columns doc_id, text, sensitivity.
+    prompt_strategy (function): Prompt template.
+    model: generative LLM
+    tokenizer
+    end_prompt (string): 
+    
+    Returns:
+    preds (array of integers): Predictions from post-processing model classifications.
+    truths (array of integers): Ground truths.
+    mr (model responses) (dictionary): Generated text for each input.
+    fpr (further processing required) (dictionary): Unclassified text.
+    """
+
     predictions = {
         'TP' : 0, # Sensitive
         'FP' : 0, # Non-sensitive document classified as sensitive
@@ -83,43 +95,44 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, end_prompt=None):
         'FN' : 0,
     }
     # Model output is not an expected sensitivity attribute
-    further_processing_required = {}
+    fpr = {}
     # All model output
-    model_responses = {}
-
-    scikit_true = []
-    scikit_pred = []
+    mr = {}
+    truths = []
+    preds = []
 
     for sample in dataset.iterrows():
+        sample_id = sample[1].doc_id
         sample_text = sample[1].text
         ground_truth = sample[1].sensitivity
 
-        # To replace with appropriate pre-processing
+        # Input text is too large for model
         if len(sample_text) > 10000:
+            fpr[sample_id] = "TOO LARGE"
             continue
 
         classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt)
-        model_responses[sample[1].doc_id] = classification
+        mr[sample_id] = classification
 
-        quadrant, pred = post_process_classification(classification, ground_truth)
+        pred = post_process_classification(classification)
         if pred == None:
-            further_processing_required[sample[1].doc_id] = quadrant
+            # Generated classification could not be identified using processing.
+            fpr[sample_id] = classification
             continue
 
-        predictions[quadrant] = predictions.get(quadrant) + 1
-        scikit_true.append(ground_truth)
-        scikit_pred.append(pred)
+        truths.append(ground_truth)
+        preds.append(pred)
 
         clear_memory()
 
-    return predictions, further_processing_required, model_responses, scikit_true, scikit_pred
+    return preds, truths, mr, fpr
 
 
 def post_process_split_docs(mr, fpr, pre, df):
     clean_doc_id = {}
     ground_truths = []
     ite = -1
-    for s in mr.keys(): #samp.doc_id():
+    for s in mr.keys():
         if s in fpr.keys():
             continue
 

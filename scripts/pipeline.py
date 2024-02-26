@@ -8,41 +8,52 @@ import numpy as np
 import os
 import json
 
-sara_df = load_sara()
-samp = sara_df #.sample(n=50, random_state=1)
-processed_sara_df = proccutit(samp)
 
-#tokenizer, model = get_model_version('get_l2', "meta-llama/Llama-2-7b-chat-hf")
-#tokenizer, model = get_model_version('get_l2', 'TheBloke/Llama-2-13B-chat-GPTQ', 'gptq-8bit-64g-actorder_True')
-#tokenizer, model = get_model_version('get_l2', 'TheBloke/Llama-2-70B-chat-GPTQ')
-#tokenizer, model = get_model_version('get_mistral', "mistralai/Mistral-7B-Instruct-v0.2")
-#tokenizer, model = get_model_version('get_mixtral', "TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ")
-prompts = ['itspersonal', 'itspersonal_2', 'itspersonalfewshot'] #['b1', 'b2', 'b1_2', 'b2_2', 'b1sys', 'b2sys', 'b1_2sys', 'b2_2sys']
-end_prompt = '[/INST]'
-model_name = 'mixt4bit' #'l27b-meta' #'mist7b-mist'
+def run_pipeline(model_name, m, v, r, d, prompts, end_prompt, n=None):
+    """
+    Runs full pipeline: downloading and preprocessing dataset, running experiment, 
+    and writing out predictions from the model.
+    
+    Parameters:
+    model_name (string)
+    m (string): Function to load model (get_model or get_l2)
+    v (string): Model path to download from HuggingFace.
+    r (string): Revision of branch to download from HuggingFace (usually main).
+    d (string): Device (usually auto).
+    prompts (list of strings): Prompts used in experiment.
+    end_prompt (string): Where generated text should start for processing model response.
+    n (optional integer): To create a fixed sample of the dataset.
+    """
 
-for prompt in prompts:
-    prompt_str = 'results/' + model_name + '/' + prompt + '/'
-    prompt = get_prompt(prompt)
-    print('Starting experiment')
-    start = time.time()
-    predictions, further_processing_required, model_responses, truths_list, preds_list = llm_experiment(processed_sara_df, prompt, model, tokenizer, end_prompt)
-    end = time.time()
-    duration = end-start
+    sara_df = load_sara()
 
-    new_preds, new_truths = post_process_split_docs(model_responses, further_processing_required, preds_list, sara_df)
+    if n == None:
+        processed_sara_df = proccutit(sara_df)
+    else:
+        samp = sara_df.sample(n=n, random_state=1)
+        processed_sara_df = proccutit(samp)
+    
+    tokenizer, model = get_model_version(m, v, r, d)
 
-    truth_labs = np.array(new_truths)
-    preds = np.array(new_preds)
-    if not os.path.exists(prompt_str):
-        os.makedirs(prompt_str)
-    np.savetxt(prompt_str+'truth_labs.txt', truth_labs)
-    np.savetxt(prompt_str+'preds.txt', preds)
-    f = open(prompt_str+"duration.txt", "w")
-    f.write(str(duration))
-    f.close()
+    for prompt in prompts:
+        prompt_str = 'results/' + model_name + '/' + prompt + '/'
+        prompt = get_prompt(prompt)
+        start = time.time()
+        preds_list, truths_list, model_responses, further_processing_required = llm_experiment(processed_sara_df, prompt, model, tokenizer, end_prompt)
+        end = time.time()
+        duration = end-start
+        
+        new_preds, new_truths = post_process_split_docs(model_responses, further_processing_required, preds_list, sara_df)
+        truth_labs = np.array(new_truths)
+        preds = np.array(new_preds)
+        if not os.path.exists(prompt_str):
+            os.makedirs(prompt_str)
+        np.savetxt(prompt_str+'truth_labs.txt', truth_labs)
+        np.savetxt(prompt_str+'preds.txt', preds)
+        f = open(prompt_str+"duration.txt", "w")
+        f.write(str(duration))
+        f.close()
 
-    with open(prompt_str+'resp.json', 'w') as f:
-        json.dump(model_responses, f, indent=2)
+        with open(prompt_str+'resp.json', 'w') as f:
+            json.dump(model_responses, f, indent=2)
 
-print('DONE')
