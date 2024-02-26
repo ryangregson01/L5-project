@@ -20,10 +20,10 @@ else:
     device = 'auto'
 
 #print(load_func, model_path, revision, device)
-prompts = ['itspersonal']#, 'itspersonal_2', 'itspersonalfewshot']
+prompts = ['itspersonal', 'itspersonal_2', 'itspersonalfewshot']
 end_prompt = '[/INST]'
 sample_size = 2
 
 print('Starting experiment:', model_name)
-run_pipeline(model_name, load_func, model_path, revision, device, prompts, end_prompt, sample_size)
+run_pipeline(model_name, load_func, model_path, revision, device, prompts, end_prompt) #, sample_size)
 print('Finished experiment:', model_name)

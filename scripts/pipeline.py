@@ -11,8 +11,6 @@ import json
 def all_responses_json(model_responses, further_processing_required, preds_list, truths_list, model_name, prompt_name, sara_df):
     results = []
     ite = -1
-    model_responses['177860_1'] = 'Nic'
-    further_processing_required['177860_1'] = 'Nic'
     for val in model_responses.keys():
         if val in further_processing_required.keys():
             prediction = None

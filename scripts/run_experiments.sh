@@ -1,6 +1,6 @@
 #!/bin/bash
 
-my_array=("l27b-meta" "mist7b-mist")
+my_array=("l27b-meta" "mist7b-mist" "mixt-4bit")
 device="auto"
 
 for model in "${my_array[@]}"; do
