@@ -20,7 +20,7 @@ else:
     device = 'auto'
 
 #print(load_func, model_path, revision, device)
-prompts = ['itspersonal', 'itspersonal_2', 'itspersonalfewshot']
+prompts = ['b1', 'b2', 'b1_2', 'b2_2', 'b1sys', 'b2sys', 'b1_2sys', 'b2_2sys'] #['itspersonal', 'itspersonal_2', 'itspersonalfewshot']
 end_prompt = '[/INST]'
 sample_size = 2
 

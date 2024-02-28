@@ -14,7 +14,7 @@ def llm_inference(document, prompt, model, tokenizer):
     encodeds = tokenizer(prompt(document), return_tensors="pt")
     device = 'cuda'
     model_inputs = encodeds.to(device)
-    generated_ids = model.generate(inputs=model_inputs.input_ids, attention_mask=model_inputs.attention_mask, pad_token_id=tokenizer.pad_token_id, max_new_tokens=10, do_sample=True, top_p=None)
+    generated_ids = model.generate(inputs=model_inputs.input_ids, attention_mask=model_inputs.attention_mask, pad_token_id=tokenizer.pad_token_id, max_new_tokens=10)
     decoded = tokenizer.batch_decode(generated_ids)
     del model_inputs
     torch.cuda.empty_cache()
@@ -55,9 +55,9 @@ def prompt_to_reply(d, p, m, t, e):
 def post_process_classification(classification):
     '''String matching on model response'''
     match_string = classification.lower()
-    if "does contain" in match_string:
+    if 'sensitive' in match_string and 'non-sensitive' not in match_string:
         return 1
-    elif "does not" in match_string:
+    elif 'non-sensitive' in match_string:
         return 0
     else:
         # Further processing required

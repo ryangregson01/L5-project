@@ -40,7 +40,7 @@ def jupyter_evaluation(labels, preds):
 
 def run_evaluation(name):
     folder_name = name
-    prompts = ['itspersonal'] #, 'itspersonal_2', 'itspersonalfewshot']#['b1', 'b2', 'b1_2', 'b2_2', 'b1sys', 'b2sys', 'b1_2sys', 'b2_2sys']
+    prompts = ['b1','b2','b1_2','b2_2','b1sys','b2sys','b1_2sys'] #['itspersonal', 'itspersonal_2', 'itspersonalfewshot']#['b1', 'b2', 'b1_2', 'b2_2', 'b1sys', 'b2sys', 'b1_2sys', 'b2_2sys']
     metrics_data = {}
     for prompt in prompts:
         ground_truths = np.loadtxt(f'results/model_results/{folder_name}/{prompt}/truth_labs.txt')
