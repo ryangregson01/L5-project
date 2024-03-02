@@ -44,6 +44,18 @@ def itspersonal_2(document):
 def itspersonalfewshot(document):
   return f"[INST] Your task is to determine if the email message from a work email contains personal information. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Does the message contain purely personal information or information that is personal a professional context? \n\nExample:\nMessage: Vince,\nHope you are well.  \nWe've been in contact with Rice University's bookshop and they informed us  that they have a few books left over from the course.  We told them  originally that if they didn't sell them all we would take them back.  We  would rather have them sent over to you as complimentary copies if that's  OK with you?\nWhat's new?  Busy summer so far?  Hope that the storm didn't  cause you any problems.\nJulie\nResponse: The text does contain personal information.\n\nExample:\nMessage: Aruna,\nI shall be in London this week. Please, call me on Monday next week. \nBest time is between 7:30 and 8:30  my time.\nVince\nResponse: The text does not contain personal information.\n\nNow answer:\nMessage: {document}. \n[/INST] \nResponse: The text does"
 
+def itspersonalsys(document):
+  return f"[INST] <<SYS>> \nYour task is to determine if the email message from a work email contains personal information. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Does the message contain purely personal information or information that is personal a professional context? \n<</SYS>> \nMessage: {document} \n[/INST] \nThe text does"
+
+
+def itspersonal_2sys(document):
+  return f"[INST] <<SYS>> \nYou are an expert email reviewer and have knowledge about PII from the GDPR. Your task is to determine if the email message from a work email contains personal information. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Does the message contain purely personal information or information that is personal a professional context? \n<</SYS>> \nMessage: {document} \n[/INST] \nThe text does"
+
+def itspersonalfewshotsys(document):
+  return f"[INST] <<SYS>> Your task is to determine if the email message from a work email contains personal information. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Does the message contain purely personal information or information that is personal a professional context? \n\nExample:\nMessage: Vince,\nHope you are well.  \nWe've been in contact with Rice University's bookshop and they informed us  that they have a few books left over from the course.  We told them  originally that if they didn't sell them all we would take them back.  We  would rather have them sent over to you as complimentary copies if that's  OK with you?\nWhat's new?  Busy summer so far?  Hope that the storm didn't  cause you any problems.\nJulie\nResponse: The text does contain personal information.\n\nExample:\nMessage: Aruna,\nI shall be in London this week. Please, call me on Monday next week. \nBest time is between 7:30 and 8:30  my time.\nVince\nResponse: The text does not contain personal information.\n\nNow answer: \n <</SYS>> \nMessage: {document}. \n[/INST] \nResponse: The text does"
+
+  #\nMessage: {document} \n[/INST] \n The text does"
+
 
 def get_prompt(prompt_name):
     prompt_dict = {
@@ -59,7 +71,10 @@ def get_prompt(prompt_name):
                   'bb2': bb2,
                   'itspersonal': itspersonal,
                   'itspersonal_2': itspersonal_2,
-                  'itspersonalfewshot': itspersonalfewshot}
+                  'itspersonalfewshot': itspersonalfewshot,
+                  'itspersonalsys': itspersonalsys,
+                  'itspersonal_2sys': itspersonal_2sys,
+                  'itspersonalfewshotsys': itspersonalfewshotsys}
 
     return prompt_dict.get(prompt_name)
 

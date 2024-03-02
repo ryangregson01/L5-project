@@ -55,9 +55,9 @@ def prompt_to_reply(d, p, m, t, e):
 def post_process_classification(classification):
     '''String matching on model response'''
     match_string = classification.lower()
-    if 'sensitive' in match_string and 'non-sensitive' not in match_string:
+    if 'does contain' in match_string:
         return 1
-    elif 'non-sensitive' in match_string:
+    elif 'does not' in match_string:
         return 0
     else:
         # Further processing required
