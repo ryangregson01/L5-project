@@ -93,7 +93,7 @@ def run_pipeline(model_name, m, v, r, d, prompts, end_prompt, n=None):
         prompt_str = 'results/model_results/' + model_name + '/' + prompt_name + '/'
         prompt = get_prompt(prompt)
         start = time.time()
-        preds_list, truths_list, model_responses, further_processing_required = llm_experiment(processed_sara_df, prompt, model, tokenizer, end_prompt)
+        preds_list, truths_list, model_responses, further_processing_required = llm_experiment(processed_sara_df, prompt, model, tokenizer, d, end_prompt)
         end = time.time()
         duration = end-start
         

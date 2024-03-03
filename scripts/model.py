@@ -7,19 +7,20 @@ import numpy as np
 from prompts import *
 
 
-def llm_inference(document, prompt, model, tokenizer):
+def llm_inference(document, prompt, model, tokenizer, device):
     '''Tokenizes input prompt with document, generates text, decodes text.'''
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    encodeds = tokenizer(prompt(document), return_tensors="pt")
-    device = 'cuda'
+    encodeds = tokenizer(document, return_tensors="pt", padding=True)
+    #print((encodeds.input_ids.size()))
     model_inputs = encodeds.to(device)
     generated_ids = model.generate(inputs=model_inputs.input_ids, attention_mask=model_inputs.attention_mask, pad_token_id=tokenizer.pad_token_id, max_new_tokens=10)
     decoded = tokenizer.batch_decode(generated_ids)
     del model_inputs
     torch.cuda.empty_cache()
     gc.collect()
-    return decoded[0]
+    #print(decoded[0])
+    return decoded
 
 '''
 def llm_inference(document, prompt, model, tokenizer):
@@ -46,10 +47,14 @@ def display_gen_text(output, e):
     return output[end_template:]
 
 
-def prompt_to_reply(d, p, m, t, e):
+def prompt_to_reply(d, p, m, t, e, device):
     '''Gets response from model.'''
-    response = llm_inference(d, p, m, t)
-    return display_gen_text(response, e)
+    response = llm_inference(d, p, m, t, device)
+    gen_text = []
+    for r in response:
+        gen = display_gen_text(r, e)
+        gen_text.append(gen)
+    return gen_text
 
 
 def post_process_classification(classification):
@@ -70,7 +75,7 @@ def clear_memory():
     gc.collect()
 
 
-def llm_experiment(dataset, prompt_strategy, model, tokenizer, end_prompt=None):
+def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_prompt=None):
     """
     Run main experiment.
     
@@ -101,7 +106,18 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, end_prompt=None):
     truths = []
     preds = []
 
+    ds = dataset.sort_values(by=["text"],key=lambda x:x.str.len())
+    dataset = ds
+
+    batch = []
+    batch_ids = []
+    cur_bs = 32
+    count = 0
     for sample in dataset.iterrows():
+        if (count % 100) == 0:
+            print('\nCOUNT: ', count)
+        count += 1
+
         sample_id = sample[1].doc_id
         sample_text = sample[1].text
         ground_truth = sample[1].sensitivity
@@ -111,17 +127,30 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, end_prompt=None):
             fpr[sample_id] = "TOO LARGE"
             continue
 
-        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt)
-        mr[sample_id] = classification
-
-        pred = post_process_classification(classification)
-        if pred == None:
-            # Generated classification could not be identified using processing.
-            fpr[sample_id] = classification
+        prompt_input = prompt_strategy(sample_text)
+        batch.append(prompt_input)
+        batch_ids.append(sample_id)
+        if len(batch) == cur_bs or (count > 2815):
+            sample_text = batch
+            batch = []
+        else:
             continue
 
-        truths.append(ground_truth)
-        preds.append(pred)
+        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device)
+        #mr[sample_id] = classification
+        for i, k in enumerate(batch_ids):
+            mr[k] = classification[i]
+
+            pred = post_process_classification(classification[i])
+            if pred == None:
+                # Generated classification could not be identified using processing.
+                fpr[k] = classification[i]
+                continue
+
+            truths.append(ground_truth)
+            preds.append(pred)
+
+        batch_ids = []
 
         clear_memory()
 
