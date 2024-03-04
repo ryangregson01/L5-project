@@ -7,7 +7,26 @@ import numpy as np
 from prompts import *
 
 
-def llm_inference(document, prompt, model, tokenizer, device):
+from dataset import load_sara
+from few import get_key_to_sims, get_sims
+
+
+def llm_inference(document, prompt, model, tokenizer, device, proc, key_to_sims, s):
+    for l in document:
+        mes = l.find('Now answer:\nMessage:')
+        end = l.find(' \n[/INST]')
+        new = l[(mes+21):end]
+    
+    document = new
+    ds = proc[proc.text == document]
+    idd = ds.doc_id.iloc[0]
+    if '_' in idd:
+        idd = idd[:idd.find('_')]
+
+    l = key_to_sims.get(idd)
+    nonsen_few_prompt, sen_few_prompt = get_sims(l[0], l[1], s, proc)
+    document = prompt(document, sen_few_prompt, nonsen_few_prompt)
+    device = 'cuda'
     '''Tokenizes input prompt with document, generates text, decodes text.'''
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -47,9 +66,9 @@ def display_gen_text(output, e):
     return output[end_template:]
 
 
-def prompt_to_reply(d, p, m, t, e, device):
+def prompt_to_reply(d, p, m, t, e, device, proc, key_to_sims, s):
     '''Gets response from model.'''
-    response = llm_inference(d, p, m, t, device)
+    response = llm_inference(d, p, m, t, device, proc, key_to_sims, s)
     gen_text = []
     for r in response:
         gen = display_gen_text(r, e)
@@ -106,6 +125,11 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
     truths = []
     preds = []
 
+    # proc is dataset, get key_to_sims for fewshot
+    s = load_sara()
+    proc = dataset
+    key_to_sims = get_key_to_sims()
+
     ds = dataset.sort_values(by=["text"],key=lambda x:x.str.len())
     dataset = ds
 
@@ -127,16 +151,16 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
             fpr[sample_id] = "TOO LARGE"
             continue
 
-        prompt_input = prompt_strategy(sample_text)
+        prompt_input = prompt_strategy(sample_text, 'x', 'Y')
         batch.append(prompt_input)
         batch_ids.append(sample_id)
-        if len(batch) == cur_bs or (count > 2815):
+        if len(batch) == cur_bs or (count > 0):
             sample_text = batch
             batch = []
         else:
             continue
 
-        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device)
+        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device, proc, key_to_sims, s)
         #mr[sample_id] = classification
         for i, k in enumerate(batch_ids):
             mr[k] = classification[i]

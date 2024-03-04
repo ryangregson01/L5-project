@@ -21,9 +21,9 @@ else:
     device = 'auto'
 
 #print(load_func, model_path, revision, device)
-prompts = ['itspersonal'] #, 'itspersonal_2', 'itspersonalfewshot', 'itspersonalsys', 'itspersonal_2sys', 'itspersonalfewshotsys'] #['b1', 'b2', 'b1_2', 'b2_2', 'b1sys', 'b2sys', 'b1_2sys', 'b2_2sys'] #['itspersonal', 'itspersonal_2', 'itspersonalfewshot']
+prompts = ['fewshotsim'] #['itspersonal'] #, 'itspersonal_2', 'itspersonalfewshot', 'itspersonalsys', 'itspersonal_2sys', 'itspersonalfewshotsys'] #['b1', 'b2', 'b1_2', 'b2_2', 'b1sys', 'b2sys', 'b1_2sys', 'b2_2sys'] #['itspersonal', 'itspersonal_2', 'itspersonalfewshot']
 end_prompt = '[/INST]'
-sample_size = 200
+sample_size = 5
 
 print('Starting experiment:', model_name)
 run_pipeline(model_name, load_func, model_path, revision, device, prompts, end_prompt, sample_size)

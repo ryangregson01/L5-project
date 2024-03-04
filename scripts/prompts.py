@@ -57,6 +57,21 @@ def itspersonalfewshotsys(document):
   #\nMessage: {document} \n[/INST] \n The text does"
 
 
+def fewshotsim(document, doc_sens, doc_nonsens):
+  return f"""[INST] Your task is to determine if the email message from a work email contains personal information. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Does the message contain purely personal information or information that is personal a professional context? 
+
+Example:\nMessage: {doc_sens}
+Response: The text does contain personal information.
+
+Example:\nMessage: {doc_nonsens}
+Response: The text does not contain personal information.
+
+Now answer:
+Message: {document} 
+[/INST] 
+Response: The text does"""
+
+
 def get_prompt(prompt_name):
     prompt_dict = {
                   'b1': b1,
@@ -74,7 +89,8 @@ def get_prompt(prompt_name):
                   'itspersonalfewshot': itspersonalfewshot,
                   'itspersonalsys': itspersonalsys,
                   'itspersonal_2sys': itspersonal_2sys,
-                  'itspersonalfewshotsys': itspersonalfewshotsys}
+                  'itspersonalfewshotsys': itspersonalfewshotsys,
+                  'fewshotsim': fewshotsim,}
 
     return prompt_dict.get(prompt_name)
 
