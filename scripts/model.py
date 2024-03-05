@@ -10,8 +10,17 @@ from prompts import *
 from dataset import load_sara
 from few import get_key_to_sims, get_sims, get_sim_text
 
+import json
+import os
+def read_cots():
+    path = os.getcwd() + '/results/model_results/mist7b-mist/itspersonalverbose/'
+    file_path = path + 'resp.json'
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+    return data
 
-def llm_inference(document, prompt, model, tokenizer, device, proc, key_to_sims, s):
+
+def llm_inference(document, prompt, model, tokenizer, device):
     device = 'cuda'
     '''Tokenizes input prompt with document, generates text, decodes text.'''
     if tokenizer.pad_token is None:
@@ -19,7 +28,7 @@ def llm_inference(document, prompt, model, tokenizer, device, proc, key_to_sims,
     encodeds = tokenizer(document, return_tensors="pt", padding=True)
     #print((encodeds.input_ids.size()))
     model_inputs = encodeds.to(device)
-    generated_ids = model.generate(inputs=model_inputs.input_ids, attention_mask=model_inputs.attention_mask, pad_token_id=tokenizer.pad_token_id, max_new_tokens=10)
+    generated_ids = model.generate(inputs=model_inputs.input_ids, attention_mask=model_inputs.attention_mask, pad_token_id=tokenizer.pad_token_id, max_new_tokens=5) #150)
     decoded = tokenizer.batch_decode(generated_ids)
     del model_inputs
     torch.cuda.empty_cache()
@@ -48,13 +57,13 @@ def llm_inference(document, prompt, model, tokenizer):
 
 def display_gen_text(output, e):
     '''Segments response to only new generated text.'''
-    end_template = output.find(e)
-    return output[end_template:]
+    end_template = output.split(e)
+    return end_template[-1]
 
 
-def prompt_to_reply(d, p, m, t, e, device, proc, key_to_sims, s):
+def prompt_to_reply(d, p, m, t, e, device):
     '''Gets response from model.'''
-    response = llm_inference(d, p, m, t, device, proc, key_to_sims, s)
+    response = llm_inference(d, p, m, t, device)
     gen_text = []
     for r in response:
         gen = display_gen_text(r, e)
@@ -80,7 +89,7 @@ def clear_memory():
     gc.collect()
 
 
-def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, key_to_sims, end_prompt=None):
+def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_prompt=None):
     """
     Run main experiment.
     
@@ -112,13 +121,15 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, key_to_si
     preds = []
 
     # proc is dataset, get key_to_sims for fewshot
-    s = load_sara()
-    proc = dataset
-    size = 5
+    #s = load_sara()
+    #proc = dataset
+    #size = 5
     #key_to_sims = get_key_to_sims(size)
 
     ds = dataset.sort_values(by=["text"],key=lambda x:x.str.len())
     dataset = ds
+
+    #modelcots = read_cots()
 
     batch = []
     batch_ids = []
@@ -136,8 +147,10 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, key_to_si
         # Input text is too large for model
         if len(sample_text) > 10000:
             fpr[sample_id] = "TOO LARGE"
+            mr[sample_id] = "TOO LARGE"
             continue
 
+        '''
         document = sample_text
         ds = proc[proc.text == document]
         idd = ds.doc_id.iloc[0]
@@ -149,8 +162,6 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, key_to_si
         each_example = remaining_text_space / 2
         few_sens_ex = ''
         few_nonsens_ex = ''
-
-        #print(l)
 
         for sens in l[1]:
             senstext = get_sim_text(s, sens, proc)
@@ -164,7 +175,18 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, key_to_si
                 few_nonsens_ex = nonsenstext
                 break
 
-        prompt_input = prompt_strategy(sample_text, few_sens_ex, few_nonsens_ex)
+        '''
+        '''
+        k = sample_id
+        thought = modelcots.get(k, 'No thought response.')
+        #print(thought)
+        if len(sample_text) + len(thought) > 10000:
+            mr[sample_id] = "TOO LARGE with thought."
+            continue
+        
+        '''
+
+        prompt_input = prompt_strategy(sample_text) #, thought) #, few_sens_ex, few_nonsens_ex)
         batch.append(prompt_input)
         batch_ids.append(sample_id)
         if len(batch) == cur_bs or (count > 0):
@@ -173,7 +195,7 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, key_to_si
         else:
             continue
 
-        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device, proc, key_to_sims, s)
+        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device)
         #mr[sample_id] = classification
         for i, k in enumerate(batch_ids):
             mr[k] = classification[i]

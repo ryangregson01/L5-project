@@ -72,6 +72,83 @@ Message: {document}
 Response: The text does"""
 
 
+# Require 150 max new tokens to be generated
+def itspersonalverbose(document):
+  return f"[INST] Your task is to determine if the email message from a work email contains personal information. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Does the message contain purely personal information or information that is personal a professional context? Explain your decision. \nMessage: {document} \n[/INST] \n The text does"
+
+
+def itspersonalverbosecot(document, response):
+  return f"Your task is to determine if the email message from a work email contains personal information. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Does the message contain purely personal information or information that is personal a professional context? Explain your decision. \nMessage: {document} \n {response}</s> \n[INST] Based on your response would you classify the text as containing personal information (personal) or containing no personal information (non-personal). You must answer with personal or non-personal in a Python list. [/INST] \n["
+
+
+def itspersonal(document):
+  return f"[INST] Your task is to determine if the email message from a work email contains personal information. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Does the message contain purely personal information or information that is personal a professional context? \nMessage: {document} \n[/INST] \n The text does"
+
+def itspersonalpurely(document):
+  return f"[INST] Your task is to determine if the email message from a work email contains personal information. Purely personal messages include personal information and do not include any relation to work being done. Does the message contain purely personal information? \nMessage: {document} \n[/INST] \n The text does"
+
+def itspersonalpurelygenres(document):
+  return f"""[INST] Your task is to determine if the email message from a work email contains personal information. The message may be classified as one of eight genres: 
+1. Company business and strategy
+2. Purely personal
+3. Personal but in a professional context (e.g., it was good working with you)
+4. Logistic arrangements (meeting scheduling, technical support, etc.)
+5. Employment arrangements (job seeking, hiring, recommendations, etc.)
+6. Document editing/checking (collaboration)
+7. Empty message (due to missing attachment)
+8. Empty message
+Purely personal messages include personal information and do not include any relation to work being done. Does the message contain purely personal information? \nMessage: {document} \n[/INST] \n The text does"""
+
+def itspersonalgenres(document):
+  return f"""[INST] Your task is to determine if the email message from a work email contains personal information. The message may be classified as one of eight genres: 
+1. Company business and strategy
+2. Purely personal
+3. Personal but in a professional context (e.g., it was good working with you)
+4. Logistic arrangements (meeting scheduling, technical support, etc.)
+5. Employment arrangements (job seeking, hiring, recommendations, etc.)
+6. Document editing/checking (collaboration)
+7. Empty message (due to missing attachment)
+8. Empty message
+Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Does the message contain purely personal information or information that is personal a professional context? \nMessage: {document} \n[/INST] \n The text does"""
+
+def itspersonalgenresnodesc(document):
+  return f"""[INST] Your task is to determine if the email message from a work email contains personal information. The message may be classified as one of eight genres: 
+1. Company business and strategy
+2. Purely personal
+3. Personal but in a professional context (e.g., it was good working with you)
+4. Logistic arrangements (meeting scheduling, technical support, etc.)
+5. Employment arrangements (job seeking, hiring, recommendations, etc.)
+6. Document editing/checking (collaboration)
+7. Empty message (due to missing attachment)
+8. Empty message
+Does the message contain purely personal information or information that is personal a professional context? \nMessage: {document} \n[/INST] \n The text does"""
+
+def itspersonalbusinessdiff(document):
+  return f"""[INST] Your task is to determine if the email message from a work email contains personal information. The message may be classified as one of eight genres: 
+1. Company business and strategy
+2. Purely personal
+3. Personal but in a professional context (e.g., it was good working with you)
+4. Logistic arrangements (meeting scheduling, technical support, etc.)
+5. Employment arrangements (job seeking, hiring, recommendations, etc.)
+6. Document editing/checking (collaboration)
+7. Empty message (due to missing attachment)
+8. Empty message
+Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, but include sensitive personal information for example comments about the quality of people's work and expressions of feelings about employee treatment. Does the message contain purely personal information? \nMessage: {document} \n[/INST] \n The text does"""
+
+def itspersonalverydiff(document):
+  return f"""[INST] Your task is to determine if the email message from a work email contains personal information. The message may be classified as one of eight genres: 
+1. Company business and strategy
+2. Purely personal
+3. Personal but in a professional context (e.g., it was good working with you)
+4. Logistic arrangements (meeting scheduling, technical support, etc.)
+5. Employment arrangements (job seeking, hiring, recommendations, etc.)
+6. Document editing/checking (collaboration)
+7. Empty message (due to missing attachment)
+8. Empty message
+Messages that include sensitive personal information are purely personal and do not include any relation to work being done, or personal but in a professional context messages and include personal information that is related to work, but also include comments about the quality of people's work and expressions of feelings about employee treatment for example. Does the message contain sensitive personal information? \nMessage: {document} \n[/INST] \n The text does"""
+
+
+
 def get_prompt(prompt_name):
     prompt_dict = {
                   'b1': b1,
@@ -90,7 +167,16 @@ def get_prompt(prompt_name):
                   'itspersonalsys': itspersonalsys,
                   'itspersonal_2sys': itspersonal_2sys,
                   'itspersonalfewshotsys': itspersonalfewshotsys,
-                  'fewshotsim': fewshotsim,}
+                  'fewshotsim': fewshotsim,
+                  'itspersonalverbose': itspersonalverbose,
+                  'itspersonalverbosecot': itspersonalverbosecot,
+                  'itspersonalpurely': itspersonalpurely,
+                  'itspersonalpurely': itspersonalpurely,
+                  'itspersonalpurelygenres': itspersonalpurelygenres,
+                  'itspersonalgenres': itspersonalgenres,
+                  'itspersonalgenresnodesc': itspersonalgenresnodesc,
+                  'itspersonalbusinessdiff': itspersonalbusinessdiff,
+                  'itspersonalverydiff': itspersonalverydiff}
 
     return prompt_dict.get(prompt_name)
 
