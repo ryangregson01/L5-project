@@ -8,24 +8,10 @@ from prompts import *
 
 
 from dataset import load_sara
-from few import get_key_to_sims, get_sims
+from few import get_key_to_sims, get_sims, get_sim_text
 
 
 def llm_inference(document, prompt, model, tokenizer, device, proc, key_to_sims, s):
-    for l in document:
-        mes = l.find('Now answer:\nMessage:')
-        end = l.find(' \n[/INST]')
-        new = l[(mes+21):end]
-    
-    document = new
-    ds = proc[proc.text == document]
-    idd = ds.doc_id.iloc[0]
-    if '_' in idd:
-        idd = idd[:idd.find('_')]
-
-    l = key_to_sims.get(idd)
-    nonsen_few_prompt, sen_few_prompt = get_sims(l[0], l[1], s, proc)
-    document = prompt(document, sen_few_prompt, nonsen_few_prompt)
     device = 'cuda'
     '''Tokenizes input prompt with document, generates text, decodes text.'''
     if tokenizer.pad_token is None:
@@ -94,7 +80,7 @@ def clear_memory():
     gc.collect()
 
 
-def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_prompt=None):
+def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, key_to_sims, end_prompt=None):
     """
     Run main experiment.
     
@@ -128,7 +114,8 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
     # proc is dataset, get key_to_sims for fewshot
     s = load_sara()
     proc = dataset
-    key_to_sims = get_key_to_sims()
+    size = 5
+    #key_to_sims = get_key_to_sims(size)
 
     ds = dataset.sort_values(by=["text"],key=lambda x:x.str.len())
     dataset = ds
@@ -151,7 +138,33 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
             fpr[sample_id] = "TOO LARGE"
             continue
 
-        prompt_input = prompt_strategy(sample_text, 'x', 'Y')
+        document = sample_text
+        ds = proc[proc.text == document]
+        idd = ds.doc_id.iloc[0]
+        if '_' in idd:
+            idd = idd[:idd.find('_')]
+        l = key_to_sims.get(idd)
+        len_doc = len(document)
+        remaining_text_space = 9500 - len_doc
+        each_example = remaining_text_space / 2
+        few_sens_ex = ''
+        few_nonsens_ex = ''
+
+        #print(l)
+
+        for sens in l[1]:
+            senstext = get_sim_text(s, sens, proc)
+            if len(senstext) <= each_example:
+                few_sens_ex = senstext
+                break
+
+        for nonsens in l[0]:
+            nonsenstext = get_sim_text(s, nonsens, proc)
+            if len(nonsenstext) <= each_example:
+                few_nonsens_ex = nonsenstext
+                break
+
+        prompt_input = prompt_strategy(sample_text, few_sens_ex, few_nonsens_ex)
         batch.append(prompt_input)
         batch_ids.append(sample_id)
         if len(batch) == cur_bs or (count > 0):

@@ -7,6 +7,7 @@ import time
 import numpy as np
 import os
 import json
+from few import get_key_to_sims
 
 def all_responses_json(model_responses, further_processing_required, preds_list, truths_list, model_name, prompt_name, sara_df):
     results = []
@@ -85,6 +86,8 @@ def run_pipeline(model_name, m, v, r, d, prompts, end_prompt, n=None):
     else:
         samp = sara_df.sample(n=n, random_state=1)
         processed_sara_df = proccutit(samp)
+
+    key_to_sims = get_key_to_sims()
     
     tokenizer, model = get_model_version(m, v, r, d)
 
@@ -93,7 +96,7 @@ def run_pipeline(model_name, m, v, r, d, prompts, end_prompt, n=None):
         prompt_str = 'results/model_results/' + model_name + '/' + prompt_name + '/'
         prompt = get_prompt(prompt)
         start = time.time()
-        preds_list, truths_list, model_responses, further_processing_required = llm_experiment(processed_sara_df, prompt, model, tokenizer, d, end_prompt)
+        preds_list, truths_list, model_responses, further_processing_required = llm_experiment(processed_sara_df, prompt, model, tokenizer, d, key_to_sims, end_prompt)
         end = time.time()
         duration = end-start
         

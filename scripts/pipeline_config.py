@@ -26,5 +26,5 @@ end_prompt = '[/INST]'
 sample_size = 5
 
 print('Starting experiment:', model_name)
-run_pipeline(model_name, load_func, model_path, revision, device, prompts, end_prompt, sample_size)
+run_pipeline(model_name, load_func, model_path, revision, device, prompts, end_prompt) #, sample_size)
 print('Finished experiment:', model_name)

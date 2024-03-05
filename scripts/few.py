@@ -53,6 +53,8 @@ def get_max_sims(s, key_vecs, samp=None):
         sens_max_sim_i = 0
         non_sens_max_sim = 0
         non_sens_max_sim_i = 0
+        non_sens_dict = {}
+        sens_dict = {}
         token_sequence_1 = embed
         token_sequence_1 = token_sequence_1.tolist()
         for i, k in enumerate(key_vecs.keys()):
@@ -66,34 +68,30 @@ def get_max_sims(s, key_vecs, samp=None):
             c = cosine_similarity([seq1_padded], [seq_padded])
             sims.append(c)
 
+            c = c.item()
             seq_label = s[s['doc_id']==k].sensitivity.iloc[0]
             if seq_label == 0:
-                if non_sens_max_sim == 0:
-                    non_sens_max_sim = c
-                    non_sens_max_sim_i = i
-                elif c[0][0] > non_sens_max_sim:
-                    non_sens_max_sim = c[0][0]
-                    non_sens_max_sim_i = i
+                non_sens_dict[i] = c
             elif seq_label == 1:
-                if sens_max_sim == 0:    
-                    sens_max_sim = c
-                    sens_max_sim_i = i
-                elif c[0][0] > sens_max_sim:
-                    sens_max_sim = c[0][0]
-                    sens_max_sim_i = i
+                sens_dict[i] = c
 
         if len(sims) != 1701:
             print(len(sims))
 
-        max_sims.append((non_sens_max_sim, sens_max_sim))
-        max_sims_is.append((non_sens_max_sim_i, sens_max_sim_i))
+        #max_sims.append((non_sens_max_sim, sens_max_sim))
+        #max_sims_is.append((non_sens_max_sim_i, sens_max_sim_i))
+        l = [k for k, v in sorted(sens_dict.items(), key=lambda item: item[1], reverse=True)]
+        m = [k for k, v in sorted(non_sens_dict.items(), key=lambda item: item[1], reverse=True)]
 
+        max_sims_is.append((m,l))
+
+        
         bp += 1
         if (bp % 100) == 0:
             print('Iteration', bp)
         if bp == samp:
             break
-
+    
     return max_sims_is
 
 
