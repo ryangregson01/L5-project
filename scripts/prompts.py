@@ -85,7 +85,23 @@ def itspersonal(document):
   return f"[INST] Your task is to determine if the email message from a work email contains personal information. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Does the message contain purely personal information or information that is personal a professional context? \nMessage: {document} \n[/INST] \n The text does"
 
 def itspersonalpurely(document):
-  return f"[INST] Your task is to determine if the email message from a work email contains personal information. Purely personal messages include personal information and do not include any relation to work being done. Does the message contain purely personal information? \nMessage: {document} \n[/INST] \n The text does"
+  return f"[INST] Your task is to determine if the email message from a work email contains personal information. Purely personal messages include personal information and do not include any relation to work being done. Does the message contain personal information? \nMessage: {document} \n[/INST] \n The text does"
+
+def itspersonalpurelysens1(document):
+  return f"[INST] Your task is to determine if the email message from a work email contains sensitive personal information. Sensitive personal messages include personal information and do not include any relation to work being done. Does the message contain sensitive personal information? \nMessage: {document} \n[/INST] \n The text does"
+
+def itspersonalpurelysens2(document):
+  return f"[INST] Your task is to determine if the email message from a work email contains sensitive personal information. Sensitive personal information refers to a category of personal data that, due to its nature, requires more stringent handling and protection measures. These messages, if disclosed or accessed without authorization, can significantly impact an individual's privacy, security, and well-being. Does the message contain sensitive personal information? \nMessage: {document} \n[/INST] \n The text does"
+
+def itspersonalpurelysens3(document):
+  return f"[INST] Your task is to determine if the email message from a work email contains sensitive personal information. Sensitive personal information refers to a category of personal data that, due to its nature, requires more stringent handling and protection measures. These messages are purely personal and do not include any relation to work being done. If disclosed or accessed without authorization, they can significantly impact an individual's privacy, security, and well-being. Does the message contain sensitive personal information? \nMessage: {document} \n[/INST] \n The text does"
+
+def itspersonalpurelysens4(document):
+  return f"[INST] Your task is to determine if the email message from a work email contains sensitive personal information. Sensitive personal information refers to a category of personal data that, due to its nature, requires more stringent handling and protection measures. These messages are purely personal and do not include any relation to work being done. Does the message contain sensitive personal information? \nMessage: {document} \n[/INST] \n The text does"
+
+def itspersonalpurelysens5(document):
+  return f"[INST] Sensitive personal information refers to a category of personal data that, due to its nature, requires more stringent handling and protection measures. Your task is to determine if the email message from a work email contains sensitive personal information. These messages are purely personal and do not include any relation to work being done. Does the message contain sensitive personal information? \nMessage: {document} \n[/INST] \n The text does"
+
 
 def itspersonalpurelygenres(document):
   return f"""[INST] Your task is to determine if the email message from a work email contains personal information. The message may be classified as one of eight genres: 
@@ -171,12 +187,16 @@ def get_prompt(prompt_name):
                   'itspersonalverbose': itspersonalverbose,
                   'itspersonalverbosecot': itspersonalverbosecot,
                   'itspersonalpurely': itspersonalpurely,
-                  'itspersonalpurely': itspersonalpurely,
                   'itspersonalpurelygenres': itspersonalpurelygenres,
                   'itspersonalgenres': itspersonalgenres,
                   'itspersonalgenresnodesc': itspersonalgenresnodesc,
                   'itspersonalbusinessdiff': itspersonalbusinessdiff,
-                  'itspersonalverydiff': itspersonalverydiff}
+                  'itspersonalverydiff': itspersonalverydiff,
+                  'itspersonalpurelysens1': itspersonalpurelysens1,
+                  'itspersonalpurelysens2': itspersonalpurelysens2,
+                  'itspersonalpurelysens3': itspersonalpurelysens3,
+                  'itspersonalpurelysens4': itspersonalpurelysens4,
+                  'itspersonalpurelysens5': itspersonalpurelysens5,}
 
     return prompt_dict.get(prompt_name)
 

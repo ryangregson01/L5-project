@@ -21,7 +21,7 @@ else:
     device = 'auto'
 
 #print(load_func, model_path, revision, device)
-prompts = ['itspersonalpurely'] #['itspersonal'] #, 'itspersonal_2', 'itspersonalfewshot', 'itspersonalsys', 'itspersonal_2sys', 'itspersonalfewshotsys'] #['b1', 'b2', 'b1_2', 'b2_2', 'b1sys', 'b2sys', 'b1_2sys', 'b2_2sys'] #['itspersonal', 'itspersonal_2', 'itspersonalfewshot']
+prompts = ['itspersonalpurelysens1', 'itspersonalpurelysens2', 'itspersonalpurelysens3', 'itspersonalpurelysens4', 'itspersonalpurelysens5'] #['itspersonalpurely','itspersonalpurelygenres', 'itspersonalgenres', 'itspersonalgenresnodesc', 'itspersonalbusinessdiff', 'itspersonalverydiff']
 end_prompt = '[/INST]'
 sample_size = 5
 
