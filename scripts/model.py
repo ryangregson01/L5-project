@@ -28,7 +28,7 @@ def llm_inference(document, prompt, model, tokenizer, device):
     encodeds = tokenizer(document, return_tensors="pt", padding=True)
     #print((encodeds.input_ids.size()))
     model_inputs = encodeds.to(device)
-    generated_ids = model.generate(inputs=model_inputs.input_ids, attention_mask=model_inputs.attention_mask, pad_token_id=tokenizer.pad_token_id, max_new_tokens=150) #150)
+    generated_ids = model.generate(inputs=model_inputs.input_ids, attention_mask=model_inputs.attention_mask, pad_token_id=tokenizer.pad_token_id, max_new_tokens=10) #150)
     decoded = tokenizer.batch_decode(generated_ids)
     del model_inputs
     torch.cuda.empty_cache()

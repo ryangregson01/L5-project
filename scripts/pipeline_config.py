@@ -21,7 +21,7 @@ else:
     device = 'auto'
 
 #print(load_func, model_path, revision, device)
-prompts = ['itspersonal', 'itspersonal_2', 'itspersonalpurely','itspersonalpurelygenres', 'itspersonalgenres', 'itspersonalgenresnodesc', 'itspersonalbusinessdiff', 'itspersonalverydiff']
+prompts = ['itspersonalpurely','itspersonalpurelygenres', 'itspersonalgenres', 'itspersonalgenresnodesc', 'itspersonalbusinessdiff', 'itspersonalverydiff']
 end_prompt = '[/INST]'
 sample_size = 5
 

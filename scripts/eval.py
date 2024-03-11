@@ -41,7 +41,7 @@ def jupyter_evaluation(labels, preds):
 def run_evaluation(name):
     folder_name = name
     prompts = ['itspersonalverbosecot'] #, 'itspersonal_2', 'itspersonalfewshot']#['b1', 'b2', 'b1_2', 'b2_2', 'b1sys', 'b2sys', 'b1_2sys', 'b2_2sys']
-    prompts = ['itspersonalpurely','itspersonalpurelygenres', 'itspersonalgenres', 'itspersonalgenresnodesc', 'itspersonalbusinessdiff', 'itspersonalverydiff']
+    prompts = ['itspersonalgenres', 'itspersonalpurelygenres', 'itspersonalgenresnodesc'] #['itspersonalpurely','itspersonalpurelygenres', 'itspersonalgenres', 'itspersonalgenresnodesc', 'itspersonalbusinessdiff', 'itspersonalverydiff']
     
     metrics_data = {}
     for prompt in prompts:
