@@ -24,13 +24,13 @@ def write_responses_json(results, filename):
 
 
 def main_experiment(NN, end_prompt, break_p):
-    turbo = dspy.HFModel(model = "meta-llama/Llama-2-7b-chat-hf") #"mistralai/Mistral-7B-Instruct-v0.2") #"meta-llama/Llama-2-7b-chat-hf")
+    turbo = dspy.HFModel(model = "TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ") #"mistralai/Mistral-7B-Instruct-v0.2") #"meta-llama/Llama-2-7b-chat-hf")
     dspy.settings.configure(lm=turbo)
 
     s = load_sara()
     p = proccutit(s)
-    generate_answer = NN()
     config = {'config': {'do_sample':False, 'max_new_tokens':10} }
+    generate_answer = NN(config)
 
     mrs = []
     count_trace = 0
@@ -42,8 +42,8 @@ def main_experiment(NN, end_prompt, break_p):
         if len(row_text) > 9500:
             continue
 
-        pred = generate_answer(question=row_text, config=config)
-        ans_split = pred.answer.split(end_prompt)
+        gen_pred = generate_answer(question=row_text)
+        ans_split = gen_pred.answer.split(end_prompt)
         gen_ans = ans_split[-1]
 
         match_string = gen_ans.lower()
@@ -58,7 +58,8 @@ def main_experiment(NN, end_prompt, break_p):
             'doc_id': row_id,
             'generated_response': gen_ans,
             'prediction': pred,
-            'ground_truth': row_gt
+            'ground_truth': row_gt,
+            'full_response': gen_pred.answer
         }
         
         mrs.append(res)
@@ -66,8 +67,8 @@ def main_experiment(NN, end_prompt, break_p):
         if (count_trace % 100) == 0:
             print(count_trace)
 
-        if i == break_p:
-            break
+        #if i == break_p:
+        #    break
 
     return mrs
 
@@ -80,19 +81,20 @@ class SensSignature(dspy.Signature):
     answer = dspy.OutputField(desc="The classification label, either 'sensitive' or 'not sensitive'.")
 
 class PromptNN(dspy.Module):
-    def __init__(self):
+    def __init__(self, config):
         super().__init__()
 
         self.signature = SensSignature
         self.predictor = dspy.Predict(self.signature)
+        self.config = config
 
-    def forward(self, question, config):
-        result = self.predictor(question=question, **config)
+    def forward(self, question):
+        result = self.predictor(question=question, **self.config)
         return dspy.Prediction(
             answer=result.answer,
         )
 
 mrs = main_experiment(PromptNN, 'Answer:', 1)
 #print(mrs)
-write_responses_json(mrs, 'test.json')
+write_responses_json(mrs, 'results/mixt4bit.json')
 
