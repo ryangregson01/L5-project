@@ -1,6 +1,151 @@
 import numpy as np
 import pandas as pd
 import re
+import email
+import gensim
+
+def full_preproc(s):
+
+    def preprocess(e):
+        message = email.message_from_string(e)
+        clean = message.get_payload()
+        clean = re.sub('\S*@\S*\s?', '', clean)
+        clean = re.sub('\s+', ' ', clean)
+        clean = re.sub("\'", "", clean)
+        clean = gensim.utils.simple_preprocess(str(clean), deacc=True, min_len=1, max_len=100) 
+        return clean
+
+    def remove_doubles(df):
+        already_exists = []
+        unique_df = []
+        for i, s in enumerate(df.iterrows()):
+            idd = s[1].doc_id
+            text = s[1].text
+            sensitivity = s[1].sensitivity
+            if text in already_exists:
+                continue
+            already_exists.append(text)
+            unique_df.append({'doc_id': idd, 'text':text, 'sensitivity':sensitivity})    
+        return pd.DataFrame.from_dict(unique_df)
+
+    def get_replies(df):
+        place = []
+        for i, tex in enumerate(df.text):
+            words = tex.split()
+            for j, word in enumerate(words):
+
+                if 'forwarded' == word:
+                    if words[j+1] == 'by':
+                        place.append((i, j))
+                        continue
+
+                if 'original' == word:
+                    if words[j+1] == 'message':
+                        place.append((i, j))
+                        continue
+
+        return place
+
+    def chunk(text, c_size=9000):
+        new_chunks = []
+        total_length = len(text)
+        avg_chunks = np.ceil(total_length / c_size)
+        words = text.split()
+        no_words = len(words)
+        words_per_chunk = int(np.ceil(no_words / avg_chunks))
+        #print(words_per_chunk)
+        for i in range(int(avg_chunks)):
+            chunk = ' '.join(words[(i*words_per_chunk):((i+1)*words_per_chunk)])
+            new_chunks.append(chunk)
+
+        return new_chunks
+        
+    def chunk_large(df, place):
+        place_docs = [dno[0] for dno in place]
+        new_docs = []
+        existing_texts = []
+        for i, s in enumerate(df.iterrows()):
+            ids = s[1].doc_id
+            sens = s[1].sensitivity
+            te = s[1].text
+
+            if i not in place_docs:
+                
+                if len(te) < 9000:
+                    new_docs.append({'doc_id':ids, 'text':te, 'sensitivity':sens})
+                    continue
+
+                cut = 0
+                new_chunks = chunk(te)
+                for c in new_chunks:
+                    new_docs.append({'doc_id':ids+'_'+str(cut), 'text':c, 'sensitivity':sens})
+                    cut += 1
+                continue        
+                #new_docs.append({'doc_id':ids, 'text':te, 'sensitivity':sens})
+                #continue
+
+            words = te.split()
+            cut_pos_init = 0
+            cut = 0
+            for pair in place:
+                if pair[0] == i:
+                    cut_pos = pair[1]
+                    seg = words[cut_pos_init:cut_pos]
+                    cut_pos_init = cut_pos
+                    text_join = ' '.join(seg)
+                    
+                    if len(text_join) < 9000:
+                        x = {'doc_id':ids+'_'+str(cut), 'text':text_join, 'sensitivity':sens}
+                        cut += 1
+                        new_docs.append(x)
+
+                    else:
+                        new_chunks = chunk(text_join)
+                        for c in new_chunks:
+                            new_docs.append({'doc_id':ids+'_'+str(cut), 'text':c, 'sensitivity':sens})
+                            cut += 1
+                    
+                    #x = {'doc_id':ids+'_'+str(cut), 'text':text_join, 'sensitivity':sens}
+                    #cut += 1
+                    #new_docs.append(x)
+
+
+            seg = words[cut_pos_init:]
+            text_join = ' '.join(seg)
+            
+            if len(text_join) < 9000:
+                x = {'doc_id':ids+'_'+str(cut), 'text':text_join, 'sensitivity':sens}
+                cut += 1
+                new_docs.append(x)
+            else:
+                new_chunks = chunk(text_join)
+                for c in new_chunks:
+                    new_docs.append({'doc_id':ids+'_'+str(cut), 'text':c, 'sensitivity':sens})
+                    cut += 1
+            
+            #new_docs.append({'doc_id':ids+'_'+str(cut), 'text':c, 'sensitivity':sens})
+        return new_docs
+
+    def main(s):
+        processed_emails = [preprocess(a) for a in s.text]
+        ids = s.doc_id.tolist()
+        sens = s.sensitivity.tolist()
+        texts = []
+        for i, text in enumerate(s.text):
+            new_email = ' '.join(processed_emails[i])
+            texts.append(new_email)
+
+        new_dict = {'doc_id': ids, 'text': texts, 'sensitivity':sens}
+        preproc_df = pd.DataFrame.from_dict(new_dict)
+        preproc_df = remove_doubles(preproc_df)
+        places = get_replies(preproc_df)
+        new_docs = chunk_large(preproc_df, places)
+        new_docs = pd.DataFrame.from_dict(new_docs)
+        return new_docs
+
+    return main(s)
+
+
 
 def proccutit(dataset):
     def pre_dict(d):

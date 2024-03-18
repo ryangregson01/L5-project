@@ -53,7 +53,7 @@ def get_join(doc_ids, preds, gts):
 
 def run_evaluation(name):
     metrics_data = {}
-    readjson = get_results_json('mixt4bit.json')
+    readjson = get_results_json('mistitspers.json')
     doc_ids = readjson['doc_id'].to_list()
     preds = readjson['prediction'].to_list()
     gts = readjson['ground_truth'].to_list()
@@ -76,8 +76,8 @@ def run_evaluation(name):
     print(metrics_data)
     metrics_df = pd.DataFrame.from_dict(metrics_data, orient='index')
     metric_path = f'results/metric_overview/'
-    if not os.path.exists(metric_path):
-        os.makedirs(metric_path)
-    metrics_df.to_csv(f'{metric_path}mixt.csv', index=True)
+    #if not os.path.exists(metric_path):
+    #    os.makedirs(metric_path)
+    #metrics_df.to_csv(f'{metric_path}mistchunks.csv', index=True)
 
 run_evaluation('')

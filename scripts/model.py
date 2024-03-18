@@ -26,14 +26,12 @@ def llm_inference(document, prompt, model, tokenizer, device):
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     encodeds = tokenizer(document, return_tensors="pt", padding=True)
-    #print((encodeds.input_ids.size()))
     model_inputs = encodeds.to(device)
-    generated_ids = model.generate(inputs=model_inputs.input_ids, attention_mask=model_inputs.attention_mask, pad_token_id=tokenizer.pad_token_id, max_new_tokens=10) #150)
+    generated_ids = model.generate(inputs=model_inputs.input_ids, attention_mask=model_inputs.attention_mask, pad_token_id=tokenizer.pad_token_id, max_new_tokens=150) #150)
     decoded = tokenizer.batch_decode(generated_ids)
     del model_inputs
     torch.cuda.empty_cache()
     gc.collect()
-    #print(decoded[0])
     return decoded
 
 '''
@@ -189,7 +187,7 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         prompt_input = prompt_strategy(sample_text) #, thought) #, few_sens_ex, few_nonsens_ex)
         batch.append(prompt_input)
         batch_ids.append(sample_id)
-        if len(batch) == cur_bs or (count > 0):
+        if len(batch) == cur_bs or (count > 1823):
             sample_text = batch
             batch = []
         else:

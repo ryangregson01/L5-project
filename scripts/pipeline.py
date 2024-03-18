@@ -1,5 +1,5 @@
 from dataset import load_sara
-from preprocess_sara import proccutit
+from preprocess_sara import proccutit, full_preproc
 from models import get_model_version
 from prompts import *
 from model import llm_experiment, post_process_split_docs
@@ -82,10 +82,10 @@ def run_pipeline(model_name, m, v, r, d, prompts, end_prompt, n=None):
     sara_df = load_sara()
 
     if n == None:
-        processed_sara_df = proccutit(sara_df)
+        processed_sara_df = full_preproc(sara_df)
     else:
         samp = sara_df.sample(n=n, random_state=1)
-        processed_sara_df = proccutit(samp)
+        processed_sara_df = full_preproc(samp)
 
     #key_to_sims = get_key_to_sims()
     
@@ -111,10 +111,10 @@ def run_pipeline(model_name, m, v, r, d, prompts, end_prompt, n=None):
         f = open(prompt_str+"duration.txt", "w")
         f.write(str(duration))
         f.close()
-        with open(prompt_str+'resp.json', 'w') as f:
-            json.dump(model_responses, f, indent=2)
 
         results = all_responses_json(model_responses, further_processing_required, preds_list, truths_list, model_name, prompt_name, sara_df)
+        with open(prompt_str+'all_responses.json', 'w') as f:
+            json.dump(results, f, indent=2)
         write_responses_json(results, 'results/all_model_responses.json')    
         results = clean_responses_json(doc_keys, preds.tolist(), truth_labs.tolist(), model_responses, model_name, prompt_name)
         write_responses_json(results, 'results/clean_model_responses.json')
