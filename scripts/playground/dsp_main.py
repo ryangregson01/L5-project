@@ -6,13 +6,12 @@ from huggingface_hub import login
 sys.path.append("../")
 from dataset import load_sara
 from model import llm_experiment, post_process_split_docs
-from preprocess_sara import proccutit
+from preprocess_sara import full_preproc
 import json
 import time
 from dspy.evaluate import Evaluate
 #from dspy.teleprompt import SignatureOptimizer, COPRO
 from DSPyCORPO import *
-from jk_proc_dsp import jkproc
 import math
 import pandas as pd
 
@@ -34,7 +33,7 @@ def main_experiment(NN, sig, break_p):
     dspy.settings.configure(lm=turbo)
 
     s = load_sara()
-    p = proccutit(s)
+    p = full_preproc(s)
     config = {'config': {'do_sample':False, 'max_new_tokens':10} }
     generate_answer = NN(config, sig)
     ans_prefix = generate_answer.signature.fields.get('answer').json_schema_extra.get('prefix')
@@ -81,6 +80,7 @@ def main_experiment(NN, sig, break_p):
 
 #1. """The text is from a work email and may contain sensitive personal information. Classify text among sensitive, not sensitive."""
 #2. """Classify an email message from a work inbox as containing sensitive personal information or not. Messages with sensitive personal information can be purely personal (unrelated to work). Additionally, they may contain sensitive personal information in a professional context, such as comments on work quality or feelings about employee treatment, while excluding discussions of company business or strategy. Assign the message to one of two categories: sensitive or not sensitive."""
+'''
 class SensSignature(dspy.Signature):
     """The text is from a work email and may contain sensitive personal information. Classify text among sensitive, not sensitive."""
     
@@ -104,9 +104,37 @@ class PromptNN(dspy.Module):
         return dspy.Prediction(
             answer=result.answer,
         )
+    
+'''
+
+class SensSignature(dspy.Signature):
+    """You are given some context (what sensitive personal information is), a message (what you must classify) and a question (what you must answer). You must answer with sensitive/not sensitive in response to the question given the context and message."""
+    
+    context = dspy.InputField(desc="", prefix="The message is from a work email and may contain sensitive personal information. Messages with sensitive personal information are purely personal and are unrelated to work. All other professional work-related messages are not sensitive.")
+    message = dspy.InputField(prefix="Message:")
+    question = dspy.InputField()
+    answer = dspy.OutputField(desc="", prefix="Message classification:")
+
+class PromptNN(dspy.Module):
+    def __init__(self, config, sig):
+        super().__init__()
+
+        self.signature = SensSignature
+        x = dspy.OutputField(
+            prefix="",
+            desc="",
+        )
+        self.predictor = dspy.ChainOfThought(self.signature, activated=False) #, rationale_type=x)
+        self.config = config
+
+    def forward(self, question):
+        result = self.predictor(message=question, question="Does the message contain personal sensitive information? Classify the message among sensitive, not sensitive.", **self.config)
+        return dspy.Prediction(
+            answer=result.answer,
+        )
 
 
-mrs = main_experiment(PromptNN, 1)
-print(mrs)
-#write_responses_json(mrs, 'results/mistchunks.json')
+mrs = main_experiment(PromptNN, SensSignature, 5000)
+#print(mrs)
+write_responses_json(mrs, 'results/pray.json')
 

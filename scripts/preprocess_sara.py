@@ -4,6 +4,10 @@ import re
 import email
 import gensim
 
+from transformers import AutoTokenizer
+tokenizer = AutoTokenizer.from_pretrained('meta-llama/Llama-2-7b-chat-hf', use_fast=True)
+
+
 def full_preproc(s):
 
     def preprocess(e):
@@ -45,7 +49,7 @@ def full_preproc(s):
                         continue
 
         return place
-
+    '''
     def chunk(text, c_size=9000):
         new_chunks = []
         total_length = len(text)
@@ -56,6 +60,18 @@ def full_preproc(s):
         #print(words_per_chunk)
         for i in range(int(avg_chunks)):
             chunk = ' '.join(words[(i*words_per_chunk):((i+1)*words_per_chunk)])
+            new_chunks.append(chunk)
+
+        return new_chunks
+    '''
+    def chunk(text, c_size=2048):
+        new_chunks = []
+        tokens= tokenizer(text, return_tensors="pt")
+        total_length = len(tokens.input_ids[0])
+        avg_chunks = np.ceil(total_length / c_size)
+        for i in range(int(avg_chunks)):
+            chunk = tokens.input_ids[0][(i*c_size):((i+1)*c_size)]
+            chunk = tokenizer.decode(chunk, skip_special_tokens=True)
             new_chunks.append(chunk)
 
         return new_chunks
@@ -71,12 +87,12 @@ def full_preproc(s):
 
             if i not in place_docs:
                 
-                if len(te) < 9000:
+                new_chunks = chunk(te)
+                if len(new_chunks) == 1:
                     new_docs.append({'doc_id':ids, 'text':te, 'sensitivity':sens})
                     continue
 
                 cut = 0
-                new_chunks = chunk(te)
                 for c in new_chunks:
                     new_docs.append({'doc_id':ids+'_'+str(cut), 'text':c, 'sensitivity':sens})
                     cut += 1
@@ -94,13 +110,13 @@ def full_preproc(s):
                     cut_pos_init = cut_pos
                     text_join = ' '.join(seg)
                     
-                    if len(text_join) < 9000:
+                    new_chunks = chunk(text_join)
+                    if len(new_chunks) == 1:
                         x = {'doc_id':ids+'_'+str(cut), 'text':text_join, 'sensitivity':sens}
                         cut += 1
                         new_docs.append(x)
 
                     else:
-                        new_chunks = chunk(text_join)
                         for c in new_chunks:
                             new_docs.append({'doc_id':ids+'_'+str(cut), 'text':c, 'sensitivity':sens})
                             cut += 1
@@ -113,12 +129,12 @@ def full_preproc(s):
             seg = words[cut_pos_init:]
             text_join = ' '.join(seg)
             
-            if len(text_join) < 9000:
+            new_chunks = chunk(text_join)
+            if len(new_chunks) == 1:
                 x = {'doc_id':ids+'_'+str(cut), 'text':text_join, 'sensitivity':sens}
                 cut += 1
                 new_docs.append(x)
             else:
-                new_chunks = chunk(text_join)
                 for c in new_chunks:
                     new_docs.append({'doc_id':ids+'_'+str(cut), 'text':c, 'sensitivity':sens})
                     cut += 1

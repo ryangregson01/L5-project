@@ -12,7 +12,6 @@ import time
 from dspy.evaluate import Evaluate
 #from dspy.teleprompt import SignatureOptimizer, COPRO
 from DSPyCORPO import *
-from jk_proc_dsp import jkproc
 import math
 import pandas as pd
 
@@ -35,32 +34,6 @@ def main_experiment(NN, sig, break_p):
 
     s = load_sara()
     p = proccutit(s)
-    
-    '''
-    x = jkproc(s)
-    #print(x.head())
-
-    #for i, v in enumerate(x.text):
-    #    print('DOCUMENT', i)
-    #    print(v)
-    #    print()
-
-    proc_df = []
-    doc_max_length = 2048
-    for i, s in enumerate(x.iterrows()):
-        idd, t, s = s[1].doc_id, s[1].text, s[1].sensitivity
-        if len(t) < doc_max_length:
-            proc_df.append({'doc_id':idd, 'text':t, 'sensitivity':s})
-            continue
-        
-        chunks = math.ceil( (len(t) / doc_max_length) )
-        for chunk in range(chunks):
-            chunk_idd = idd + '_' + str(chunk)
-            chunk_t = t[(chunk*doc_max_length):((chunk+1)*doc_max_length)]
-            proc_df.append({'doc_id':chunk_idd, 'text':chunk_t, 'sensitivity':s})
-
-    p = pd.DataFrame(proc_df)
-    '''
     config = {'config': {'do_sample':False, 'max_new_tokens':10} }
     generate_answer = NN(config, sig)
     ans_prefix = generate_answer.signature.fields.get('answer').json_schema_extra.get('prefix')

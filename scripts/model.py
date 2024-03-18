@@ -34,25 +34,6 @@ def llm_inference(document, prompt, model, tokenizer, device):
     gc.collect()
     return decoded
 
-'''
-def llm_inference(document, prompt, model, tokenizer):
-    #Tokenizes input prompt with document using a chat template, generates text, decodes text.
-    messages = [
-    #{"role": "system", "content": "You are identifying documents containing personal sensitive information."},
-    {"role": "user", "content": prompt(document)},
-    #{"role": "assistant", "content": "This text is {'mask'}"}
-    ]
-    encodeds = tokenizer.apply_chat_template(messages, return_tensors="pt")
-    device = 'cuda'
-    model_inputs = encodeds.to(device)
-    arr_like = torch.ones_like(model_inputs)
-    attention_mask = arr_like.to(device)
-    generated_ids = model.generate(inputs=model_inputs, attention_mask=attention_mask, max_new_tokens=10, do_sample=True)
-    decoded = tokenizer.batch_decode(generated_ids)
-    #print(decoded)
-    return decoded[0]
-'''
-
 def display_gen_text(output, e):
     '''Segments response to only new generated text.'''
     end_template = output.split(e)
@@ -72,9 +53,11 @@ def prompt_to_reply(d, p, m, t, e, device):
 def post_process_classification(classification):
     '''String matching on model response'''
     match_string = classification.lower()
-    if 'does contain' in match_string:
+    match_string = match_string[:50]
+    print(match_string)
+    if 'does contain' in match_string or ('sensitive' in match_string and 'non-sensitive' not in match_string):
         return 1
-    elif 'does not' in match_string:
+    elif 'does not' in match_string or ('non-sensitive' in match_string):
         return 0
     else:
         # Further processing required
@@ -187,7 +170,7 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         prompt_input = prompt_strategy(sample_text) #, thought) #, few_sens_ex, few_nonsens_ex)
         batch.append(prompt_input)
         batch_ids.append(sample_id)
-        if len(batch) == cur_bs or (count > 1823):
+        if len(batch) == cur_bs or (count > 0):
             sample_text = batch
             batch = []
         else:
