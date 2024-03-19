@@ -105,6 +105,14 @@ Message: {document}.
 [/INST] 
 Classification:"""
 
+'''
+def base_personal(document):
+  return f"""[INST] Your task is to determine if the email message from a work email contains sensitive personal information. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. If the message contains purely personal information or personal information but in a professional context classify the message as sensitive, otherwise for any other professional email use non-sensitive.
+Message: {document}. 
+[/INST] 
+Classification:"""
+'''
+
 def get_prompt(prompt_name):
     prompt_dict = {
                   'base_sens': base_sens,

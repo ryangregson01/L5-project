@@ -21,7 +21,7 @@ def read_cots():
 
 
 def llm_inference(document, prompt, model, tokenizer, device):
-    device = 'cuda'
+    #device = 'cuda'
     '''Tokenizes input prompt with document, generates text, decodes text.'''
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -54,7 +54,7 @@ def post_process_classification(classification):
     '''String matching on model response'''
     match_string = classification.lower()
     match_string = match_string[:50]
-    print(match_string)
+    #print(match_string)
     if 'does contain' in match_string or ('sensitive' in match_string and 'non-sensitive' not in match_string):
         return 1
     elif 'does not' in match_string or ('non-sensitive' in match_string):
@@ -114,7 +114,7 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
 
     batch = []
     batch_ids = []
-    cur_bs = 32
+    cur_bs = 16
     count = 0
     for sample in dataset.iterrows():
         if (count % 100) == 0:
@@ -126,10 +126,10 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         ground_truth = sample[1].sensitivity
 
         # Input text is too large for model
-        if len(sample_text) > 10000:
-            fpr[sample_id] = "TOO LARGE"
-            mr[sample_id] = "TOO LARGE"
-            continue
+        #if len(sample_text) > 10000:
+        #    fpr[sample_id] = "TOO LARGE"
+        #    mr[sample_id] = "TOO LARGE"
+        #    continue
 
         '''
         document = sample_text
@@ -170,7 +170,7 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         prompt_input = prompt_strategy(sample_text) #, thought) #, few_sens_ex, few_nonsens_ex)
         batch.append(prompt_input)
         batch_ids.append(sample_id)
-        if len(batch) == cur_bs or (count > 0):
+        if len(batch) == cur_bs or (count > 5000):
             sample_text = batch
             batch = []
         else:

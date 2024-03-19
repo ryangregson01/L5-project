@@ -1,0 +1,90 @@
+[
+  {
+    "model": "test-mist",
+    "prompt": "base_personal",
+    "doc_id": "175555_0",
+    "generated_response": " \nThe text does not contain any discernible personal information. It appears to be a series of random characters and does not contain any identifiable information about the sender or any recipients. It is likely not related to work or any professional context.</s>",
+    "prediction": 0,
+    "ground_truth": 0
+  },
+  {
+    "model": "test-mist",
+    "prompt": "base_personal",
+    "doc_id": "177860_0",
+    "generated_response": " \nThe text does not contain any personal information that can be identified. It appears to be a request for a call at a specific time, which could be related to work or personal matters. Without additional context, it is impossible to determine if the message contains purely personal information or information that is personal in a professional context.</s>",
+    "prediction": 0,
+    "ground_truth": 1
+  },
+  {
+    "model": "test-mist",
+    "prompt": "base_personal",
+    "doc_id": "54629_0",
+    "generated_response": " \nThe text does not contain any personal information that can be inferred from it. It only mentions the confirmation of a work-related meeting involving Mike, Vince, and possibly other individuals. Therefore, it is not considered to contain purely personal information or personal information in a professional context.</s>",
+    "prediction": 0,
+    "ground_truth": 0
+  },
+  {
+    "model": "test-mist",
+    "prompt": "base_personal",
+    "doc_id": "173234",
+    "generated_response": " \nThe text does not contain any discernible personal information or context that could indicate a purely personal message or a message with personal information in a professional context. The names mentioned (Houston Bryson, Peggy Menchaca, Kathleen Leslie, Lauren Cox, Fumo Peco, and Gas Choice Lawner) do not provide any context or indication of personal matters, and there is no mention of feelings, emotions, or comments about work quality or employee treatment. Therefore, it is unlikely that this message contains personal information, either purely personal or in a professional context.</s>",
+    "prediction": 0,
+    "ground_truth": 0
+  },
+  {
+    "model": "test-mist",
+    "prompt": "base_personal",
+    "doc_id": "54263_0",
+    "generated_response": " \nThe text does not contain any overtly personal information. It mentions the names of two individuals, Philip and Vince, and the fact that Frank Wolak is an expert on California. However, this information is not of a personal nature unrelated to work. Instead, it appears to be a professional recommendation, likely related to work being done. Therefore, the message contains personal information in a professional context.</s>",
+    "prediction": 0,
+    "ground_truth": 1
+  },
+  {
+    "model": "test-mist",
+    "prompt": "base_personal",
+    "doc_id": "54263_2",
+    "generated_response": " \nThe text does not contain any personal information that is not related to work. The message is about declining an invitation, which is a professional communication. Therefore, the message does not contain purely personal information.</s>",
+    "prediction": 0,
+    "ground_truth": 1
+  },
+  {
+    "model": "test-mist",
+    "prompt": "base_personal",
+    "doc_id": "54263_1",
+    "generated_response": " \nThe text does not contain any purely personal information. The message is related to work, specifically discussing the California crisis and seeking suggestions for individuals to contact regarding it. The personal information mentioned, such as the names of the individuals involved, are in a professional context.</s>",
+    "prediction": 0,
+    "ground_truth": 1
+  },
+  {
+    "model": "test-mist",
+    "prompt": "base_personal",
+    "doc_id": "175555_1",
+    "generated_response": " \nThe text does not contain any overtly personal information that is not related to work. The message appears to be discussing business matters related to Enron and the potential impact of a proposed action on the company's reputation in the market. Therefore, it is likely that the message contains personal information in a professional context rather than purely personal information.</s>",
+    "prediction": 0,
+    "ground_truth": 0
+  },
+  {
+    "model": "test-mist",
+    "prompt": "base_personal",
+    "doc_id": "54263_3",
+    "generated_response": " \nThe text does not contain any purely personal information. The message is related to a work invitation for Vince to speak at a conference and includes professional contact information for Philip Annesley.</s>",
+    "prediction": 0,
+    "ground_truth": 1
+  },
+  {
+    "model": "test-mist",
+    "prompt": "base_personal",
+    "doc_id": "54629_1",
+    "generated_response": " \nThe text does contain some personal information, but it is in a professional context. The message mentions setting up a meeting for breakfast, which is a personal arrangement, but it is related to work as they will be discussing business matters during the meeting. The message also includes contact information for Mike Boughton and his company, which is necessary for professional communication. The mention of missing data sets and the URLs for the commodity option calculator demonstration and currency demonstration are also related to work. Therefore, the message contains personal information in a professional context.</s>",
+    "prediction": 1,
+    "ground_truth": 0
+  },
+  {
+    "model": "test-mist",
+    "prompt": "base_personal",
+    "doc_id": "177860_1",
+    "generated_response": " \nThe text does contain some personal information, such as Kevin's contact information (email, phone, fax, and mailing address). However, the majority of the message appears to be related to work matters, such as meetings with colleagues, discussions about business with the government, and preparations for an upcoming meeting. Therefore, it can be classified as personal information in a professional context.</s>",
+    "prediction": 1,
+    "ground_truth": 1
+  }
+]

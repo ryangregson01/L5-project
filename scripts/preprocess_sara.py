@@ -4,11 +4,7 @@ import re
 import email
 import gensim
 
-from transformers import AutoTokenizer
-tokenizer = AutoTokenizer.from_pretrained('meta-llama/Llama-2-7b-chat-hf', use_fast=True)
-
-
-def full_preproc(s):
+def full_preproc(s, tokenizer):
 
     def preprocess(e):
         message = email.message_from_string(e)
@@ -64,7 +60,7 @@ def full_preproc(s):
 
         return new_chunks
     '''
-    def chunk(text, c_size=2048):
+    def chunk(text, tokenizer, c_size=2048):
         new_chunks = []
         tokens= tokenizer(text, return_tensors="pt")
         total_length = len(tokens.input_ids[0])
@@ -76,7 +72,7 @@ def full_preproc(s):
 
         return new_chunks
         
-    def chunk_large(df, place):
+    def chunk_large(df, place, tokenizer):
         place_docs = [dno[0] for dno in place]
         new_docs = []
         existing_texts = []
@@ -87,7 +83,7 @@ def full_preproc(s):
 
             if i not in place_docs:
                 
-                new_chunks = chunk(te)
+                new_chunks = chunk(te, tokenizer)
                 if len(new_chunks) == 1:
                     new_docs.append({'doc_id':ids, 'text':te, 'sensitivity':sens})
                     continue
@@ -110,7 +106,7 @@ def full_preproc(s):
                     cut_pos_init = cut_pos
                     text_join = ' '.join(seg)
                     
-                    new_chunks = chunk(text_join)
+                    new_chunks = chunk(text_join, tokenizer)
                     if len(new_chunks) == 1:
                         x = {'doc_id':ids+'_'+str(cut), 'text':text_join, 'sensitivity':sens}
                         cut += 1
@@ -129,7 +125,7 @@ def full_preproc(s):
             seg = words[cut_pos_init:]
             text_join = ' '.join(seg)
             
-            new_chunks = chunk(text_join)
+            new_chunks = chunk(text_join, tokenizer)
             if len(new_chunks) == 1:
                 x = {'doc_id':ids+'_'+str(cut), 'text':text_join, 'sensitivity':sens}
                 cut += 1
@@ -155,7 +151,7 @@ def full_preproc(s):
         preproc_df = pd.DataFrame.from_dict(new_dict)
         preproc_df = remove_doubles(preproc_df)
         places = get_replies(preproc_df)
-        new_docs = chunk_large(preproc_df, places)
+        new_docs = chunk_large(preproc_df, places, tokenizer)
         new_docs = pd.DataFrame.from_dict(new_docs)
         return new_docs
 

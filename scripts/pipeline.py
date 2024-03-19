@@ -80,19 +80,21 @@ def run_pipeline(model_name, m, v, r, d, prompts, end_prompt, n=None):
     """
 
     sara_df = load_sara()
+    tokenizer, model = get_model_version(m, v, r, d)
 
     if n == None:
-        processed_sara_df = full_preproc(sara_df)
+        processed_sara_df = full_preproc(sara_df, tokenizer)
     else:
         samp = sara_df.sample(n=n, random_state=1)
-        processed_sara_df = full_preproc(samp)
+        processed_sara_df = full_preproc(samp, tokenizer)
 
     #key_to_sims = get_key_to_sims()
     
-    tokenizer, model = get_model_version(m, v, r, d)
+    #tokenizer, model = get_model_version(m, v, r, d)
 
     for prompt in prompts:
         prompt_name = prompt
+        print('Using', prompt_name)
         prompt_str = 'results/model_results/' + model_name + '/' + prompt_name + '/'
         prompt = get_prompt(prompt)
         start = time.time()

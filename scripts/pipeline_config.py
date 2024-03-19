@@ -8,6 +8,7 @@ model_map = {'l27b-meta': ['get_l2', 'meta-llama/Llama-2-7b-chat-hf', 'main'],
             'mist7b-mist': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
             'mixt-4bit': ['get_model', 'TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ', 'main'],
             'test-mist': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
+            'flan-large': ['get_flan', 'google/flan-t5-large', 'main']
             }
 
 model_name = sys.argv[1]
@@ -21,10 +22,13 @@ else:
     device = 'auto'
 
 #print(load_func, model_path, revision, device)
-prompts = ['base_personal', 'base_sens', 'base2_sens', 'context_b1_sens', 'context_b2_sens', 'base_personal', 'context_b1_personal', 'fixed_fewshot_personal', 'base_personal_explanation', 'purely_personal', 'itspersonalgenres', 'multi_category_noanseng', 'multi_category', 'base_classify']
+prompts = ['base_sens', 'base2_sens', 'context_b1_sens', 'context_b2_sens', 'base_personal', 'context_b1_personal', 'fixed_fewshot_personal', 'base_personal_explanation', 'purely_personal', 'itspersonalgenres', 'multi_category_noanseng', 'multi_category', 'base_classify']
+#prompts = ['context_b1_personal', 'fixed_fewshot_personal', 'base_personal_explanation', 'purely_personal', 'itspersonalgenres', 'multi_category_noanseng', 'multi_category', 'base_classify']
+#prompts = ['base_personal']
 end_prompt = '[/INST]'
 sample_size = 5
 
 print('Starting experiment:', model_name)
-run_pipeline(model_name, load_func, model_path, revision, device, prompts, end_prompt, sample_size)
+print(prompts)
+run_pipeline(model_name, load_func, model_path, revision, device, prompts, end_prompt) #, sample_size)
 print('Finished experiment:', model_name)
