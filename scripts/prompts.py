@@ -113,6 +113,16 @@ Message: {document}.
 Classification:"""
 '''
 
+def barlit(document):
+  return f"""Would the following be protected under FOIA exemption '40'? Answer with yes or no.
+{document}
+  """
+
+def barlit2(document):
+  return f"""Would the following be protected under FOIA exemption '40'? Explain your reasoning.
+{document}
+  """
+
 def get_prompt(prompt_name):
     prompt_dict = {
                   'base_sens': base_sens,
@@ -127,7 +137,9 @@ def get_prompt(prompt_name):
                   'itspersonalgenres': itspersonalgenres,
                   'multi_category_noanseng': multi_category_noanseng,
                   'multi_category': multi_category,
-                  'base_classify': base_classify
+                  'base_classify': base_classify,
+                  'barlit': barlit,
+                  'barlit2': barlit2
                   }
 
     return prompt_dict.get(prompt_name)

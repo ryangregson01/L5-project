@@ -21,14 +21,18 @@ def read_cots():
 
 
 def llm_inference(document, prompt, model, tokenizer, device):
-    #device = 'cuda'
+    device = 'cuda'
     '''Tokenizes input prompt with document, generates text, decodes text.'''
+    #tokenizer.add_special_tokens({"pad_token": "<pad>"})
     if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.pad_token = tokenizer.eos_token #"<pad>" #'[PAD]' #tokenizer.eos_token
     encodeds = tokenizer(document, return_tensors="pt", padding=True)
     model_inputs = encodeds.to(device)
-    generated_ids = model.generate(inputs=model_inputs.input_ids, attention_mask=model_inputs.attention_mask, pad_token_id=tokenizer.pad_token_id, max_new_tokens=150) #150)
-    decoded = tokenizer.batch_decode(generated_ids)
+    generated_ids = model.generate(inputs=model_inputs.input_ids, 
+        attention_mask=model_inputs.attention_mask, 
+        pad_token_id=tokenizer.pad_token_id,
+        max_new_tokens=30) #150)
+    decoded = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
     del model_inputs
     torch.cuda.empty_cache()
     gc.collect()
@@ -114,7 +118,7 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
 
     batch = []
     batch_ids = []
-    cur_bs = 16
+    cur_bs = 32
     count = 0
     for sample in dataset.iterrows():
         if (count % 100) == 0:
@@ -170,7 +174,7 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         prompt_input = prompt_strategy(sample_text) #, thought) #, few_sens_ex, few_nonsens_ex)
         batch.append(prompt_input)
         batch_ids.append(sample_id)
-        if len(batch) == cur_bs or (count > 5000):
+        if len(batch) == cur_bs or (count > 1823):
             sample_text = batch
             batch = []
         else:
