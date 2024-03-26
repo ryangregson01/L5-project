@@ -117,11 +117,21 @@ def barlit(document):
   return f"""Would the following be protected under FOIA exemption '40'? Answer with yes or no.
 {document}
   """
+def barlit(document):
+  return f"""[INST] Would the following be protected under FOIA exemption 6? Classify the document with 'exempt' if it should be protected, and 'non-exempt' otherwise. [/INST]
+Document: {document}.
+Classification:"""
+
+def barlit(document):
+  return f"""[INST] Your task is to determine if the email message from a work email contains sensitive personal information. Would the following document be protected under FOIA exemption 6? Answer with 'sensitive' if the document should be protected, and 'non-sensitive' if it does not need to be protected. [/INST]
+Document: {document}.
+Answer:"""
 
 def barlit2(document):
-  return f"""Would the following be protected under FOIA exemption '40'? Explain your reasoning.
-{document}
-  """
+  return f"""[INST] Your task is to determine if the email message from a work email contains sensitive personal information. The UK FOIA Section '40' protects sensitive personal information by classifying documents as exempt if it contains sensitive personal information. Would the following document be exempt under UK FOIA Section '40'? Answer with 'sensitive' if the document should be exempt, and 'non-sensitive' if it is not exempt. [/INST]
+Document: {document}.
+Answer:"""
+
 
 def get_prompt(prompt_name):
     prompt_dict = {

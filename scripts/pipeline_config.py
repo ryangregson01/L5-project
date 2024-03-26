@@ -2,13 +2,15 @@ import sys
 from pipeline import run_pipeline
 
 
-model_map = {'l27b-meta': ['get_l2', 'meta-llama/Llama-2-7b-chat-hf', 'main'],
+model_map = {'l27b-meta': ['get_l2', 'meta-llama/Llama-2-7b-chat-hf', 'main'], # 2048 max tokens doc
             'l213b-8bit': ['get_l2', 'TheBloke/Llama-2-13B-chat-GPTQ', 'gptq-8bit-64g-actorder_True'], 
             'l270b-4bit': ['get_l2', 'TheBloke/Llama-2-70B-chat-GPTQ', 'main'],
             'mist7b-mist': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
             'mixt-4bit': ['get_model', 'TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ', 'main'],
             'test-mist': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
-            'flan-large': ['get_flan', 'google/flan-t5-large', 'main']
+            'flan-large': ['get_flan', 'google/flan-t5-large', 'main'], # 320 max tokens doc
+            'l2-nochat': ['get_l2', 'meta-llama/Llama-2-7b-hf', 'main'],
+            'mist-awq': ['get_model', 'TheBloke/Mistral-7B-Instruct-v0.2-AWQ', 'main']
             }
 
 model_name = sys.argv[1]
@@ -22,12 +24,10 @@ else:
     device = 'auto'
 
 #print(load_func, model_path, revision, device)
-prompts = ['barlit', 'base_sens', 'base2_sens', 'context_b1_sens', 'context_b2_sens', 'base_personal', 'context_b1_personal', 'fixed_fewshot_personal', 'base_personal_explanation', 'purely_personal', 'itspersonalgenres', 'multi_category_noanseng', 'multi_category', 'base_classify', 'barlit', 'barlit2']
-#prompts = ['base_personal_explanation', 'purely_personal', 'itspersonalgenres', 'multi_category_noanseng', 'multi_category', 'base_classify']
-#prompts = ['base_personal']
-#prompts = ['barlit', 'multi_category_noanseng', 'multi_category', 'base_classify', 'barlit2']
+#prompts = ['base_sens', 'base2_sens', 'context_b1_sens', 'context_b2_sens', 'base_personal', 'context_b1_personal', 'fixed_fewshot_personal', 'base_personal_explanation', 'purely_personal', 'itspersonalgenres', 'multi_category_noanseng', 'multi_category', 'base_classify', 'barlit', 'barlit2']
+prompts = ['barlit', 'barlit2']
 end_prompt = '[/INST]'
-sample_size = 1
+sample_size = 4
 
 print('Starting experiment:', model_name)
 print(prompts)

@@ -4,6 +4,7 @@ import re
 import email
 import gensim
 
+import string
 def full_preproc(s, tokenizer, c_size=2048):
 
     def preprocess(e):
@@ -13,6 +14,9 @@ def full_preproc(s, tokenizer, c_size=2048):
         clean = re.sub('\s+', ' ', clean)
         clean = re.sub("\'", "", clean)
         clean = gensim.utils.simple_preprocess(str(clean), deacc=True, min_len=1, max_len=100) 
+        #clean = clean.lower()
+        #clean = clean.translate(str.maketrans('','', string.punctuation))
+        #clean = clean.translate(str.maketrans('','', "-_?"))
         return clean
 
     def remove_doubles(df):

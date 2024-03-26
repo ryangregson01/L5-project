@@ -174,7 +174,7 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         prompt_input = prompt_strategy(sample_text) #, thought) #, few_sens_ex, few_nonsens_ex)
         batch.append(prompt_input)
         batch_ids.append(sample_id)
-        if len(batch) == cur_bs or (count > 1823):
+        if len(batch) == cur_bs or (count > 0):
             sample_text = batch
             batch = []
         else:
