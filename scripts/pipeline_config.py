@@ -10,7 +10,9 @@ model_map = {'l27b-meta': ['get_l2', 'meta-llama/Llama-2-7b-chat-hf', 'main'], #
             'test-mist': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
             'flan-large': ['get_flan', 'google/flan-t5-large', 'main'], # 320 max tokens doc
             'l2-nochat': ['get_l2', 'meta-llama/Llama-2-7b-hf', 'main'],
-            'mist-awq': ['get_model', 'TheBloke/Mistral-7B-Instruct-v0.2-AWQ', 'main']
+            'mist-awq': ['get_model', 'TheBloke/Mistral-7B-Instruct-v0.2-AWQ', 'main'],
+            'l2bnb': ['get_l2_bits', 'meta-llama/Llama-2-13b-hf', 'main'],
+            'mist-noreply': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
             }
 
 model_name = sys.argv[1]
@@ -26,6 +28,7 @@ else:
 #print(load_func, model_path, revision, device)
 #prompts = ['base_sens', 'base2_sens', 'context_b1_sens', 'context_b2_sens', 'base_personal', 'context_b1_personal', 'fixed_fewshot_personal', 'base_personal_explanation', 'purely_personal', 'itspersonalgenres', 'multi_category_noanseng', 'multi_category', 'base_classify', 'barlit', 'barlit2']
 prompts = ['barlit', 'barlit2']
+prompts = ['multi_category', 'itspersonalgenres', 'base_personal']
 end_prompt = '[/INST]'
 sample_size = 4
 

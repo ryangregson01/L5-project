@@ -5,6 +5,16 @@ import email
 import gensim
 
 import string
+
+def clean(e):
+    message = email.message_from_string(e)
+    clean = message.get_payload()
+    clean = re.sub('\S*@\S*\s?', '', clean)
+    clean = re.sub('\s+', ' ', clean)
+    clean = re.sub("\'", "", clean)
+    clean = gensim.utils.simple_preprocess(str(clean), deacc=True, min_len=1, max_len=100) 
+    return clean
+
 def full_preproc(s, tokenizer, c_size=2048):
 
     def preprocess(e):
@@ -154,7 +164,8 @@ def full_preproc(s, tokenizer, c_size=2048):
         new_dict = {'doc_id': ids, 'text': texts, 'sensitivity':sens}
         preproc_df = pd.DataFrame.from_dict(new_dict)
         preproc_df = remove_doubles(preproc_df)
-        places = get_replies(preproc_df)
+        #places = get_replies(preproc_df)
+        places = []
         new_docs = chunk_large(preproc_df, places, tokenizer, c_size)
         new_docs = pd.DataFrame.from_dict(new_docs)
         return new_docs

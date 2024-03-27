@@ -107,30 +107,107 @@ Classification:"""
 
 '''
 def base_personal(document):
-  return f"""[INST] Your task is to determine if the email message from a work email contains sensitive personal information. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. If the message contains purely personal information or personal information but in a professional context classify the message as sensitive, otherwise for any other professional email use non-sensitive.
+  return f"[INST] Your task is to determine if the email message from a work email contains sensitive personal information. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. If the message contains purely personal information or personal information but in a professional context classify the message as sensitive, otherwise for any other professional email use non-sensitive.
 Message: {document}. 
 [/INST] 
-Classification:"""
+Classification:"
+
+def barlit(document):
+  return f"Would the following be protected under FOIA exemption '40'? Answer with yes or no.
+{document}
+  "
+def barlit(document):
+  return f"[INST] Would the following be protected under FOIA exemption 6? Classify the document with 'exempt' if it should be protected, and 'non-exempt' otherwise. [/INST]
+Document: {document}. 
+Classification:"
 '''
 
 def barlit(document):
-  return f"""Would the following be protected under FOIA exemption '40'? Answer with yes or no.
-{document}
-  """
-def barlit(document):
-  return f"""[INST] Would the following be protected under FOIA exemption 6? Classify the document with 'exempt' if it should be protected, and 'non-exempt' otherwise. [/INST]
-Document: {document}.
-Classification:"""
-
-def barlit(document):
-  return f"""[INST] Your task is to determine if the email message from a work email contains sensitive personal information. Would the following document be protected under FOIA exemption 6? Answer with 'sensitive' if the document should be protected, and 'non-sensitive' if it does not need to be protected. [/INST]
-Document: {document}.
+  return f"""[INST] Your task is to determine if the email message from a work email contains sensitive personal information. Would the following document be protected under FOIA exemption 6? Answer with 'sensitive' if the document should be protected, and 'non-sensitive' if it does not need to be protected.
+Document: {document}. 
+[/INST] 
 Answer:"""
 
 def barlit2(document):
-  return f"""[INST] Your task is to determine if the email message from a work email contains sensitive personal information. The UK FOIA Section '40' protects sensitive personal information by classifying documents as exempt if it contains sensitive personal information. Would the following document be exempt under UK FOIA Section '40'? Answer with 'sensitive' if the document should be exempt, and 'non-sensitive' if it is not exempt. [/INST]
-Document: {document}.
+  return f"""[INST] Your task is to determine if the email message from a work email contains sensitive personal information. The UK FOIA Section '40' protects sensitive personal information by classifying documents as exempt if it contains sensitive personal information. Would the following document be exempt under UK FOIA Section '40'? Answer with 'sensitive' if the document should be exempt, and 'non-sensitive' if it is not exempt.
+Document: {document}. 
+[/INST] 
 Answer:"""
+
+
+def sysjson(document):
+  return f"""[INST] <<SYS>> 
+You generate sensitivity classifications for emails that have potentially sensitive personal information.
+Always output JSON.
+You will be given an email message from a work email. Output only one section: ['Classification'].
+
+Email messages may contain sensitive personal information. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-personal messages are professional emails that do not include personal information. If the email is purely personal or personal but in professional context, the message is sensitive, otherwise non-personal messages are not sensitive. The classification should be sensitive or not sensitive. <</SYS>> 
+message: {document}. 
+[/INST] 
+"""
+
+
+def prev_sysjson(document):
+  return f"""[INST] <<SYS>> 
+You generate sensitivity classifications for emails that have potentially sensitive personal information.
+Always output JSON.
+You will be given an email message from a work email. Output only one section: ['Classification'].
+
+Email messages may contain sensitive personal information. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-personal messages are professional emails that do not include personal information. If the email is purely personal or personal but in professional context, the message is sensitive, otherwise non-personal messages are non-sensitive. The classification should be sensitive or non-sensitive. <</SYS>> 
+message: {document}. 
+[/INST] 
+{{"classification":"""
+
+def olsysjson(document):
+  return f"""[INST] <<SYS>> 
+You generate sensitivity classifications for emails that have potentially sensitive personal information. The sensitivity classification is either sensitive or non-sensitive. Sensitive personal information can be purely personal or personal but in a professional context. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-personal messages are professional emails that do not include personal information. Any other email message that is professional and does not include personal information is non-sensitive.
+Always output JSON.
+You will be given an email message from a work email. Output only one section: ['Classification']. <</SYS>>
+message: {document}. 
+[/INST] 
+{{"classification":"""
+
+def sysjson(document):
+  return f"""[INST] <<SYS>> 
+You generate sensitivity classifications for emails that have potentially sensitive personal information. Your task is to determine if the email message from a work email contains sensitive personal information (emails that are purely personal or personal but in a professional context), or contains no sensitive personal information (emails that discuss company business and strategy, logistic arrangements, employment arrangements, document editing/checking, or empty messages). Purely personal emails include personal information and do not include any relation to work being done. Personal but in a professional context emails include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-sensitive emails are professional emails that do not include personal information. You must classify the email as sensitive or non-sensitive for containing sensitive personal information.
+Always output JSON.
+You will be given an email message from a work email. Output only one section: ['Classification']. <</SYS>>
+Example:
+email: original message from julie sent tuesday june am to kaminski vince j subject extra books vince hope you are well weve been in contact with rice universitys bookshop and they informed us that they have a few books left over from the course we told them originally that if they didnt sell them all we would take them back we would rather have them sent over to you as complimentary copies if thats ok with you whats new busy summer so far hope that the storm didnt cause you any problems julie.
+{{"classification": "sensitive"}}
+
+Example:
+email: aruna i shall be in london this week please call me on monday next week best time is between and my time vince.
+{{"classification": "non-sensitive"}}
+
+Now answer:
+email: {document}. 
+[/INST] 
+{{"classification":"""
+
+def sysjsonrank(document):
+  return f"""[INST] <<SYS>> 
+You generate sensitivity classifications for emails that have potentially sensitive personal information. Your task is to determine if the email message from a work email contains sensitive personal information (emails that are purely personal or personal but in a professional context), or contains no sensitive personal information (emails that discuss company business and strategy, logistic arrangements, employment arrangements, document editing/checking, or empty messages). Purely personal emails include personal information and do not include any relation to work being done. Personal but in a professional context emails include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-sensitive emails are professional emails that do not include personal information. You must classify the email as sensitive or non-sensitive regarding it containing sensitive personal information. To do this you will score how sensitive the document is using an integer between 0 and 10, where 0 is entirely non-sensitive and 10 is very sensitive.
+Always output JSON.
+You will be given an email message from a work email. Output only one section: ['classification score']. <</SYS>>
+email: {document}. 
+[/INST] 
+{{"classification score":"""
+
+def multi_category_fewshot(document):
+  return f"""[INST] Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-personal messages are professional emails that do not include personal information. Does the message contain purely personal information or information that is personal a professional context? 
+Example:
+Message: original message from julie sent tuesday june am to kaminski vince j subject extra books vince hope you are well weve been in contact with rice universitys bookshop and they informed us that they have a few books left over from the course we told them originally that if they didnt sell them all we would take them back we would rather have them sent over to you as complimentary copies if thats ok with you whats new busy summer so far hope that the storm didnt cause you any problems julie.
+Response: The text does contain personal information.
+
+Example:
+Message: aruna i shall be in london this week please call me on monday next week best time is between and my time vince.
+Response: The text does not contain personal information.
+
+Now answer:
+Message: {document}. 
+[/INST] 
+Response: The text does"""
 
 
 def get_prompt(prompt_name):
@@ -149,7 +226,10 @@ def get_prompt(prompt_name):
                   'multi_category': multi_category,
                   'base_classify': base_classify,
                   'barlit': barlit,
-                  'barlit2': barlit2
+                  'barlit2': barlit2,
+                  'sysjson': sysjson,
+                  'sysjsonrank': sysjsonrank,
+                  'multi_category_fewshot': multi_category_fewshot
                   }
 
     return prompt_dict.get(prompt_name)
