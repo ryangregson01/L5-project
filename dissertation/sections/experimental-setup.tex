@@ -1,0 +1,82 @@
+\section{Experimental Setup}
+
+The objective of our experiments is to see how effectively we can classify potentially sensitive documents using generative LLMs, and the impact of prompt engineering strategies for identifying sensitive personal information, i.e.,
+\begin{itemize}
+    \item RQ1: Can generative LLMs feasibly improve on current sensitivity classification methods for sensitive personal information.
+    \item RQ2: What is the importance of prompt engineering for classifying sensitive personal information with generative LLMs.
+\end{itemize}
+
+\subsection{Dataset}
+As the dataset for our experiments, we use the SARA collection \cite{mckechnie2024sara} (and the Spedac corpora [CITE]). The SARA collection has many long and unstructured email threads; therefore, we preprocess these documents to create consistency between the documents and remove noise across the collection, giving us more robust input to our LLMs. Our preprocessing, shown by Figure [FIG] involves:
+\begin{enumerate}
+    \item Removing email headers, as we are interested in personal information found in the body of our messages.
+    \item Removing email addresses from email thread metadata as this obvious PII caused model confusion in early experiments and we aim to focus on identifying sensitive personal information within the message.
+    \item Removing all consecutive whitespace characters.
+    \item Using simple preprocessing strategies to remove numerical values, punctuation and lowercase our documents \cite{rehurek2011gensim}.
+    \item We do not remove any stop words from the documents as this is less representative of the training data seen by LLMs [CITE].
+\end{enumerate}
+
+Preprocessing leads us to remove 128 duplicate documents which have the exact same content but are sent to a different inbox directory for example. This leaves us with 1574 documents (196 sensitive, 1378 non-sensitive documents) to assess. We continue to process our documents by segmenting email threads at the message-level as we believe this is a logical separation of information to classify. Searching for key terms ‘original message’ and ‘forwarded by’ we find 1334 earlier messages. Moreover, LLMs have a context window that limits the number of input tokens; therefore, we perform chunking on large documents at a token-level. Our models, Llama-2 and Mistral, have a context window of 4096, and we segment our documents at 2048 tokens so we have available tokens for our prompt engineering methods. We find that many documents before chunking is applied are below this threshold, and we only require chunking for 62 documents. We note that different models use different tokenizers; therefore, these chunks are slightly different across models (giving 3199 total documents for inference with Mistral, and 3218 with Llama-2 (and 3241 with Flan-T5)). To acquire sensitivity predictions for our 1574 unique SARA documents, we collect documents that are segments of a larger document, where if any segment is identified as sensitive, the entire document is regarded as sensitive.
+
+\subsection{Tools}
+We use the deep learning framework, PyTorch \cite{paszke2019pytorch}, for development in our project. This Pythonic approach allows us to use Python libraries for preprocessing through to evaluation. We use the Hugging Face platform \cite{wolf-etal-2020-transformers}, which hosts open-source models for machine learning, to retrieve the LLMs for our experiment.
+
+\subsection{Prompt Design}
+FIGURE BASE – ‘Context... ‘Question....’, ‘Message....’, ‘Answer....’
+
+Motivated by previous work (Section \ref{sec:background:prompt_engineering}), we have designed different prompts following prompt engineering techniques. We refined our prompt through extending text classification prompts \cite{kocon2023chatgpt}. We iteratively identified what context must be provided to classify sensitive personal information within our documents, to establish a sensible base prompt. We establish our base prompt, consisting of an explanation of the problem (identifying sensitive personal information), the question we pose instructing the model to answer about the task (answering about the email containing sensitive personal information), and a prefix so the model response is appropriate for processing the classification label [FIGURE BASE]. We then build on our base prompt using prompt engineering techniques.
+
+We have two questions we pose to the model: classification and QA. Directly asking the model to choose one of two classes (sensitive or non-sensitive), as suggested by Kocon et al \cite{kocon2023chatgpt}, and asking the model if the email \emph{`contains'} sensitive personal information. During development or our prompts, we found the models would answer similarly for the QA prompt, but answers were difficult to fully process; therefore, we set the prefix ‘The text does’ which was a common response before stating its prediction about the message containing or not containing sensitive personal information. Starting the assistant’s (/model’s) response using this prefix aligned the next new tokens to better fit our processing pipeline. For a question posed as a direct choice of classes, we used `Classification:' as a prefix which was a sufficient guide.
+
+We use the context manager to introduce additional context about the dataset, and what should be treated as sensitive personal information. This background context uses key terms such as the GDPR, and explanations of purely personal, personal but in a professional context and non-personal emails [FIGURE/showcase prompt – base personal (and ref base context e.g., 'GDPR (base context)']. We pivot to explanations of these coarse genre categories as simply requesting sensitive non-sensitive class labels for sensitive personal information provided unsatisfactory results despite the models' early demonstration of understanding what is regarded as sensitive personal information. We explored adding context about personal information, aiming to mitigate confusion by the model. We detailed the coarse genres from Hearst’s Enron annotations, suggesting to the model that it should differentiate the emails into multiple categories; identifying a message as the ‘empty with attachment’ category and not personal conversations instead of a more generic sensitive or non-sensitive. We also provide information about the documents, stating the fact they are email messages.
+
+We use few-shot learning within the context of the prompt by presenting examples of sensitive and non-sensitive emails. We cherry-pick our examples, where our sensitive example contains a personal question about their well-being that is not work-related, and our non-sensitive example is about arranging a work-related meeting call. We also ensure these documents are concise such that they fit within the context window yet still convey why they are regarded as sensitive or non-sensitive.
+
+We use the chain-of-thought prompt engineering technique. Related work demonstrates this technique can improve complex reasoning using LLMs. We use ‘thought hops’, designed to invoke and enhance the LLMs’ reasoning capabilities. Following this, we ask our prompt question to the model, aiming to assess if self-reasoning about sensitive personal information within the document improves the classification accuracy.
+
+\subsection{LLMs}
+\label{sec:experiment:LLMs}
+We use instruction-tuned LLMs as these are better at generating responses to instructions and questions compared to their corresponding non-instruction counterparts. We are also limited by computational cost; therefore, we use models smaller than state-of-the-art. However, our models are still large, with seven billion parameters, and a larger model using quantisation \cite{}[CITE]. Our techniques aim to show improvements to classification quality, so we hope these techniques will scale to larger models.
+
+We use the popular open-source generative LLMs Llama-2-7b-chat and Mistral-7B-Instruct-v0.2 at full precision as from early work we find these models are insufficient at the classification task when quantised; often hallucinating [cite the jargon term hallucinate?]. With larger models we are required to quantise due to hardware limitations, and we use Mixtral-8x7B-Instruct-v0.1 (GPTQ at 4 bits) [and Llama-2-13b-chat (GPTQ at 8 bits)]. These models are often used in benchmarks, where the latest Mistral model’s show performances better than Meta’s Llama-2 models. These models all use the decoder-only architecture. Furthermore, Mixtral uses a unique mixture-of-experts paradigm \cite{}[CITE], which is becoming increasingly popular within generative LLMs \cite{}[CITE]. [We also experiment with FLAN-T5 \cite{}[CITE], a smaller generative model with with 770 million (or 3 billion) parameters [Large/XL]] that has an encoder-decoder architecture.]
+
+We do not investigate the generation hyperparameters within our experiment. We use default generation hyperparameters, but modify sampling to greedy decoding which is deterministic and produces reproducible results. The generation configuration also fixes the number of generated tokens; where we find ten tokens is the minimum number of suitable tokens to generate class names. Our limits on generated tokens reduces the time for inference, and hence overall cost of using the models. Furthermore, for prompts of interest we generate up to a maximum of 150 tokens for analysis of model justification supporting the classifications.
+
+\subsection{Baselines}
+We set up simple baselines with scikit-learn to compare our LLMs’ classification performance against. We use baselines stratified random sampling (balanced accuracy of 0.5 demonstrates random predictions for binary classification) and a naive most frequent classifier (which is not useful for identifying sensitive personal information as exempt documents are often the minority class). We use TF-IDF features for the traditional machine learning techniques logistic regression and support vector machines which have been used in previous sensitivity classification [CITE].
+
+\subsection{Evaluation measures}
+BAC (and F1).
+McNemar’s test. Control prompt and assess how change in prompt improves classification performance.
+Confusion matrices.
+
+\subsection{Limitations}
+Using these models has a limited context window.
+Pre-trained biases.
+Less knowledge of UK FOIA – FOIA initially understood focus was American.
+Lack of knowledge about the training data.
+Emotive language in emails (less of limitation, more of a result).
+Prompts can be brittle.
+Model size – known GPT4 is big and good.
+Language evolution – emails are from 2001.
+
+
+Code for Experiments 
+pipeline
+
+
+
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.3]{figures/pipeline.pdf}
+\end{center}
+\caption{\label{fig-pipeline}Experiment pipeline}
+\end{figure*}
+
+
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.3]{figures/inputprompt.pdf}
+\end{center}
+\caption{\label{fig-input}Enron email message and prompt including personal context.}
+\end{figure*}
