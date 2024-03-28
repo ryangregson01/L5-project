@@ -209,6 +209,23 @@ Message: {document}.
 [/INST] 
 Response: The text does"""
 
+def sysclass(document):
+  return f"""[INST] <<SYS>> 
+You generate sensitivity classifications for email messages that potentially have sensitive personal information. You will be given an email message from a work email. Your task is to determine if the message contains sensitive personal information. You must classify the message as sensitive or non-sensitive. Classify purely personal messages as sensitive; these include personal information and do not include any relation to work being done. Classify personal but in a professional context messages as sensitive; these include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Classify all other emails as non-sensitive.
+Always output JSON. Output only one section: ['Classification']. <</SYS>>
+message: {document}. 
+[/INST] 
+{{"classification":"""
+
+def sysqa(document):
+  return f"""[INST] <<SYS>> 
+You generate sensitivity classifications for email messages that potentially have sensitive personal information. You will be given an email message from a work email. Your task is to determine if the message contains sensitive personal information. You must classify the message as sensitive or non-sensitive. Treat purely personal messages as sensitive; these include personal information and do not include any relation to work being done. Treat personal but in a professional context messages as sensitive; these include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Treat non-personal messages that are professional and do not include personal information as non-sensitive.
+Does the message contain sensitive personal information?
+Output your answer following 'The message does'. <</SYS>>
+email: {document}. 
+[/INST] 
+The message does"""
+
 
 def get_prompt(prompt_name):
     prompt_dict = {
@@ -229,7 +246,9 @@ def get_prompt(prompt_name):
                   'barlit2': barlit2,
                   'sysjson': sysjson,
                   'sysjsonrank': sysjsonrank,
-                  'multi_category_fewshot': multi_category_fewshot
+                  'multi_category_fewshot': multi_category_fewshot,
+                  'sysclass': sysclass,
+                  'sysqa': sysqa
                   }
 
     return prompt_dict.get(prompt_name)
