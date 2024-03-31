@@ -14,19 +14,25 @@ from dspy.teleprompt import BootstrapFewShotWithRandomSearch
 from DSPyCORPO import *
 import math
 import pandas as pd
+from transformers import AutoTokenizer
+from models import get_model_version
+from hf_dspy_edit import HFModelEdit
+import torch
+import gc
 
-negative = 'not sensitive'
-positive = 'sensitive'
+negative = '["non-sensitive"]'
+positive = '["sensitive"]'
 
 #login('###')
 
 class SensSignature(dspy.Signature):
-    """You are given some context (what sensitive personal information is), a message (what you must classify) and a question (what you must answer). You must answer with sensitive/not sensitive in response to the question given the context and message."""
-    
-    context = dspy.InputField(desc="", prefix="The message is from a work email and may contain sensitive personal information. Messages with sensitive personal information are purely personal and are unrelated to work. All other professional work-related messages are not sensitive.")
-    message = dspy.InputField(prefix="Message:")
-    question = dspy.InputField()
-    answer = dspy.OutputField(desc="sensitive or not sensitive", prefix="Message classification:")
+    """[INST] <<SYS>> 
+You generate sensitivity classifications for emails that have potentially sensitive personal information. You will be given an email message from a work email.
+Which one of the attributes: "sensitive", "non-sensitive" describes the given message?
+Always answer with a Python list containing the appropriate attribute. <<SYS>> [/INST] """
+
+    message = dspy.InputField(desc="an email message containing potentially sensitive personal information", prefix="message:")
+    answer = dspy.OutputField(desc="you answer with sensitive or not sensitive", prefix="message classification:")
 
 class PromptNN(dspy.Module):
     def __init__(self, config):
@@ -34,24 +40,48 @@ class PromptNN(dspy.Module):
 
         self.signature = SensSignature
         x = dspy.OutputField(
-            prefix="",
-            desc="",
+            desc="you reason with two short sentences so you can generate an answer",
         )
-        self.predictor = dspy.ChainOfThought(self.signature, activated=False) #, rationale_type=x)
+        self.predictor = dspy.ChainOfThought(SensSignature, activated=False) #, rationale_type=x)
         self.config = config
 
-    def forward(self, question):
-        result = self.predictor(message=question, question="Does the message contain personal sensitive information? Classify the message among sensitive, not sensitive.", **self.config)
+    def forward(self, document):
+        result = self.predictor(message=document, **self.config)
+        #print(result)
         return dspy.Prediction(
             answer=result.answer,
         )
 
 
+def clear_memory():
+    # Prevents cuda out of memory
+    torch.cuda.empty_cache()
+    gc.collect()
+
+class vanillaNN(dspy.Module):
+    def __init__(self, config):
+        super().__init__()
+
+        self.signature = SensSignature
+        x = dspy.OutputField(
+            desc="you reason with two short sentences so you can generate an answer",
+        )
+        self.predictor = dspy.ChainOfThought("question -> classification", activated=False) #, rationale_type=x)
+        self.config = config
+
+    def forward(self, question):
+        result = self.predictor(question=question, **self.config)
+        #print(result)
+        return dspy.Prediction(
+            classification=result.classification,
+        )
+
 def stream_ans(gen_ans):
     gen_ans = gen_ans.split('classification:')
     gen_ans = gen_ans[-1]
     match_string = gen_ans.lower()
-    if 'not sensitive' in match_string:
+    print(match_string)
+    if 'non-sensitive' in match_string:
         return negative
     elif 'sensitive' in match_string:
         return positive
@@ -59,11 +89,13 @@ def stream_ans(gen_ans):
         return 'no answer'
 
 def evaluation_metric(example, pred, trace=None):
-    ground_truth = example.answer
-    processed_pred = stream_ans(pred.answer)
-    print(processed_pred)
-    pred.answer = processed_pred
-    answer_EM = dspy.evaluate.answer_exact_match(example, pred)
+    clear_memory()
+    ground_truth = example.classification
+    processed_pred = stream_ans(pred.classification)
+    pred.classification = processed_pred
+    answer_EM = ground_truth == processed_pred
+    #answer_EM = dspy.evaluate.answer_exact_match(example, pred)
+    print(answer_EM)
     return answer_EM
 
 def dspy_dataset(df):
@@ -74,23 +106,46 @@ def dspy_dataset(df):
             ans = negative
         else:
             ans = positive
-        f = dspy.Example({"question": s[1]["text"], "answer": ans})
+        instructions = """[INST] <<SYS>> 
+You generate sensitivity classifications for emails that have potentially sensitive personal information. You will be given an email message from a work email.
+Which one of the attributes: "sensitive", "non-sensitive" describes the given message?
+Always answer with a Python list containing the appropriate attribute. <<SYS>> [/INST] \nMessage:"""
+        f = dspy.Example({"question": s[1]["text"], "classification": ans})
         devset.append(f)
-        f = dspy.Example({"question": s[1]["text"], "answer": ans}).with_inputs("question")
+        f = dspy.Example({"question": instructions+s[1]["text"], "classification": ans}).with_inputs("question")
         devset_with_input.append(f)
     return devset, devset_with_input
 
 
-turbo = dspy.HFModel(model = 'mistralai/Mistral-7B-Instruct-v0.2')
+m = 'mistralai/Mistral-7B-Instruct-v0.2'
+tokenizer = AutoTokenizer.from_pretrained(m, use_fast=True)
+turbo = HFModelEdit(model = 'mistralai/Mistral-7B-Instruct-v0.2')
 dspy.settings.configure(lm=turbo)
 config = {'config': {'do_sample':False, 'max_new_tokens':10} }
 generate_answer = PromptNN(config)
-sara_df = full_preproc(load_sara())
-#sara_df = sara_df.sample(n=50, random_state=1)
+s = load_sara()
+s = s.sample(n=20, random_state=1)
+sara_df = full_preproc(s, tokenizer)
 devset, devset_with_input = dspy_dataset(sara_df)
-evaluator = Evaluate(devset=devset_with_input, metric=evaluation_metric, num_threads=1, display_progress=True) #, display_table=0)
+evaluator = Evaluate(devset=devset_with_input[10:], metric=evaluation_metric, num_threads=1, display_progress=True) #, display_table=0)
 #evaluator(generate_answer)
 
+
+#vanilla = dspy.Predict("question -> classification"config)
+#evaluator(vanilla)
+#vanilla = dspy.ChainOfThought("question -> classification", activated=False)
+#evaluator(vanilla)
+
+vanilla = vanillaNN(config)
+evaluator(vanilla)
+
+#CoT = dspy.ChainOfThought("question -> classification") 
+#evaluator(CoT)
+#fewshot = dspy.LabeledFewShot(k=8).compile(vanilla, trainset=devset_with_input[:10])
+tp = BootstrapFewShotWithRandomSearch(metric=evaluation_metric)
+bootstrap = tp.compile(vanilla, trainset=devset_with_input[:10], valset=devset_with_input[10:])
+evaluator(bootstrap)
+exit(0)
 config = dict(epochs=1, bf16=True, lr=5e-5)
 tp = BootstrapFewShotWithRandomSearch(metric=evaluation_metric, max_bootstrapped_demos=1,
                                       num_candidate_programs=1, num_threads=1, max_labeled_demos=1,

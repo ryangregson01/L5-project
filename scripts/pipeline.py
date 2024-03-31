@@ -8,6 +8,10 @@ import numpy as np
 import os
 import json
 from few import get_key_to_sims
+from prompts_matrix import get_prompt_matrix
+import spacy
+import pandas as pd
+
 
 def all_responses_json(model_responses, further_processing_required, preds_list, truths_list, model_name, prompt_name, sara_df):
     results = []
@@ -63,6 +67,19 @@ def write_responses_json(results, filename):
         json.dump(results, file, indent=4)
 
 
+def clean_names(data):
+    nlp = spacy.load("en_core_web_sm")
+    anon_text = []
+    for d in data.text:
+        doc = nlp(d)
+        anonymized_text = d
+        for ent in doc.ents:
+            if ent.label_ == "PERSON":
+                anonymized_text = anonymized_text.replace(ent.text, "")
+        anon_text.append(anonymized_text)
+    new_list = [{'doc_id':r.doc_id, 'text':anon_text[i], 'sensitivity':r.sensitivity} for i, r in data.iterrows()]
+    return pd.DataFrame.from_dict(new_list)
+
 def run_pipeline(model_name, m, v, r, d, prompts, end_prompt, n=None):
     """
     Runs full pipeline: downloading and preprocessing dataset, running experiment, 
@@ -81,6 +98,7 @@ def run_pipeline(model_name, m, v, r, d, prompts, end_prompt, n=None):
 
     sara_df = load_sara()
     tokenizer, model = get_model_version(m, v, r, d)
+    #sara_df = clean_names(sara_df)
 
     if n == None:
         processed_sara_df = full_preproc(sara_df, tokenizer)
@@ -96,7 +114,7 @@ def run_pipeline(model_name, m, v, r, d, prompts, end_prompt, n=None):
         prompt_name = prompt
         print('Using', prompt_name)
         prompt_str = 'results/model_results/' + model_name + '/' + prompt_name + '/'
-        prompt = get_prompt(prompt)
+        prompt = get_prompt_matrix(prompt)
         start = time.time()
         preds_list, truths_list, model_responses, further_processing_required = llm_experiment(processed_sara_df, prompt, model, tokenizer, d, end_prompt) #key_to_sims, end_prompt)
         end = time.time()

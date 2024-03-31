@@ -28,7 +28,8 @@ else:
 #print(load_func, model_path, revision, device)
 #prompts = ['base_sens', 'base2_sens', 'context_b1_sens', 'context_b2_sens', 'base_personal', 'context_b1_personal', 'fixed_fewshot_personal', 'base_personal_explanation', 'purely_personal', 'itspersonalgenres', 'multi_category_noanseng', 'multi_category', 'base_classify', 'barlit', 'barlit2']
 prompts = ['barlit', 'barlit2']
-prompts = ['multi_category', 'itspersonalgenres', 'base_personal']
+prompts = ['text', 'pdc', 'cg', 'textqa', 'pdcqa', 'cgqa']
+prompts = ['pdc2']
 end_prompt = '[/INST]'
 sample_size = 4
 

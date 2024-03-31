@@ -1,0 +1,34 @@
+[
+  {
+    "model": "mist-noreply",
+    "prompt": "context1_qa",
+    "doc_id": "175555",
+    "generated_response": " \nThe message does not contain any sensitive personal information as defined under GDPR. It is a professional email discussing business matters related to Enron Corporation and potential implications for the company's reputation in the market.",
+    "prediction": 1,
+    "ground_truth": 0
+  },
+  {
+    "model": "mist-noreply",
+    "prompt": "context1_qa",
+    "doc_id": "54629",
+    "generated_response": " \nThe message does not contain any sensitive personal information as defined under GDPR. It primarily discusses logistical details for a business meeting and includes some professional information about data sets and a URL for a commodity option calculator demonstration. There is no mention of any individual's personal information beyond the names and contact details of the individuals involved in the meeting. Therefore, the message can be classified as non-personal.",
+    "prediction": 1,
+    "ground_truth": 0
+  },
+  {
+    "model": "mist-noreply",
+    "prompt": "context1_qa",
+    "doc_id": "177860",
+    "generated_response": " \nThe message does not contain any sensitive personal information as defined under GDPR. It primarily discusses business matters and the progress of a potential business opportunity, with some personal details about scheduling and communication. Therefore, it falls under the category of non-personal messages.",
+    "prediction": 1,
+    "ground_truth": 1
+  },
+  {
+    "model": "mist-noreply",
+    "prompt": "context1_qa",
+    "doc_id": "54263",
+    "generated_response": " \nThe message does not contain any sensitive personal information as defined under GDPR. The message is related to work, specifically an invitation to speak at a conference and subsequent responses. Therefore, the message falls under the category of non-personal messages.",
+    "prediction": 1,
+    "ground_truth": 1
+  }
+]
