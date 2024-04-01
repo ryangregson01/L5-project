@@ -1,0 +1,34 @@
+[
+  {
+    "model": "mist7b-mist",
+    "prompt": "pdcqa",
+    "doc_id": "175555",
+    "generated_response": " \n\nThe document does not appear to contain any sensitive personal information. The",
+    "prediction": 0,
+    "ground_truth": 0
+  },
+  {
+    "model": "mist7b-mist",
+    "prompt": "pdcqa",
+    "doc_id": "54629",
+    "generated_response": " \n\nThe document does not contain sensitive personal information as it primarily discusses",
+    "prediction": 1,
+    "ground_truth": 0
+  },
+  {
+    "model": "mist7b-mist",
+    "prompt": "pdcqa",
+    "doc_id": "177860",
+    "generated_response": " \n\nThe document does contain personal information, specifically the names of individuals mentioned",
+    "prediction": 1,
+    "ground_truth": 1
+  },
+  {
+    "model": "mist7b-mist",
+    "prompt": "pdcqa",
+    "doc_id": "54263",
+    "generated_response": " \n\nThe document does not contain any sensitive personal information. The messages are",
+    "prediction": 1,
+    "ground_truth": 1
+  }
+]

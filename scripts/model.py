@@ -8,6 +8,7 @@ from prompts import *
 
 
 from dataset import load_sara
+from preprocess_sara import full_preproc
 from few import get_key_to_sims, get_sims, get_sim_text
 
 import json
@@ -107,11 +108,10 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
     truths = []
     preds = []
 
-    # proc is dataset, get key_to_sims for fewshot
-    #s = load_sara()
+    # proc is the sampled dataset, get key_to_sims for fewshot
+    #full_proc = full_preproc(load_sara(), tokenizer)
     #proc = dataset
-    #size = 5
-    #key_to_sims = get_key_to_sims(size)
+    #key_to_sims = get_key_to_sims(full_proc, proc, tokenizer)
 
     ds = dataset.sort_values(by=["text"],key=lambda x:x.str.len())
     dataset = ds
@@ -131,37 +131,22 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         sample_text = sample[1].text
         ground_truth = sample[1].sensitivity
 
+        '''
         # Input text is too large for model
         #if len(sample_text) > 10000:
         #    fpr[sample_id] = "TOO LARGE"
         #    mr[sample_id] = "TOO LARGE"
         #    continue
 
-        '''
         document = sample_text
-        ds = proc[proc.text == document]
-        idd = ds.doc_id.iloc[0]
-        if '_' in idd:
-            idd = idd[:idd.find('_')]
+        #ds = proc[proc.text == document]
+        #idd = ds.doc_id.iloc[0]
+        #if '_' in idd:
+        #    idd = idd[:idd.find('_')]
+        idd = sample_id
         l = key_to_sims.get(idd)
         len_doc = len(document)
-        remaining_text_space = 9500 - len_doc
-        each_example = remaining_text_space / 2
-        few_sens_ex = ''
-        few_nonsens_ex = ''
-
-        for sens in l[1]:
-            senstext = get_sim_text(s, sens, proc)
-            if len(senstext) <= each_example:
-                few_sens_ex = senstext
-                break
-
-        for nonsens in l[0]:
-            nonsenstext = get_sim_text(s, nonsens, proc)
-            if len(nonsenstext) <= each_example:
-                few_nonsens_ex = nonsenstext
-                break
-
+        few_sens_ex, few_nonsens_ex = get_sims(l[0], l[1], full_proc, len_doc)
         '''
         '''
         k = sample_id
@@ -173,10 +158,11 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         
         '''
 
-        prompt_input = prompt_strategy(sample_text) #, thought) #, few_sens_ex, few_nonsens_ex)
+        #prompt_input = prompt_strategy(sample_text) #, thought) #, few_sens_ex, few_nonsens_ex)
+        prompt_input = prompt_strategy(sample_text, few_sens_ex, few_nonsens_ex)
         batch.append(prompt_input)
         batch_ids.append(sample_id)
-        if len(batch) == cur_bs or (count > 991):
+        if len(batch) == cur_bs or (count > 0):
             sample_text = batch
             batch = []
         else:

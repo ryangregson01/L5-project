@@ -67,7 +67,7 @@ def write_responses_json(results, filename):
         json.dump(results, file, indent=4)
 
 
-def clean_names(data):
+def clean_names(data, replaced=''):
     nlp = spacy.load("en_core_web_sm")
     anon_text = []
     for d in data.text:
@@ -75,7 +75,7 @@ def clean_names(data):
         anonymized_text = d
         for ent in doc.ents:
             if ent.label_ == "PERSON":
-                anonymized_text = anonymized_text.replace(ent.text, "")
+                anonymized_text = anonymized_text.replace(ent.text, replaced)
         anon_text.append(anonymized_text)
     new_list = [{'doc_id':r.doc_id, 'text':anon_text[i], 'sensitivity':r.sensitivity} for i, r in data.iterrows()]
     return pd.DataFrame.from_dict(new_list)

@@ -94,17 +94,14 @@ def get_results_json(mname, clean=True):
     #print("Path to results", target_directory)
     prompt_results = os.listdir(target_directory)
     main_results = []
-    prompts_and_answers = {'multi_category': 'does not', 
-                           'pers_multi': 'non-personal', 
-                           'barlit':'non-sensitive',
+    prompts_and_answers = {'multi_category': 'does not',
                            'text': 'non-sensitive',
-                           'pdc': 'non-personal',
+                           'pdc2': 'non-personal',
                            'cg': 'non-personal',
-                           
+                           'textfew': 'non-sensitive',
+                           'pdcfew': 'non-personal',
+                           'cgfew': 'non-personal',
                            }
-    #prompts = ['pers_multi', 'multi_category', 'barlit']
-    prompts = ['text', 'pdc', 'cg']
-    #prompts = ['cg']
     prompt_results = os.listdir(target_directory)
     main_results = []
     for prompt in prompt_results:
@@ -158,7 +155,7 @@ def calculate_balanced_accuracy(group):
     return balanced_accuracy_score(group['ground_truth'], group['prediction'])
 
 def calculate_f1(group):
-    return f1_score(group['ground_truth'], group['prediction'], average='weighted')
+    return f1_score(group['ground_truth'], group['prediction'])
 
 def calc_prec(group):
     return precision_score(group['ground_truth'], group['prediction'])
@@ -177,7 +174,7 @@ def tnr(group):
     return tnr
 
 def calculate_f2(group):
-    return fbeta_score(group['ground_truth'], group['prediction'], average='weighted', beta=2)
+    return fbeta_score(group['ground_truth'], group['prediction'], beta=2)
 
 def auroc(group):
     return roc_auc_score(group['ground_truth'], group['prediction'])
@@ -211,7 +208,13 @@ def prompt_performance(df):
 
 s = load_sara()
 clean_unique_docs = no_reply_proc(s)
+prompts = ['multi_category', 'text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew']
 x = get_results_json('mist-noreply')
-print(x)
+#print(x)
 prompt_performance_df = prompt_performance(x)
+prompt_order = ['multi_category', 'text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew']
+prompt_performance_df['prompt'] = pd.Categorical(prompt_performance_df['prompt'], categories=prompt_order, ordered=True)
+prompt_performance_df = prompt_performance_df.sort_values('prompt')
 print(prompt_performance_df)
+
+

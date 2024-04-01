@@ -11,7 +11,7 @@ import sys
 
 from dataset import load_sara
 from models import get_model_version
-from preprocess_sara import proccutit
+from preprocess_sara import proccutit, full_preproc
 from sklearn.metrics.pairwise import cosine_similarity
 import time
 
@@ -35,19 +35,12 @@ def pad_token_sequences(seq1, seq2, pad_token_id=0):
     seq2_padded = seq2 + [pad_token_id] * (max_len - len(seq2))
     return seq1_padded, seq2_padded
 
-def get_max_sims(s, key_vecs, samp=None):
+def get_max_sims(fproc, sproc, key_vecs):
     bp = 0
     max_sims = []
     max_sims_is = []
-    if samp is None:
-        samp_key_vecs = key_vecs
-    else:
-        sm = s.sample(n=samp, random_state=1)
-        samp_key_vecs = {}
-        for k in sm.doc_id:
-            samp_key_vecs[k] = key_vecs.get(k)
 
-    for k, embed in samp_key_vecs.items():
+    for k, embed in key_vecs.items():
         sims = []
         sens_max_sim = 0
         sens_max_sim_i = 0
@@ -69,13 +62,13 @@ def get_max_sims(s, key_vecs, samp=None):
             sims.append(c)
 
             c = c.item()
-            seq_label = s[s['doc_id']==k].sensitivity.iloc[0]
+            seq_label = fproc[fproc['doc_id']==k].sensitivity.iloc[0]
             if seq_label == 0:
                 non_sens_dict[i] = c
             elif seq_label == 1:
                 sens_dict[i] = c
 
-        if len(sims) != 1701:
+        if len(sims) != (len(fproc) - 1):
             print(len(sims))
 
         #max_sims.append((non_sens_max_sim, sens_max_sim))
@@ -89,19 +82,15 @@ def get_max_sims(s, key_vecs, samp=None):
         bp += 1
         if (bp % 100) == 0:
             print('Iteration', bp)
-        if bp == samp:
+        if bp == len(sproc):
             break
     
     return max_sims_is
 
 
-def key_sim(s, max_sims_is, samp=None):
+def key_sim(sproc, max_sims_is):
     key_to_sims = {}
-    if samp == None:
-        pass
-    else:
-        s = s.sample(n=samp, random_state=1)
-    for i, k in enumerate(s.doc_id):
+    for i, k in enumerate(sproc.doc_id):
         if (len(max_sims_is)-1) < i:
             break
         key_to_sims[k] = max_sims_is[i]
@@ -109,39 +98,67 @@ def key_sim(s, max_sims_is, samp=None):
     return key_to_sims
 
 
-def get_sim_text(s, index, proc):
-    sim = s.loc[index]
+def get_sim_text(fproc, index):
+    sim = fproc.loc[index].text
+    #print(sim)
+    return sim
     id_sim = sim.doc_id
-    proc = proccutit(s)
-    filtered_df = proc[proc['doc_id'].apply(lambda x: (x.startswith(id_sim)))]
+    #filtered_df = sproc[sproc['doc_id'].apply(lambda x: (x.startswith(id_sim)))]
     if len(filtered_df) == 0:
         return ' '
     nonsen_few_prompt = filtered_df.iloc[0].text
     return nonsen_few_prompt
 
-def get_sims(nonsen, sens, s, proc):
+def get_sims(nonsen, sens, fproc, doc_len):
     #nonsen, sens = max_sims_is[i]
-    nonsen_few_prompt = get_sim_text(s, nonsen, proc)
-    sen_few_prompt = get_sim_text(s, sens, proc)
-    return nonsen_few_prompt, sen_few_prompt
+    shot_length = (9500 - doc_len) / 2
+    shot_nonsen = ''
+    shot_sen = ''
+    for val in nonsen:
+        text = get_sim_text(fproc, val)
+        if len(text) <= shot_length:
+            shot_nonsen = text
+            break
+
+    #print(shot_nonsen)
+
+    for val in sens:
+        text = get_sim_text(fproc, val)
+        if len(text) <= shot_length:
+            shot_sen = text
+            break
+
+    #print(shot_sen)
+    #nonsen_few_prompt = get_sim_text(fproc, nonsen)
+    #sen_few_prompt = get_sim_text(fproc, sens)
+    return shot_nonsen, shot_sen
 
 
-def get_key_to_sims(samp=None):
-    s = load_sara()
-    tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2", use_fast=True)
-    encode_map = encode_texts(s, tokenizer)
-    max_sims_is = get_max_sims(s, encode_map, samp)
-    key_to_sims = key_sim(s, max_sims_is, samp)
+def get_max_sims_call(fproc, sproc, tokenizer):
+    encode_map = encode_texts(fproc, tokenizer)
+    max_sims_is = get_max_sims(fproc, sproc, encode_map)
+    key_to_sims = key_sim(sproc, max_sims_is)
+    #print(key_to_sims)
     return key_to_sims
 
+
+def get_key_to_sims(full_proc, sproc, tokenizer):
+    #samp=2
+    #s = load_sara()
+    #tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2", use_fast=True)
+    #full_proc = full_preproc(s, tokenizer)
+    #samp_proc = s.sample(n=samp, random_state=1)
+    key_sims = get_max_sims_call(full_proc, sproc, tokenizer)
+    return key_sims
+
+
 def main():
-    samp = 2000 # bigger so won't end
+    samp = 2 #2000 # bigger so won't end
     start = time.time()
     s = load_sara()
-    proc = proccutit(s)
-    #s.head()
-    #tokenizer, model = get_model_version('get_model', "mistralai/Mistral-7B-Instruct-v0.2", "main", "auto")
     tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2", use_fast=True)
+    proc = full_preproc(s, tokenizer)
+    #tokenizer, model = get_model_version('get_model', "mistralai/Mistral-7B-Instruct-v0.2", "main", "auto")
     encode_map = encode_texts(s, tokenizer)
     max_sims_is = get_max_sims(s, encode_map, samp)
     key_to_sims = key_sim(s, max_sims_is)
@@ -151,4 +168,21 @@ def main():
     #print(key_to_sims)
 
 
+def main():
+    samp = 2 #2000 # bigger so won't end
+    s = load_sara()
+    #samp = s.sample(n=samp, random_state=1)
+    tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2", use_fast=True)
+    full_proc = full_preproc(s, tokenizer)
+    samp_proc = full_proc.sample(n=samp, random_state=1)
+    key_sims = get_key_to_sims(full_proc, samp_proc, tokenizer)
+    doc = samp_proc[samp_proc.doc_id == '173146'].text.iloc[0] 
+    print(doc)
+    l = key_sims.get('173146')
+    print(l[1][0])
+    #get_sim_text(full_proc, l[1][0], samp_proc)
+
+    get_sims(l[0], l[1], full_proc, len(doc))
+
 #main()
+

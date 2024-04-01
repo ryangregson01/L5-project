@@ -37,16 +37,16 @@ def main_experiment(NN, sig, break_p):
 
     s = load_sara()
     p = full_preproc(s, tokenizer)
-    config = {'config': {'do_sample':False, 'max_new_tokens':200} }
+    config = {'config': {'do_sample':False, 'max_new_tokens':60} }
     generate_answer = NN(config, sig)
     ans_prefix = generate_answer.signature.fields.get('answer').json_schema_extra.get('prefix')
-    print(ans_prefix)
+    #print(ans_prefix)
 
     mrs = []
     count_trace = 0
     for i, row in enumerate(p.iterrows()):
         row_id = row[1].doc_id
-        row_text = row[1].text
+        row_text = row[1].text + '.'
         row_gt = row[1].sensitivity
 
         gen_pred = generate_answer(document=row_text)
@@ -54,10 +54,10 @@ def main_experiment(NN, sig, break_p):
         gen_ans = ans_split[-1]
 
         match_string = gen_ans.lower()
-        if 'not sensitive' in match_string:
+        if 'non-sensitive' in match_string:
             pred = 0
-        elif 'sensitive' in match_string:
-            pred = 1
+        #elif 'sensitive' in match_string:
+        #    pred = 1
         else:
             pred = 1
 
@@ -123,6 +123,7 @@ class SensSignature2(dspy.Signature):
     message = dspy.InputField(desc="a potentially sensitive email message", prefix="message:")
     answer = dspy.OutputField(desc="you answer with sensitive or not sensitive", prefix="message classification:")
 
+
 class PromptNN(dspy.Module):
     def __init__(self, config, sig):
         super().__init__()
@@ -146,10 +147,95 @@ class PromptNN(dspy.Module):
 
 
 
+class pdc(dspy.Signature):
+    """[INST] <<SYS>> 
+Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal.
 
-mrs = main_experiment(PromptNN, SensSignature, 5000)
+Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-personal messages are professional emails discussing topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support, etc.), employment arrangements (job seeking, hiring, recommendations, etc.), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
+
+Which one of the attributes: "purely personal", "personal but in a professional context", or "non-personal" describes the following message? 
+Always answer in the form of a Python list containing the appropriate attribute. <</SYS>> [/INST] """
+
+    message = dspy.InputField(desc="an email message", prefix="Message:")
+    answer = dspy.OutputField(desc='answer with "purely personal", "personal but in a professional context", or "non-personal"', prefix="Answer:")
+
+class hop1(dspy.Signature):
+    """[INST] <<SYS>> 
+Your task is to determine if the email message from a work email contains personal information.
+
+State what personal information is present in the message if any. <</SYS>> [/INST] """
+
+    message = dspy.InputField(desc="an email message", prefix="Message:")
+    answer = dspy.OutputField(desc='describe present personal information', prefix="Answer:")
+
+class hop2(dspy.Signature):
+    """[INST] <<SYS>> 
+Your task is to determine if the email message from a work email contains personal information that is sensitive and would be protected under the GDPR.
+
+You have already identified if personal information is present within the message, which is appended to the message.
+
+State if the personal information you identified is sensitive. <</SYS>> [/INST] """
+
+    message = dspy.InputField(desc="an email message", prefix="Message:")
+    identified = dspy.InputField(desc="personal information identified")
+    answer = dspy.OutputField(desc='describe present personal information', prefix="Answer:")
+
+class hop3(dspy.Signature):
+    """[INST] <<SYS>> 
+Your task is to determine if the email message from a work email contains personal information that is sensitive.
+
+You have already identified if personal information is present within the message, and if this information is sensitive and would be protected under the GDPR. This reasoning is shown under the message.
+
+Which one of the attributes: "sensitive" or "non-sensitive" describes the following message? 
+Always answer in the form of a Python list containing the appropriate attribute. <</SYS>> [/INST] """
+
+    message = dspy.InputField(desc="an email message", prefix="Message:")
+    reasoning = dspy.InputField(desc="reasoning for answer", prefix="Reasoning:")
+    answer = dspy.OutputField(desc='answer with "sensitive" or "non-sensitive"', prefix="Answer:")
+
+
+class pdcNN(dspy.Module):
+    def __init__(self, config, sig):
+        super().__init__()
+
+        self.signature = pdc
+        x = dspy.OutputField(
+            desc="you reason with two short sentences so you can generate an answer",
+        )
+        self.hop1 = dspy.ChainOfThought(hop1, activated=False)
+        self.hop2 = dspy.ChainOfThought(hop2, activated=False)
+        self.hop3 = dspy.ChainOfThought(hop3, activated=False)
+        self.predictor = dspy.ChainOfThought(self.signature, activated=False) #, rationale_type=x)
+        self.config = config
+
+    def forward(self, document):
+        hop = self.hop1(message=document)
+        #print(hop)
+        #print(hop.answer)
+        ans_split = hop.answer.split('Answer: ')
+        gen_ans = ans_split[-1]
+        #print(gen_ans)
+        hop = self.hop2(message=document, identified=gen_ans)
+        ans_split = hop.answer.split('Answer: ')
+        gen_ans2 = ans_split[-1]
+        reason = gen_ans+gen_ans2
+        #print(reason)
+        short_config = {'config': {'do_sample':False, 'max_new_tokens':10} }
+        hop = self.hop3(message=document, reasoning=reason, **short_config)
+        #print(hop)
+
+        #result = self.predictor(message=document, **self.config)
+        #print(result)
+        result = hop
+        return dspy.Prediction(
+            answer=result.answer,
+        )
+
+
+
+mrs = main_experiment(pdcNN, pdc, 2000)
 #print(mrs)
 #for l in mrs:
 #    print(l.get('generated_response')[:10])
-write_responses_json(mrs, 'results/cotdsp.json')
+write_responses_json(mrs, 'results/dspcgcot.json')
 

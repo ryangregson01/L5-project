@@ -29,11 +29,12 @@ else:
 #prompts = ['base_sens', 'base2_sens', 'context_b1_sens', 'context_b2_sens', 'base_personal', 'context_b1_personal', 'fixed_fewshot_personal', 'base_personal_explanation', 'purely_personal', 'itspersonalgenres', 'multi_category_noanseng', 'multi_category', 'base_classify', 'barlit', 'barlit2']
 prompts = ['barlit', 'barlit2']
 prompts = ['text', 'pdc', 'cg', 'textqa', 'pdcqa', 'cgqa']
-prompts = ['pdc2']
+#prompts = ['pdc2']
+#prompts = ['pdcfewsim']
 end_prompt = '[/INST]'
-sample_size = 4
+sample_size = 2
 
 print('Starting experiment:', model_name)
 print(prompts)
-run_pipeline(model_name, load_func, model_path, revision, device, prompts, end_prompt) #, sample_size)
+run_pipeline(model_name, load_func, model_path, revision, device, prompts, end_prompt, sample_size)
 print('Finished experiment:', model_name)
