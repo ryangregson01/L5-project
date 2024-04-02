@@ -170,28 +170,32 @@ State what personal information is present in the message if any. <</SYS>> [/INS
 
 class hop2(dspy.Signature):
     """[INST] <<SYS>> 
-Your task is to determine if the email message from a work email contains personal information that is sensitive and would be protected under the GDPR.
+Your task is to determine if the email message from a work email belongs to a personal or non-personal email topic.
 
-You have already identified if personal information is present within the message, which is appended to the message.
+You have already identified if personal information could be present within the message, which is appended to the message.
 
-State if the personal information you identified is sensitive. <</SYS>> [/INST] """
+Personal messages discuss purely personal or personal in a professional context information. Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-personal messages are professional emails discussing topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support), employment arrangements (job seeking, hiring, recommendations), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
+
+State if the personal information you identified is purely personal, personal but in a professional context, or belongs to a non-personal email topic. <</SYS>> [/INST] """
 
     message = dspy.InputField(desc="an email message", prefix="Message:")
     identified = dspy.InputField(desc="personal information identified")
-    answer = dspy.OutputField(desc='describe present personal information', prefix="Answer:")
+    answer = dspy.OutputField(desc='reason about email topic', prefix="Answer:")
 
 class hop3(dspy.Signature):
     """[INST] <<SYS>> 
-Your task is to determine if the email message from a work email contains personal information that is sensitive.
+Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal information.
 
-You have already identified if personal information is present within the message, and if this information is sensitive and would be protected under the GDPR. This reasoning is shown under the message.
+Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-personal messages are professional emails discussing topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support, etc.), employment arrangements (job seeking, hiring, recommendations, etc.), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
 
-Which one of the attributes: "sensitive" or "non-sensitive" describes the following message? 
-Always answer in the form of a Python list containing the appropriate attribute. <</SYS>> [/INST] """
+You have already identified if personal information is present within the message, and then what email topic this message belongs to. This reasoning is shown under the message.
+
+Which one of the attributes: "purely personal", "personal but in a professional context", or "non-personal" describes the following message? 
+Always answer in the form of a Python list containing the appropriate attribute <</SYS>> [/INST] """
 
     message = dspy.InputField(desc="an email message", prefix="Message:")
     reasoning = dspy.InputField(desc="reasoning for answer", prefix="Reasoning:")
-    answer = dspy.OutputField(desc='answer with "sensitive" or "non-sensitive"', prefix="Answer:")
+    answer = dspy.OutputField(desc='answer with "purely personal", "personal but in a professional context", or "non-personal"', prefix="Answer:")
 
 
 class pdcNN(dspy.Module):
@@ -237,5 +241,5 @@ mrs = main_experiment(pdcNN, pdc, 2000)
 #print(mrs)
 #for l in mrs:
 #    print(l.get('generated_response')[:10])
-write_responses_json(mrs, 'results/dspcgcot.json')
+write_responses_json(mrs, 'results/dsp3hopcot.json')
 

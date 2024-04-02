@@ -101,6 +101,9 @@ def get_results_json(mname, clean=True):
                            'textfew': 'non-sensitive',
                            'pdcfew': 'non-personal',
                            'cgfew': 'non-personal',
+                           'textqa': 'No',
+                           'pdcqa': 'No',
+                           'cgqa': 'No',
                            }
     prompt_results = os.listdir(target_directory)
     main_results = []
@@ -132,6 +135,10 @@ def get_results_json(mname, clean=True):
         data_df = new_get_join(data)
         clean_json = []
         for i, v in data_df.iterrows():
+            if v.doc_id in X_train:
+                #print(v.doc_id)
+                #exit(0)
+                continue
             clean = {
                 'doc_id': v.doc_id,
                 'prediction': v.prediction,
@@ -183,19 +190,20 @@ def prompt_performance(df):
     #accuracy_df = results_df.groupby(['model', 'prompt']).apply(lambda x: (x['prediction'] == x['ground_truth']).mean()).reset_index(name='accuracy')
     # Group by model and prompt, then apply the calculation for each metric
     grouped = df.groupby(['model', 'prompt'])
-    accuracy_df = grouped.apply(calculate_accuracy).reset_index(name='accuracy')
-    balanced_accuracy_df = grouped.apply(calculate_balanced_accuracy).reset_index(name='balanced_accuracy')
-    f1_score_df = grouped.apply(calculate_f1).reset_index(name='f1_score')
-    prec_df = grouped.apply(calc_prec).reset_index(name='prec')
-    rec_df = grouped.apply(calc_rec).reset_index(name='recall')
-    tpr_df = grouped.apply(tpr).reset_index(name='tpr')
-    tnr_df = grouped.apply(tnr).reset_index(name='tnr')
-    f2_score_df = grouped.apply(calculate_f2).reset_index(name='f2_score')
-    auroc_df = grouped.apply(auroc).reset_index(name='auroc')
+    accuracy_df = grouped.apply(calculate_accuracy).reset_index(name='Accuracy')
+    balanced_accuracy_df = grouped.apply(calculate_balanced_accuracy).reset_index(name='BAC')
+    f1_score_df = grouped.apply(calculate_f1).reset_index(name='$F_{1}$')
+    prec_df = grouped.apply(calc_prec).reset_index(name='Precision')
+    rec_df = grouped.apply(calc_rec).reset_index(name='Recall')
+    tpr_df = grouped.apply(tpr).reset_index(name='TPR')
+    tnr_df = grouped.apply(tnr).reset_index(name='TNR')
+    f2_score_df = grouped.apply(calculate_f2).reset_index(name='$F_{2}$')
+    auroc_df = grouped.apply(auroc).reset_index(name='auROC')
 
     # Merge results into a single DataFrame - easy comparison
     performance_df = accuracy_df
     performance_df = pd.merge(performance_df, prec_df, on=['model', 'prompt'])
+    performance_df = pd.merge(performance_df, rec_df, on=['model', 'prompt'])
     performance_df = pd.merge(performance_df, tpr_df, on=['model', 'prompt'])
     performance_df = pd.merge(performance_df, tnr_df, on=['model', 'prompt'])
     performance_df = pd.merge(performance_df, f1_score_df, on=['model', 'prompt'])
@@ -203,18 +211,45 @@ def prompt_performance(df):
     performance_df = pd.merge(performance_df, balanced_accuracy_df, on=['model', 'prompt'])
     performance_df = pd.merge(performance_df, auroc_df, on=['model', 'prompt'])
     #performance_df = pd.merge(performance_df, rec_df, on=['model', 'prompt'])
+
+    #df['DecimalCol'] = df['DecimalCol'].apply(lambda x: round(x, 2))
     return performance_df
 
+def round_df(df):
+    for v in df.keys():
+        if v == 'model' or v == 'prompt':
+            if v == 'model':
+                mname = df[v].iloc[0]
+                if mname == 'mist-noreply' or mname=='mist7b-mist':
+                    df[v] = df[v].apply(lambda x: 'Mistral')
+                elif mname == 'mixt-noreply' or mname=='mixt-4bit':
+                    df[v] = df[v].apply(lambda x: 'Mixtral')
+                elif mname == 'l27b-noreply' or mname=='l27b-meta':
+                    df[v] = df[v].apply(lambda x: 'Llama 2')
+            continue
+        df[v] = df[v].apply(lambda x: round(x, 4))
+    return df
 
 s = load_sara()
 clean_unique_docs = no_reply_proc(s)
-prompts = ['multi_category', 'text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew']
-x = get_results_json('mist-noreply')
+
+from sklearn.model_selection import train_test_split
+data = clean_unique_docs
+X = data.doc_id.to_numpy()
+y = data.sensitivity.to_numpy()
+X_train, X_test, _, _ = train_test_split(X, y, test_size=0.8, random_state=1)
+print(X_train)
+
+prompts = ['text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'textqa', 'pdcqa', 'cgqa']
+model_name = 'flanxl-noreply' #'mist-noreply'
+x = get_results_json(model_name)
 #print(x)
 prompt_performance_df = prompt_performance(x)
+print(prompt_performance_df)
 prompt_order = ['multi_category', 'text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew']
 prompt_performance_df['prompt'] = pd.Categorical(prompt_performance_df['prompt'], categories=prompt_order, ordered=True)
 prompt_performance_df = prompt_performance_df.sort_values('prompt')
-print(prompt_performance_df)
+#print(prompt_performance_df)
 
-
+rounded_df = round_df(prompt_performance_df)
+#rounded_df.to_csv(model_name+'_results.csv', index=False)

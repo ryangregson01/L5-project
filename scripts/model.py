@@ -29,11 +29,12 @@ def llm_inference(document, prompt, model, tokenizer, device):
         tokenizer.pad_token = tokenizer.eos_token #"<pad>" #'[PAD]' #tokenizer.eos_token
     encodeds = tokenizer(document, return_tensors="pt", padding=True)
     model_inputs = encodeds.to(device)
-    generated_ids = model.generate(inputs=model_inputs.input_ids, 
-        attention_mask=model_inputs.attention_mask, 
-        pad_token_id=tokenizer.pad_token_id,
-        do_sample=False,
-        max_new_tokens=10, # 150
+    with torch.no_grad():
+        generated_ids = model.generate(inputs=model_inputs.input_ids, 
+            attention_mask=model_inputs.attention_mask, 
+            pad_token_id=tokenizer.pad_token_id,
+            do_sample=False,
+            max_new_tokens=10, # 150
         )
     decoded = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
     del model_inputs
@@ -158,8 +159,8 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         
         '''
 
-        #prompt_input = prompt_strategy(sample_text) #, thought) #, few_sens_ex, few_nonsens_ex)
-        prompt_input = prompt_strategy(sample_text, few_sens_ex, few_nonsens_ex)
+        prompt_input = prompt_strategy(sample_text) #, thought) #, few_sens_ex, few_nonsens_ex)
+        #prompt_input = prompt_strategy(sample_text, few_sens_ex, few_nonsens_ex)
         batch.append(prompt_input)
         batch_ids.append(sample_id)
         if len(batch) == cur_bs or (count > 0):

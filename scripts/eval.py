@@ -41,6 +41,8 @@ def jupyter_evaluation(labels, preds):
 def run_evaluation(name):
     folder_name = name
     prompts = ['base_sens', 'base2_sens', 'context_b1_sens', 'context_b2_sens', 'base_personal', 'context_b1_personal', 'fixed_fewshot_personal', 'base_personal_explanation', 'purely_personal', 'itspersonalgenres', 'multi_category_noanseng', 'multi_category', 'base_classify']
+    prompts = ['base_personal', 'itspersonalgenres', 'multi_category', 'purely_personal']
+    prompts = ['gdpr_qa', 'context1_qa', 'context1_class']
 
     metrics_data = {}
     for prompt in prompts:
