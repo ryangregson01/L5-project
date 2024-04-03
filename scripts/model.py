@@ -5,6 +5,7 @@ import gc
 import time
 import numpy as np
 from prompts import *
+from prompts_matrix import hop2, hop3
 
 
 from dataset import load_sara
@@ -42,19 +43,55 @@ def llm_inference(document, prompt, model, tokenizer, device):
     gc.collect()
     return decoded
 
+def cot_helper(model, tokenizer, model_inputs, tokens=10):
+    with torch.no_grad():
+        generated_ids = model.generate(inputs=model_inputs.input_ids, 
+            attention_mask=model_inputs.attention_mask, 
+            pad_token_id=tokenizer.pad_token_id,
+            do_sample=False,
+            max_new_tokens=tokens, # 150
+        )
+    decoded = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+    del model_inputs
+    torch.cuda.empty_cache()
+    gc.collect()
+    return decoded
+
+def llm_inference_cot(document, prompt, model, tokenizer, device, plain_message):
+    device = 'cuda'
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    encodeds = tokenizer(document, return_tensors="pt", padding=True)
+    model_inputs = encodeds.to(device)
+    decode_text = cot_helper(model, tokenizer, model_inputs, 60)[0]
+    end_template = decode_text.split('Answer:')[-1]
+    hop_document = hop2(plain_message, end_template)
+    encodeds = tokenizer(hop_document, return_tensors="pt", padding=True)
+    model_inputs = encodeds.to(device)
+    decode_text = cot_helper(model, tokenizer, model_inputs, 60)[0]
+    end_template2 = decode_text.split('Answer:')[-1]
+    hop_document = hop3(plain_message, end_template+end_template2)
+    encodeds = tokenizer(hop_document, return_tensors="pt", padding=True)
+    model_inputs = encodeds.to(device)
+    decoded = cot_helper(model, tokenizer, model_inputs)
+    return decoded
+
 def display_gen_text(output, e):
     '''Segments response to only new generated text.'''
     end_template = output.split(e)
     return end_template[-1]
 
 
-def prompt_to_reply(d, p, m, t, e, device):
+def prompt_to_reply(d, p, m, t, e, device, cot_doc=''):
     '''Gets response from model.'''
-    response = llm_inference(d, p, m, t, device)
+    if cot_doc != '':
+        response = llm_inference_cot(d, p, m, t, device, cot_doc)
+    else:
+        response = llm_inference(d, p, m, t, device)
     gen_text = []
     for r in response:
         gen = display_gen_text(r, e)
-        gen_text.append(gen)
+        gen_text.append((gen, response[0]))
     return gen_text
 
 
@@ -108,6 +145,7 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
     mr = {}
     truths = []
     preds = []
+    full_prompt = {}
 
     # proc is the sampled dataset, get key_to_sims for fewshot
     #full_proc = full_preproc(load_sara(), tokenizer)
@@ -169,12 +207,13 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         else:
             continue
 
-        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device)
+        #classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device)
+        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device, cot_doc=sample[1].text)
         #mr[sample_id] = classification
         for i, k in enumerate(batch_ids):
-            mr[k] = classification[i]
+            mr[k], full_prompt[k] = classification[i]
 
-            pred = post_process_classification(classification[i])
+            pred = post_process_classification(classification[i][0])
             if pred == None:
                 # Generated classification could not be identified using processing.
                 fpr[k] = classification[i]
@@ -187,7 +226,7 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
 
         clear_memory()
 
-    return preds, truths, mr, fpr
+    return preds, truths, mr, fpr, full_prompt
 
 
 def post_process_split_docs(mr, fpr, pre, df):

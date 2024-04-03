@@ -16,7 +16,7 @@ import math
 import pandas as pd
 from transformers import AutoTokenizer
 
-#login('###')
+login('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')
 
 def write_responses_json(results, filename):
     try:
@@ -30,7 +30,7 @@ def write_responses_json(results, filename):
 
 
 def main_experiment(NN, sig, break_p):
-    model_name = "mistralai/Mistral-7B-Instruct-v0.2" ##"mistralai/Mistral-7B-Instruct-v0.2"
+    model_name = "meta-llama/Llama-2-7b-chat-hf" #"TheBloke/Mixtral-8x7B-Instruct-v0.1-AWQ" ##"mistralai/Mistral-7B-Instruct-v0.2"
     turbo = dspy.HFModel(model = model_name) #"meta-llama/Llama-2-7b-chat-hf")
     dspy.settings.configure(lm=turbo)
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
@@ -241,5 +241,5 @@ mrs = main_experiment(pdcNN, pdc, 2000)
 #print(mrs)
 #for l in mrs:
 #    print(l.get('generated_response')[:10])
-write_responses_json(mrs, 'results/dsp3hopcot.json')
+write_responses_json(mrs, 'results/l27bdsp3hopcot.json')
 

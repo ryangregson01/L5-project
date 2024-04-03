@@ -15,7 +15,8 @@ model_map = {'l27b-meta': ['get_l2', 'meta-llama/Llama-2-7b-chat-hf', 'main'], #
             'mist-noreply': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
             'l27b-noreply': ['get_l2', 'meta-llama/Llama-2-7b-chat-hf', 'main'],
             'mixt-noreply': ['get_model', 'TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ', 'main'],
-            'flanxl-noreply': ['get_flan', 'google/flan-t5-xl', 'main']
+            'flanxl-noreply': ['get_flan', 'google/flan-t5-xl', 'main'],
+            'mist-noreply-nameless': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
             }
 
 model_name = sys.argv[1]
@@ -32,9 +33,10 @@ else:
 #prompts = ['base_sens', 'base2_sens', 'context_b1_sens', 'context_b2_sens', 'base_personal', 'context_b1_personal', 'fixed_fewshot_personal', 'base_personal_explanation', 'purely_personal', 'itspersonalgenres', 'multi_category_noanseng', 'multi_category', 'base_classify', 'barlit', 'barlit2']
 prompts = ['barlit', 'barlit2']
 prompts = ['text', 'pdc', 'cg', 'textqa', 'pdcqa', 'cgqa']
-prompts = ['text', 'pdc', 'cg', 'pdc2', 'textfew', 'pdcfew', 'cgfew', 'textqa', 'pdcqa', 'cgqa']
+prompts = ['text', 'cg', 'pdc2'] #, 'textfew', 'pdcfew', 'cgfew'] #, 'textqa', 'pdcqa', 'cgqa']
 #prompts = ['pdc2']
 #prompts = ['pdcfewsim']
+prompts = ['hop1']
 end_prompt = '[/INST]'
 sample_size = 2
 

@@ -112,7 +112,7 @@ def new_get_join(data):
 
 def run_evaluation(name):
     metrics_data = {}
-    readjson = get_results_json('dspcgcot.json')
+    readjson = get_results_json('dsp3hopcot.json')
     #doc_ids = readjson['doc_id'].to_list()
     #preds = readjson['prediction'].to_list()
     #gts = readjson['ground_truth'].to_list()

@@ -13,9 +13,24 @@ from models import get_model_version
 from preprocess_sara import full_preproc, clean
 import gensim
 from sklearn.metrics import balanced_accuracy_score, f1_score, precision_score, recall_score, confusion_matrix, fbeta_score, roc_auc_score
-
+from nameless_preprocess import nameless_preproc
+import spacy
 
 def no_reply_proc(s, tokenizer='', c_size=2048):
+    def clean_names(data, replaced=''):
+        nlp = spacy.load("en_core_web_sm")
+        anon_text = []
+        for d in data.text:
+            doc = nlp(d)
+            anonymized_text = d
+            for ent in doc.ents:
+                if ent.label_ == "PERSON":
+                    anonymized_text = anonymized_text.replace(ent.text, replaced)
+            anon_text.append(anonymized_text)
+        #data = data.reset_index()
+        new_list = [{'doc_id':r.doc_id, 'text':anon_text[i], 'sensitivity':r.sensitivity} for i, r in data.iterrows()]
+        return pd.DataFrame.from_dict(new_list)
+    
     def preprocess(e):
         message = email.message_from_string(e)
         clean = message.get_payload()
@@ -37,8 +52,15 @@ def no_reply_proc(s, tokenizer='', c_size=2048):
             already_exists.append(text)
             unique_df.append({'doc_id': idd, 'text':text, 'sensitivity':sensitivity})    
         return pd.DataFrame.from_dict(unique_df)
+    
+    def remove_unnecessary(x):
+        stop_words_extra = [' from ', ' e ', ' mail ', ' cc ', 'forwarded', ' by ', 'original ', ' message ', ' enron ', ' on ', ' pm ', ' am ']
+        for w in stop_words_extra:
+            x = re.sub(w, ' ', x)
+        return x
 
     def main(s):
+        s = clean_names(s)
         processed_emails = [preprocess(a) for a in s.text]
         ids = s.doc_id.tolist()
         sens = s.sensitivity.tolist()
@@ -50,6 +72,7 @@ def no_reply_proc(s, tokenizer='', c_size=2048):
         new_dict = {'doc_id': ids, 'text': texts, 'sensitivity':sens}
         preproc_df = pd.DataFrame.from_dict(new_dict)
         preproc_df = remove_doubles(preproc_df)
+        preproc_df['text'] = preproc_df['text'].apply(lambda x: remove_unnecessary(x))
         return preproc_df
 
     return main(s)
@@ -101,9 +124,11 @@ def get_results_json(mname, clean=True):
                            'textfew': 'non-sensitive',
                            'pdcfew': 'non-personal',
                            'cgfew': 'non-personal',
-                           'textqa': 'No',
-                           'pdcqa': 'No',
-                           'cgqa': 'No',
+                           'textqa': 'does not',
+                           'pdcqa': 'does not',
+                           'cgqa': 'does not',
+                           'cgcot': 'non-personal',
+                           'hop1': 'non-personal'
                            }
     prompt_results = os.listdir(target_directory)
     main_results = []
@@ -238,18 +263,19 @@ data = clean_unique_docs
 X = data.doc_id.to_numpy()
 y = data.sensitivity.to_numpy()
 X_train, X_test, _, _ = train_test_split(X, y, test_size=0.8, random_state=1)
-print(X_train)
+X_train = [] # For full zero-shot
 
-prompts = ['text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'textqa', 'pdcqa', 'cgqa']
-model_name = 'flanxl-noreply' #'mist-noreply'
+prompts = ['text', 'cg']#'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'hop1']
+model_name = ['mist-noreply', 'mixt-noreply', 'l27b-noreply', 'flanxl-noreply', 'mist-noreply-nameless']
+model_name = model_name[4]
 x = get_results_json(model_name)
 #print(x)
 prompt_performance_df = prompt_performance(x)
-print(prompt_performance_df)
-prompt_order = ['multi_category', 'text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew']
+#print(prompt_performance_df)
+prompt_order = ['text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'hop1']
 prompt_performance_df['prompt'] = pd.Categorical(prompt_performance_df['prompt'], categories=prompt_order, ordered=True)
 prompt_performance_df = prompt_performance_df.sort_values('prompt')
-#print(prompt_performance_df)
+print(prompt_performance_df)
 
 rounded_df = round_df(prompt_performance_df)
-#rounded_df.to_csv(model_name+'_results.csv', index=False)
+rounded_df.to_csv(model_name+'_results.csv', index=False)

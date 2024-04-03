@@ -12,8 +12,10 @@ from prompts_matrix import get_prompt_matrix
 import spacy
 import pandas as pd
 
+from nameless_preprocess import nameless_preproc
 
-def all_responses_json(model_responses, further_processing_required, preds_list, truths_list, model_name, prompt_name, sara_df):
+
+def all_responses_json(model_responses, further_processing_required, preds_list, truths_list, model_name, prompt_name, sara_df, full_p):
     results = []
     ite = -1
     for val in model_responses.keys():
@@ -35,7 +37,8 @@ def all_responses_json(model_responses, further_processing_required, preds_list,
             'doc_id': val,
             'generated_response': model_responses[val],
             'prediction': prediction,
-            'ground_truth': ground_truth
+            'ground_truth': ground_truth,
+            'full_response': full_p[val]
         }
         results.append(result)
 
@@ -116,7 +119,7 @@ def run_pipeline(model_name, m, v, r, d, prompts, end_prompt, n=None):
         prompt_str = 'results/model_results/' + model_name + '/' + prompt_name + '/'
         prompt = get_prompt_matrix(prompt)
         start = time.time()
-        preds_list, truths_list, model_responses, further_processing_required = llm_experiment(processed_sara_df, prompt, model, tokenizer, d, end_prompt) #key_to_sims, end_prompt)
+        preds_list, truths_list, model_responses, further_processing_required, full_p = llm_experiment(processed_sara_df, prompt, model, tokenizer, d, end_prompt) #key_to_sims, end_prompt)
         end = time.time()
         duration = end-start
         
@@ -132,7 +135,7 @@ def run_pipeline(model_name, m, v, r, d, prompts, end_prompt, n=None):
         f.write(str(duration))
         f.close()
 
-        results = all_responses_json(model_responses, further_processing_required, preds_list, truths_list, model_name, prompt_name, sara_df)
+        results = all_responses_json(model_responses, further_processing_required, preds_list, truths_list, model_name, prompt_name, sara_df, full_p)
         with open(prompt_str+'all_responses.json', 'w') as f:
             json.dump(results, f, indent=2)
         #write_responses_json(results, 'results/all_model_responses.json')    
