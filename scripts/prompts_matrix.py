@@ -12,7 +12,7 @@ Answer: ["""
 
 def pdc(document):
     return f"""[INST] <<SYS>> 
-Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal.
+Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal information.
 
 Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. All other messages that do not contain personal information are non-personal.
 
@@ -27,7 +27,7 @@ Answer: ["""
 
 def cg(document):
     return f"""[INST] <<SYS>> 
-Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal.
+Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal information.
 
 Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-personal messages are professional emails discussing topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support, etc.), employment arrangements (job seeking, hiring, recommendations, etc.), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
 
@@ -42,7 +42,7 @@ Answer: ["""
 
 def fs(document):
     return f"""[INST] <<SYS>> 
-Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal.
+Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal information.
 
 Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. All other messages that do not contain personal information are non-personal.
 
@@ -105,7 +105,7 @@ Answer: ["""
 
 def pdc2(document):
     return f"""[INST] <<SYS>> 
-Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal.
+Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal information.
 
 Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-personal messages are professional emails that do not include personal information.
 
@@ -140,7 +140,7 @@ Answer: ["""
 
 def pdcfew(document):
     return f"""[INST] <<SYS>> 
-Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal.
+Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal information.
 
 Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-personal messages are professional emails that do not include personal information.
 
@@ -163,7 +163,7 @@ Answer: ["""
 
 def cgfew(document):
     return f"""[INST] <<SYS>> 
-Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal.
+Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal information.
 
 Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-personal messages are professional emails discussing topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support, etc.), employment arrangements (job seeking, hiring, recommendations, etc.), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
 
@@ -186,7 +186,7 @@ Answer: ["""
 
 def pdcfewsim(document, shot1, shot2):
     return f"""[INST] <<SYS>> 
-Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal.
+Your task is to determine if the email message from a work email contains purely personal, personal but in a professional context, or non-personal information.
 
 Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-personal messages are professional emails that do not include personal information.
 
@@ -254,6 +254,154 @@ Reasoning: {reasoning}.
 Answer: ["""
 
 
+
+def sens1(document):
+    return f"""[INST] <<SYS>> 
+Your task is to determine if the email message is sensitive and contains personal information that is purely personal or personal but in a professional context, or is non-sensitive and contains non-personal information.
+
+Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-personal messages are professional emails discussing topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support, etc.), employment arrangements (job seeking, hiring, recommendations, etc.), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
+
+Which one of the attributes: "sensitive", "non-sensitive" describes the following message? 
+Always answer in the form of a Python list containing the appropriate attribute. <</SYS>> 
+
+Message: {document}. 
+[/INST] 
+
+Answer: ["""
+
+def sens2(document):
+    return f"""[INST] <<SYS>> 
+Your task is to determine if the email message is sensitive and contains personal information that is purely personal or personal but in a professional context, or is non-sensitive and contains non-personal information.
+
+Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-sensitive messages are professional emails discussing topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support, etc.), employment arrangements (job seeking, hiring, recommendations, etc.), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
+
+Which one of the attributes: "sensitive", "non-sensitive" describes the following message? 
+Always answer in the form of a Python list containing the appropriate attribute. <</SYS>> 
+
+Message: {document}. 
+[/INST] 
+
+Answer: ["""
+
+def sens3(document):
+    return f"""[INST] <<SYS>> 
+Your task is to determine if the email message is sensitive and contains personal information that is purely personal or personal but in a professional context, or is non-sensitive and contains non-personal information.
+
+Sensitive personal information in this context includes personal life details, health information, personal relationships, financial status, and personal identifiers. Additionally, sensitive personal information that is personal but in a professional context are any expressions of sentiment regarding colleagues work or employee treatment.
+
+Purely personal messages include personal information and do not include any relation to work being done. Personal but in a professional context messages include personal information that are related to work, for example comments about the quality of people's work and expressions of feelings about employee treatment. Non-sensitive messages are professional emails discussing topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support, etc.), employment arrangements (job seeking, hiring, recommendations, etc.), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
+
+Which one of the attributes: "sensitive", "non-sensitive" describes the following message? 
+Always answer in the form of a Python list containing the appropriate attribute. <</SYS>> 
+
+Message: {document}. 
+[/INST] 
+
+Answer: ["""
+
+
+def sens4(document):
+    return f"""[INST] <<SYS>> 
+Your task is to determine if the email message is sensitive and contains personal information that is purely personal or personal but in a professional context, or is non-sensitive and contains non-personal information.
+
+Sensitive personal information in this context includes personal life details, health information, personal relationships, financial status, and personal identifiers. Additionally, sensitive personal information that is personal but in a professional context include any expressions of sentiment regarding colleagues work or employee treatment.
+
+Which one of the attributes: "sensitive", "non-sensitive" describes the following message? 
+Always answer in the form of a Python list containing the appropriate attribute. <</SYS>> 
+
+Message: {document}. 
+[/INST] 
+
+Answer: ["""
+
+
+def sens5(document):
+    return f"""[INST] <<SYS>> 
+Your task is to determine if the email message from a work email contains sensitive personal information or not.
+
+Sensitive personal information in this context includes personal life details, health information, personal relationships, financial status, and personal identifiers.
+
+Messages that include sensitive personal information are not related to work being done. Messages that include comments about the quality of peoples work and expressions of feelings about employee treatment should be treated as sensitive personal information. Non-sensitive messages are professional emails discussing topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support, etc.), employment arrangements (job seeking, hiring, recommendations, etc.), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
+
+Which one of the attributes: "sensitive", "non-sensitive" describes the following message? 
+Always answer in the form of a Python list containing the appropriate attribute. <</SYS>> 
+
+Message: {document}. 
+[/INST] 
+
+Answer: ["""
+
+def sens6(document):
+    return f"""[INST] <<SYS>> 
+Your task is to determine if the email message from a work email contains sensitive personal information or not.
+
+Sensitive personal information in this context includes personal life details, health information, personal relationships, financial status, and personal identifiers.
+
+Messages that include sensitive personal information are not related to work being done. Messages that include any expressions of sentiment regarding colleagues or employee treatment should be treated as sensitive personal information. Non-sensitive messages are professional emails discussing topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support, etc.), employment arrangements (job seeking, hiring, recommendations, etc.), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
+
+Which one of the attributes: "sensitive", "non-sensitive" describes the following message? 
+Always answer in the form of a Python list containing the appropriate attribute. <</SYS>> 
+
+Message: {document}. 
+[/INST] 
+
+Answer: ["""
+
+def sens7(document):
+    return f"""[INST] <<SYS>> 
+Your task is to determine if the email message from a work email does or does not contain sensitive personal information.
+
+Sensitive personal information in this context includes personal life details, health information, personal relationships, financial status, and personal identifiers.
+
+You use the "sensitive" attribute for messages that do contain sensitive personal information. You use the "sensitive" attribute for messages that are purely personal and are not related to work. You use the "sensitive" attribute for messages that include any expressions of sentiment regarding colleagues or employee treatment.
+
+You use the "non-sensitive" attribute for messages that do not contain sensitive personal information. You use the "non-sensitive" attribute for messages that discuss topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support), employment arrangements (job seeking, hiring, recommendations), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
+
+Which one of the attributes: "sensitive", "non-sensitive" describes the following message? 
+Always answer in the form of a Python list containing the appropriate attribute. <</SYS>> 
+
+Message: {document}. 
+[/INST] 
+
+Answer: ["""
+
+
+def sens8(document):
+    return f"""[INST] <<SYS>> 
+Your task is to determine if the email message from a work email does or does not contain sensitive personal information.
+
+Sensitive personal information in this context includes personal life details, health information, personal relationships, financial status, and personal identifiers.
+
+You use the "sensitive personal information" attribute for messages that do contain sensitive personal information. You use the "sensitive personal information" attribute for messages that are purely personal and are not related to work. You use the "sensitive personal information" attribute for messages that include any expressions of sentiment regarding colleagues or employee treatment.
+
+You use the "no sensitive personal information" attribute for messages that do not contain sensitive personal information. You use the "no sensitive personal information" attribute for messages that discuss topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support), employment arrangements (job seeking, hiring, recommendations), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
+
+Which one of the attributes: "sensitive personal information", "no sensitive personal information" describes the following message? 
+Always answer in the form of a Python list containing the appropriate attribute. <</SYS>> 
+
+Message: {document}. 
+[/INST] 
+
+Answer: ["""
+
+
+def sens9(document):
+    return f"""[INST] <<SYS>> 
+Your task is to determine if the email message from a work email does or does not contain sensitive personal information.
+
+You use the "sensitive" attribute for messages that do contain sensitive personal information. You use the "sensitive" attribute for messages that are purely personal and are not related to work. You use the "sensitive" attribute for messages that include any expressions of sentiment regarding colleagues or employee treatment.
+
+You use the "non-sensitive" attribute for messages that do not contain sensitive personal information. You use the "non-sensitive" attribute for messages that discuss topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support), employment arrangements (job seeking, hiring, recommendations), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
+
+Which one of the attributes: "sensitive", "non-sensitive" describes the following message? 
+Always answer in the form of a Python list containing the appropriate attribute. <</SYS>> 
+
+Message: {document}. 
+[/INST] 
+
+Answer: ["""
+
+
 def get_prompt_matrix(prompt_name):
     prompt_dict = {
         'text': text,
@@ -267,7 +415,16 @@ def get_prompt_matrix(prompt_name):
         'pdcfew': pdcfew,
         'cgfew': cgfew,
         'pdcfewsim': pdcfewsim,
-        'hop1': hop1
+        'hop1': hop1,
+        'sens1': sens1,
+        'sens2': sens2,
+        'sens3': sens3,
+        'sens4': sens4,
+        'sens5': sens5,
+        'sens6': sens6,
+        'sens7': sens7,
+        'sens8': sens8,
+        'sens9': sens9,
         }
 
     return prompt_dict.get(prompt_name)

@@ -60,7 +60,7 @@ def no_reply_proc(s, tokenizer='', c_size=2048):
         return x
 
     def main(s):
-        s = clean_names(s)
+        #s = clean_names(s)
         processed_emails = [preprocess(a) for a in s.text]
         ids = s.doc_id.tolist()
         sens = s.sensitivity.tolist()
@@ -72,7 +72,7 @@ def no_reply_proc(s, tokenizer='', c_size=2048):
         new_dict = {'doc_id': ids, 'text': texts, 'sensitivity':sens}
         preproc_df = pd.DataFrame.from_dict(new_dict)
         preproc_df = remove_doubles(preproc_df)
-        preproc_df['text'] = preproc_df['text'].apply(lambda x: remove_unnecessary(x))
+        #preproc_df['text'] = preproc_df['text'].apply(lambda x: remove_unnecessary(x))
         return preproc_df
 
     return main(s)
@@ -187,13 +187,13 @@ def calculate_balanced_accuracy(group):
     return balanced_accuracy_score(group['ground_truth'], group['prediction'])
 
 def calculate_f1(group):
-    return f1_score(group['ground_truth'], group['prediction'])
+    return f1_score(group['ground_truth'], group['prediction'], average=average_type)
 
 def calc_prec(group):
-    return precision_score(group['ground_truth'], group['prediction'])
+    return precision_score(group['ground_truth'], group['prediction'], average=average_type)
 
 def calc_rec(group):
-    return recall_score(group['ground_truth'], group['prediction'])
+    return recall_score(group['ground_truth'], group['prediction'], average=average_type)
 
 def tpr(group):
     tn, fp, fn, tp = confusion_matrix(group['ground_truth'], group['prediction']).ravel()
@@ -206,7 +206,7 @@ def tnr(group):
     return tnr
 
 def calculate_f2(group):
-    return fbeta_score(group['ground_truth'], group['prediction'], beta=2)
+    return fbeta_score(group['ground_truth'], group['prediction'], beta=2, average=average_type)
 
 def auroc(group):
     return roc_auc_score(group['ground_truth'], group['prediction'])
@@ -265,11 +265,12 @@ y = data.sensitivity.to_numpy()
 X_train, X_test, _, _ = train_test_split(X, y, test_size=0.8, random_state=1)
 X_train = [] # For full zero-shot
 
-prompts = ['text', 'cg']#'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'hop1']
+prompts = ['text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'hop1']
 model_name = ['mist-noreply', 'mixt-noreply', 'l27b-noreply', 'flanxl-noreply', 'mist-noreply-nameless']
-model_name = model_name[4]
+model_name = model_name[0]
 x = get_results_json(model_name)
 #print(x)
+average_type='weighted'
 prompt_performance_df = prompt_performance(x)
 #print(prompt_performance_df)
 prompt_order = ['text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'hop1']

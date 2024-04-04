@@ -76,7 +76,12 @@ def get_max_sims(fproc, sproc, key_vecs):
         l = [k for k, v in sorted(sens_dict.items(), key=lambda item: item[1], reverse=True)]
         m = [k for k, v in sorted(non_sens_dict.items(), key=lambda item: item[1], reverse=True)]
 
-        max_sims_is.append((m,l))
+        combined_dict = {**sens_dict, **non_sens_dict}
+        print(len(combined_dict))
+        c = [k for k, v in sorted(combined_dict.items(), key=lambda item: item[1], reverse=True)]
+        max_sims_is.append(c)
+
+        #max_sims_is.append((m,l))
 
         
         bp += 1
@@ -100,8 +105,9 @@ def key_sim(sproc, max_sims_is):
 
 def get_sim_text(fproc, index):
     sim = fproc.loc[index].text
+    sim_label = fproc.loc[index].sensitivity
     #print(sim)
-    return sim
+    return sim, sim_label
     id_sim = sim.doc_id
     #filtered_df = sproc[sproc['doc_id'].apply(lambda x: (x.startswith(id_sim)))]
     if len(filtered_df) == 0:
@@ -133,6 +139,26 @@ def get_sims(nonsen, sens, fproc, doc_len):
     #sen_few_prompt = get_sim_text(fproc, sens)
     return shot_nonsen, shot_sen
 
+
+def new_get_sims(sim_docs, fproc, doc_len):
+    pass
+    shot_length = (9500 - doc_len) / 2
+    shot_one = ''
+    label_one = -1
+    shot_two = ''
+    label_two = -1
+    for val in sim_docs:
+        text, label = get_sim_text(fproc, val)
+        if len(text) <= shot_length:
+            if shot_one == '':
+                shot_one = text
+                label_one = label
+            else:
+                shot_two = text
+                label_two = label
+                break
+
+    return shot_one, label_one, shot_two, label_two
 
 def get_max_sims_call(fproc, sproc, tokenizer):
     encode_map = encode_texts(fproc, tokenizer)
@@ -176,13 +202,17 @@ def main():
     full_proc = full_preproc(s, tokenizer)
     samp_proc = full_proc.sample(n=samp, random_state=1)
     key_sims = get_key_to_sims(full_proc, samp_proc, tokenizer)
+    #print(key_sims)
     doc = samp_proc[samp_proc.doc_id == '173146'].text.iloc[0] 
     print(doc)
-    l = key_sims.get('173146')
-    print(l[1][0])
+    l = key_sims.get('54580')
+    print(l[0])
     #get_sim_text(full_proc, l[1][0], samp_proc)
 
-    get_sims(l[0], l[1], full_proc, len(doc))
+    #get_sims(l[0], l[1], full_proc, len(doc))
+    x = new_get_sims(l, full_proc, len(doc))
+    print(x)
+    
 
-#main()
+main()
 

@@ -17,6 +17,7 @@ model_map = {'l27b-meta': ['get_l2', 'meta-llama/Llama-2-7b-chat-hf', 'main'], #
             'mixt-noreply': ['get_model', 'TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ', 'main'],
             'flanxl-noreply': ['get_flan', 'google/flan-t5-xl', 'main'],
             'mist-noreply-nameless': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
+            'flanxl-textchunk': ['get_flan', 'google/flan-t5-xl', 'main'], # flan chunking at 512 chars
             }
 
 model_name = sys.argv[1]
@@ -36,7 +37,8 @@ prompts = ['text', 'pdc', 'cg', 'textqa', 'pdcqa', 'cgqa']
 prompts = ['text', 'cg', 'pdc2'] #, 'textfew', 'pdcfew', 'cgfew'] #, 'textqa', 'pdcqa', 'cgqa']
 #prompts = ['pdc2']
 #prompts = ['pdcfewsim']
-prompts = ['hop1']
+prompts = ['sens2', 'sens3', 'sens4'] #['sens1', 'sens2', 'sens3', 'sens4']
+prompts = ['sens9', 'sens8']
 end_prompt = '[/INST]'
 sample_size = 2
 

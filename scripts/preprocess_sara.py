@@ -85,6 +85,16 @@ def full_preproc(s, tokenizer, c_size=2048):
             new_chunks.append(chunk)
 
         return new_chunks
+    
+    def flan_chunk(text, tokenizer, c_size):
+        new_chunks = []
+        total_length = len(text)
+        avg_chunks = np.ceil(total_length / c_size)
+        for i in range(int(avg_chunks)):
+            chunk = text[(i*c_size):((i+1)*c_size)]
+            new_chunks.append(chunk)
+
+        return new_chunks
         
     def chunk_large(df, place, tokenizer, c_size):
         place_docs = [dno[0] for dno in place]

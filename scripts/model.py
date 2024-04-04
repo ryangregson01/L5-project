@@ -91,7 +91,7 @@ def prompt_to_reply(d, p, m, t, e, device, cot_doc=''):
     gen_text = []
     for r in response:
         gen = display_gen_text(r, e)
-        gen_text.append((gen, response[0]))
+        gen_text.append(gen) #(gen, response[0]))
     return gen_text
 
 
@@ -201,18 +201,20 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         #prompt_input = prompt_strategy(sample_text, few_sens_ex, few_nonsens_ex)
         batch.append(prompt_input)
         batch_ids.append(sample_id)
-        if len(batch) == cur_bs or (count > 0):
+        if len(batch) == cur_bs or (count > 991):
             sample_text = batch
             batch = []
         else:
             continue
 
-        #classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device)
-        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device, cot_doc=sample[1].text)
+        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device)
+        #classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device, cot_doc=sample[1].text)
         #mr[sample_id] = classification
         for i, k in enumerate(batch_ids):
-            mr[k], full_prompt[k] = classification[i]
+            #mr[k], full_prompt[k] = classification[i]
+            mr[k] = classification[i]
 
+            '''
             pred = post_process_classification(classification[i][0])
             if pred == None:
                 # Generated classification could not be identified using processing.
@@ -221,12 +223,12 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
 
             truths.append(ground_truth)
             preds.append(pred)
-
+            '''
         batch_ids = []
 
         clear_memory()
 
-    return preds, truths, mr, fpr, full_prompt
+    return mr #preds, truths, mr, fpr #, full_prompt
 
 
 def post_process_split_docs(mr, fpr, pre, df):
