@@ -77,7 +77,7 @@ def get_max_sims(fproc, sproc, key_vecs):
         m = [k for k, v in sorted(non_sens_dict.items(), key=lambda item: item[1], reverse=True)]
 
         combined_dict = {**sens_dict, **non_sens_dict}
-        print(len(combined_dict))
+        #print(len(combined_dict))
         c = [k for k, v in sorted(combined_dict.items(), key=lambda item: item[1], reverse=True)]
         max_sims_is.append(c)
 
@@ -214,5 +214,5 @@ def main():
     print(x)
     
 
-main()
+#main()
 

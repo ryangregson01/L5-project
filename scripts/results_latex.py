@@ -215,15 +215,15 @@ def prompt_performance(df):
     #accuracy_df = results_df.groupby(['model', 'prompt']).apply(lambda x: (x['prediction'] == x['ground_truth']).mean()).reset_index(name='accuracy')
     # Group by model and prompt, then apply the calculation for each metric
     grouped = df.groupby(['model', 'prompt'])
-    accuracy_df = grouped.apply(calculate_accuracy).reset_index(name='Accuracy')
-    balanced_accuracy_df = grouped.apply(calculate_balanced_accuracy).reset_index(name='BAC')
-    f1_score_df = grouped.apply(calculate_f1).reset_index(name='$F_{1}$')
-    prec_df = grouped.apply(calc_prec).reset_index(name='Precision')
-    rec_df = grouped.apply(calc_rec).reset_index(name='Recall')
-    tpr_df = grouped.apply(tpr).reset_index(name='TPR')
-    tnr_df = grouped.apply(tnr).reset_index(name='TNR')
-    f2_score_df = grouped.apply(calculate_f2).reset_index(name='$F_{2}$')
-    auroc_df = grouped.apply(auroc).reset_index(name='auROC')
+    accuracy_df = grouped.apply(calculate_accuracy, include_groups=False).reset_index(name='Accuracy')
+    balanced_accuracy_df = grouped.apply(calculate_balanced_accuracy, include_groups=False).reset_index(name='BAC')
+    f1_score_df = grouped.apply(calculate_f1, include_groups=False).reset_index(name='$F_{1}$')
+    prec_df = grouped.apply(calc_prec, include_groups=False).reset_index(name='Precision')
+    rec_df = grouped.apply(calc_rec, include_groups=False).reset_index(name='Recall')
+    tpr_df = grouped.apply(tpr, include_groups=False).reset_index(name='TPR')
+    tnr_df = grouped.apply(tnr, include_groups=False).reset_index(name='TNR')
+    f2_score_df = grouped.apply(calculate_f2, include_groups=False).reset_index(name='$F_{2}$')
+    auroc_df = grouped.apply(auroc, include_groups=False).reset_index(name='auROC')
 
     # Merge results into a single DataFrame - easy comparison
     performance_df = accuracy_df
@@ -267,10 +267,12 @@ X_train = [] # For full zero-shot
 
 prompts = ['text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'hop1']
 model_name = ['mist-noreply', 'mixt-noreply', 'l27b-noreply', 'flanxl-noreply', 'mist-noreply-nameless']
+prompts = ['hop1']
+model_name = ['l27b-meta']
 model_name = model_name[0]
 x = get_results_json(model_name)
 #print(x)
-average_type='weighted'
+average_type='binary'
 prompt_performance_df = prompt_performance(x)
 #print(prompt_performance_df)
 prompt_order = ['text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'hop1']

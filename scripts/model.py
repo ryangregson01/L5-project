@@ -5,12 +5,12 @@ import gc
 import time
 import numpy as np
 from prompts import *
-from prompts_matrix import hop2, hop3
+from prompts_matrix import hop2, hop3, pdc, fewshotsimone
 
 
 from dataset import load_sara
 from preprocess_sara import full_preproc
-from few import get_key_to_sims, get_sims, get_sim_text
+from few import get_key_to_sims, get_sims, get_sim_text, new_get_sims
 
 import json
 import os
@@ -35,7 +35,7 @@ def llm_inference(document, prompt, model, tokenizer, device):
             attention_mask=model_inputs.attention_mask, 
             pad_token_id=tokenizer.pad_token_id,
             do_sample=False,
-            max_new_tokens=10, # 150
+            max_new_tokens=150, # 150
         )
     decoded = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
     del model_inputs
@@ -176,7 +176,8 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         #    fpr[sample_id] = "TOO LARGE"
         #    mr[sample_id] = "TOO LARGE"
         #    continue
-
+        '''
+        '''
         document = sample_text
         #ds = proc[proc.text == document]
         #idd = ds.doc_id.iloc[0]
@@ -185,7 +186,22 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         idd = sample_id
         l = key_to_sims.get(idd)
         len_doc = len(document)
-        few_sens_ex, few_nonsens_ex = get_sims(l[0], l[1], full_proc, len_doc)
+        shot1, label1, shot2, label2 = new_get_sims(l, full_proc, len_doc)
+        if label1 == 0:
+            label1 = 'non-personal'
+        elif label1 == 1:
+            label1 = 'personal'
+        if label2 == 0:
+            label2 = 'non-personal'
+        elif label2 == 1:
+            label2 = 'personal'
+
+        if label1 == -1:
+            prompt_input = pdc(sample_text)
+        elif label2 == -1:
+            prompt_input = fewshotsimone(sample_text, shot1, label1)
+        else:
+            prompt_input = prompt_strategy(sample_text, shot1, label1, shot2, label2)
         '''
         '''
         k = sample_id
@@ -198,10 +214,9 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         '''
 
         prompt_input = prompt_strategy(sample_text) #, thought) #, few_sens_ex, few_nonsens_ex)
-        #prompt_input = prompt_strategy(sample_text, few_sens_ex, few_nonsens_ex)
         batch.append(prompt_input)
         batch_ids.append(sample_id)
-        if len(batch) == cur_bs or (count > 991):
+        if len(batch) == cur_bs or (count > 0):
             sample_text = batch
             batch = []
         else:

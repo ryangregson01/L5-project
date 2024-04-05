@@ -36,9 +36,7 @@ prompts = ['barlit', 'barlit2']
 prompts = ['text', 'pdc', 'cg', 'textqa', 'pdcqa', 'cgqa']
 prompts = ['text', 'cg', 'pdc2'] #, 'textfew', 'pdcfew', 'cgfew'] #, 'textqa', 'pdcqa', 'cgqa']
 #prompts = ['pdc2']
-#prompts = ['pdcfewsim']
-prompts = ['sens2', 'sens3', 'sens4'] #['sens1', 'sens2', 'sens3', 'sens4']
-prompts = ['sens9', 'sens8']
+prompts = ['cgtrial', 'cgtrial2']
 end_prompt = '[/INST]'
 sample_size = 2
 
