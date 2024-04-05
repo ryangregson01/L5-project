@@ -5,6 +5,8 @@ import email
 import gensim
 
 import string
+from transformers import AutoTokenizer
+from model_map import *
 
 def clean(e):
     message = email.message_from_string(e)
@@ -162,7 +164,7 @@ def full_preproc(s, tokenizer, c_size=2048):
             #new_docs.append({'doc_id':ids+'_'+str(cut), 'text':c, 'sensitivity':sens})
         return new_docs
 
-    def main(s):
+    def main(s, tokenizer):
         processed_emails = [preprocess(a) for a in s.text]
         ids = s.doc_id.tolist()
         sens = s.sensitivity.tolist()
@@ -175,12 +177,15 @@ def full_preproc(s, tokenizer, c_size=2048):
         preproc_df = pd.DataFrame.from_dict(new_dict)
         preproc_df = remove_doubles(preproc_df)
         #places = get_replies(preproc_df)
+        if type(tokenizer) == str:
+            tokenizer = model_map.get(tokenizer)[1]
+            tokenizer = AutoTokenizer.from_pretrained(tokenizer, use_fast=True)
         places = []
         new_docs = chunk_large(preproc_df, places, tokenizer, c_size)
         new_docs = pd.DataFrame.from_dict(new_docs)
         return new_docs
 
-    return main(s)
+    return main(s, tokenizer)
 
 
 
