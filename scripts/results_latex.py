@@ -128,7 +128,8 @@ def get_results_json(mname, clean=True):
                            'pdcqa': 'does not',
                            'cgqa': 'does not',
                            'cgcot': 'non-personal',
-                           'hop1': 'non-personal'
+                           'hop1': 'non-personal',
+                           'detailsfew': 'non-personal'
                            }
     prompt_results = os.listdir(target_directory)
     main_results = []
@@ -267,8 +268,7 @@ X_train = [] # For full zero-shot
 
 prompts = ['text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'hop1']
 model_name = ['mist-noreply', 'mixt-noreply', 'l27b-noreply', 'flanxl-noreply', 'mist-noreply-nameless']
-prompts = ['hop1']
-model_name = ['l27b-meta']
+prompts = ['detailsfew']
 model_name = model_name[0]
 x = get_results_json(model_name)
 #print(x)
