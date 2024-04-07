@@ -2,12 +2,20 @@
 
 The objective of our experiments is to see how effectively we can classify potentially sensitive documents using generative LLMs, and the impact of prompt engineering strategies for identifying sensitive personal information, i.e.,
 \begin{itemize}
-    \item RQ1: Can generative LLMs feasibly improve on current sensitivity classification methods for sensitive personal information.
+    \item RQ1: How effective are generative LLMs for identifying sensitive personal information within emails.
+    \begin{itemize}
+    \item Can generative LLMs feasibly improve on current sensitivity classification methods for sensitive personal information.
+    \end{itemize}
     \item RQ2: What is the importance of prompt engineering for classifying sensitive personal information with generative LLMs.
+    \begin{itemize}
+    \item What is the effect of the context manager prompt engineering strategy on the effectiveness of zero-shot classification with generative LLMs?
+    \item What is the effect of few-shot prompting on the effectiveness of sensitivity classification with generative LLMs?
+    \item What is the effect of chain-of-thought on the effectiveness of sensitivity classification with generative LLMs? [/Does chain-of-thought elicit sensible reasoning about sensitive personal information.]
+    \end{itemize}
 \end{itemize}
 
 \subsection{Dataset}
-As the dataset for our experiments, we use the SARA collection \cite{mckechnie2024sara} (and the Spedac corpora [CITE]). The SARA collection has many long and unstructured email threads; therefore, we preprocess these documents to create consistency between the documents and remove noise across the collection, giving us more robust input to our LLMs. Our preprocessing, shown by Figure [FIG] involves:
+As the dataset for our experiments, we use the SARA collection \cite{mckechnie2024sara}. The SARA collection has many long and unstructured email threads; therefore, we preprocess these documents to create consistency between the documents and remove noise across the collection, giving us more robust input to our LLMs. Our preprocessing, shown by Figure [FIG] involves:
 \begin{enumerate}
     \item Removing email headers, as we are interested in personal information found in the body of our messages.
     \item Removing email addresses from email thread metadata as this obvious PII caused model confusion in early experiments and we aim to focus on identifying sensitive personal information within the message.
@@ -16,7 +24,14 @@ As the dataset for our experiments, we use the SARA collection \cite{mckechnie20
     \item We do not remove any stop words from the documents as this is less representative of the training data seen by LLMs [CITE].
 \end{enumerate}
 
-Preprocessing leads us to remove 128 duplicate documents which have the exact same content but are sent to a different inbox directory for example. This leaves us with 1574 documents (196 sensitive, 1378 non-sensitive documents) to assess. We continue to process our documents by segmenting email threads at the message-level as we believe this is a logical separation of information to classify. Searching for key terms ‘original message’ and ‘forwarded by’ we find 1334 earlier messages. Moreover, LLMs have a context window that limits the number of input tokens; therefore, we perform chunking on large documents at a token-level. Our models, Llama-2 and Mistral, have a context window of 4096, and we segment our documents at 2048 tokens so we have available tokens for our prompt engineering methods. We find that many documents before chunking is applied are below this threshold, and we only require chunking for 62 documents. We note that different models use different tokenizers; therefore, these chunks are slightly different across models (giving 3199 total documents for inference with Mistral, and 3218 with Llama-2 (and 3241 with Flan-T5)). To acquire sensitivity predictions for our 1574 unique SARA documents, we collect documents that are segments of a larger document, where if any segment is identified as sensitive, the entire document is regarded as sensitive.
+Preprocessing leads us to remove 128 duplicate documents which have the exact same content but are sent to a different inbox directory for example. This leaves us with 1574 documents (196 sensitive, 1378 non-sensitive documents) to assess. We continue to process our documents by segmenting large documents because LLMs have a context window that limits the number of input tokens; therefore, we perform chunking on large documents at a token-level. Our model families, Llama-2 and Mistral, have a context window of 4096, and we segment our documents at 2048 tokens so we have available tokens for our prompt engineering methods. We find that many documents before chunking is applied are below this threshold, and we only require chunking for 191 documents. Therefore we have 1871 total documents for inference with our LLMs. To acquire sensitivity predictions for our 1574 unique SARA documents, we collect documents that are segments of a larger document, where if any segment is identified as sensitive, the entire document is regarded as sensitive.
+
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.3]{figures/pipeline.pdf}
+\end{center}
+\caption{\label{fig-pipeline}Experiment pipeline}
+\end{figure*}
 
 \subsection{Tools}
 We use the deep learning framework, PyTorch \cite{paszke2019pytorch}, for development in our project. This Pythonic approach allows us to use Python libraries for preprocessing through to evaluation. We use the Hugging Face platform \cite{wolf-etal-2020-transformers}, which hosts open-source models for machine learning, to retrieve the LLMs for our experiment.
@@ -33,6 +48,28 @@ We use the context manager to introduce additional context about the dataset, an
 We use few-shot learning within the context of the prompt by presenting examples of sensitive and non-sensitive emails. We cherry-pick our examples, where our sensitive example contains a personal question about their well-being that is not work-related, and our non-sensitive example is about arranging a work-related meeting call. We also ensure these documents are concise such that they fit within the context window yet still convey why they are regarded as sensitive or non-sensitive.
 
 We use the chain-of-thought prompt engineering technique. Related work demonstrates this technique can improve complex reasoning using LLMs. We use ‘thought hops’, designed to invoke and enhance the LLMs’ reasoning capabilities. Following this, we ask our prompt question to the model, aiming to assess if self-reasoning about sensitive personal information within the document improves the classification accuracy.
+
+\begin{table}[!h]
+\caption{Prompt strategies and abbreviations.}
+\label{table:prompt_abbrev}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Prompt Strategy                                   & Abbreviation \\ \midrule
+Text classification                               & Base         \\
+Contextual personal data categories for Enron & PDC          \\
+Contextual coarse genres for Enron            & CG           \\
+Few shot                                          & FS           \\
+Chain-of-Thought                                  & CoT          \\
+Chain-of-Thought Hops                             & CoT-Hop      \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.3]{figures/inputprompt.pdf}
+\end{center}
+\caption{\label{fig-input}Enron email message and prompt including personal context.}
+\end{figure*}
 
 \subsection{LLMs}
 \label{sec:experiment:LLMs}
@@ -64,19 +101,3 @@ Language evolution – emails are from 2001.
 Code for Experiments 
 pipeline
 
-
-
-\begin{figure*}
-\begin{center}
-\includegraphics[scale=0.3]{figures/pipeline.pdf}
-\end{center}
-\caption{\label{fig-pipeline}Experiment pipeline}
-\end{figure*}
-
-
-\begin{figure*}
-\begin{center}
-\includegraphics[scale=0.3]{figures/inputprompt.pdf}
-\end{center}
-\caption{\label{fig-input}Enron email message and prompt including personal context.}
-\end{figure*}

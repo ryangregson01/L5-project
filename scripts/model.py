@@ -6,6 +6,7 @@ import time
 import numpy as np
 from prompts import *
 from prompts_matrix import hop2, hop3, pdc, fewshotsimone
+from final_prompts import all_cats_sens_hop1, all_cats_sens_hop2, all_cats_sens_hop3
 
 
 from dataset import load_sara
@@ -65,12 +66,12 @@ def llm_inference_cot(document, prompt, model, tokenizer, device, plain_message)
     model_inputs = encodeds.to(device)
     decode_text = cot_helper(model, tokenizer, model_inputs, 60)[0]
     end_template = decode_text.split('Answer:')[-1]
-    hop_document = hop2(plain_message, end_template)
+    hop_document = all_cats_sens_hop2(plain_message, end_template)
     encodeds = tokenizer(hop_document, return_tensors="pt", padding=True)
     model_inputs = encodeds.to(device)
     decode_text = cot_helper(model, tokenizer, model_inputs, 60)[0]
     end_template2 = decode_text.split('Answer:')[-1]
-    hop_document = hop3(plain_message, end_template+end_template2)
+    hop_document = all_cats_sens_hop3(plain_message, end_template+end_template2)
     encodeds = tokenizer(hop_document, return_tensors="pt", padding=True)
     model_inputs = encodeds.to(device)
     decoded = cot_helper(model, tokenizer, model_inputs)
@@ -91,7 +92,7 @@ def prompt_to_reply(d, p, m, t, e, device, cot_doc=''):
     gen_text = []
     for r in response:
         gen = display_gen_text(r, e)
-        gen_text.append(gen) #(gen, response[0]))
+        gen_text.append((gen, response[0]))
     return gen_text
 
 
@@ -222,12 +223,12 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         else:
             continue
 
-        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device)
-        #classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device, cot_doc=sample[1].text)
+        #classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device)
+        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device, cot_doc=sample[1].text)
         #mr[sample_id] = classification
         for i, k in enumerate(batch_ids):
-            #mr[k], full_prompt[k] = classification[i]
-            mr[k] = classification[i]
+            mr[k], full_prompt[k] = classification[i]
+            #mr[k] = classification[i]
 
             '''
             pred = post_process_classification(classification[i][0])
@@ -243,7 +244,7 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
 
         clear_memory()
 
-    return mr #preds, truths, mr, fpr #, full_prompt
+    return mr, full_prompt #preds, truths, mr, fpr #, full_prompt
 
 
 def post_process_split_docs(mr, fpr, pre, df):
