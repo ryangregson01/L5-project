@@ -1,0 +1,34 @@
+[
+  {
+    "model": "mist7b-mist",
+    "prompt": "textqa",
+    "doc_id": "175555",
+    "generated_response": " \n\nThe document does not contain any obvious sensitive personal information. It appears",
+    "prediction": 0,
+    "ground_truth": 0
+  },
+  {
+    "model": "mist7b-mist",
+    "prompt": "textqa",
+    "doc_id": "54629",
+    "generated_response": " \n\nThe document does not contain any obvious sensitive personal information such as social",
+    "prediction": 0,
+    "ground_truth": 0
+  },
+  {
+    "model": "mist7b-mist",
+    "prompt": "textqa",
+    "doc_id": "177860",
+    "generated_response": " \n\nThe document does contain some sensitive personal information, specifically the email address",
+    "prediction": 1,
+    "ground_truth": 1
+  },
+  {
+    "model": "mist7b-mist",
+    "prompt": "textqa",
+    "doc_id": "54263",
+    "generated_response": " \n\nThe document does not contain any sensitive personal information. It is primarily",
+    "prediction": 1,
+    "ground_truth": 1
+  }
+]

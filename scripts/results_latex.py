@@ -150,7 +150,7 @@ def get_results_json(mname, clean=True):
             ans = v.get('generated_response')
             class_seg = ans[:25]
             negative = prompts_and_answers.get(prompt)
-            #print(type(negative))
+            negative = 'non-personal'
             if negative in ans:
                 pred = 0
             else:
@@ -264,18 +264,19 @@ data = clean_unique_docs
 X = data.doc_id.to_numpy()
 y = data.sensitivity.to_numpy()
 X_train, X_test, _, _ = train_test_split(X, y, test_size=0.8, random_state=1)
-X_train = [] # For full zero-shot
+#X_train = [] # For full zero-shot
 
 prompts = ['text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'hop1']
+prompts = ['base', 'sens_cats', 'all_cats', 'base_sens', 'sens_cats_sens', 'all_cats_sens', 'base_few']
+#prompts = ['base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few']
 model_name = ['mist-noreply', 'mixt-noreply', 'l27b-noreply', 'flanxl-noreply', 'mist-noreply-nameless']
-prompts = ['detailsfew']
 model_name = model_name[0]
 x = get_results_json(model_name)
 #print(x)
 average_type='binary'
 prompt_performance_df = prompt_performance(x)
 #print(prompt_performance_df)
-prompt_order = ['text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'hop1']
+prompt_order = ['base', 'sens_cats', 'all_cats', 'base_sens', 'sens_cats_sens', 'all_cats_sens', 'base_few']
 prompt_performance_df['prompt'] = pd.Categorical(prompt_performance_df['prompt'], categories=prompt_order, ordered=True)
 prompt_performance_df = prompt_performance_df.sort_values('prompt')
 print(prompt_performance_df)

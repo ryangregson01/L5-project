@@ -8,7 +8,8 @@ import numpy as np
 import os
 import json
 from few import get_key_to_sims
-from prompts_matrix import get_prompt_matrix
+#from prompts_matrix import get_prompt_matrix
+from final_prompts import get_prompt_matrix
 import spacy
 import pandas as pd
 

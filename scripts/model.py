@@ -100,9 +100,9 @@ def post_process_classification(classification):
     match_string = classification.lower()
     match_string = match_string[:50]
     #print(match_string)
-    if 'does contain' in match_string or ('sensitive' in match_string and 'non-sensitive' not in match_string):
+    if 'does contain' in match_string or ('personal' in match_string and 'non-personal' not in match_string):
         return 1
-    elif 'does not' in match_string or ('non-sensitive' in match_string):
+    elif 'does not' in match_string or ('non-personal' in match_string):
         return 0
     else:
         # Further processing required

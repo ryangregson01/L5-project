@@ -1,0 +1,13 @@
+OLD
+BASE    ->  DETBASE (kinda)
+PDC     ->  DETAILSPDC
+CG      ->  DETAILS
+BASE+FS ->  NONE
+PDC+FS  ->  NONE
+CG      ->  DET1FEW (not quite you should use detailsfew)
+
+NEW
+DET1 - introduces what sensitivity is (and confounding what documents we are reviewing - DETBASE includes this confounding part so now ok)
+
+
+
