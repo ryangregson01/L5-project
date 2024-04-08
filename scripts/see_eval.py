@@ -108,7 +108,7 @@ def get_results_json(mname, clean=True):
     ps = ['text', 'pdc', 'cg', 'textqa', 'pdcqa', 'cgqa']
     ps = ['textfew', 'pdcfew', 'cgfew']
     ps = ['pdcfewsim', 'pdc2']
-    ps = ['details']
+    ps = ['base']
 
     prompt = ps[0] #'text2'
     prompt_path = os.path.join(target_directory, prompt)
@@ -126,15 +126,15 @@ def get_results_json(mname, clean=True):
         #ans = 'The text does contain sensitive'
         class_seg = ans[:25]
         negative = 0
-        #if 'non-personal' in ans:
-        #    pred = 0
-        #else:
-        #    pred = 1
-
-        if 'personal' in ans and 'non' not in ans:
-            pred = 1
-        else:
+        if 'non-personal' in ans:
             pred = 0
+        else:
+            pred = 1
+
+        #if 'personal' in ans and 'non' not in ans:
+        #    pred = 1
+        #else:
+        #    pred = 0
 
 
 
@@ -166,7 +166,7 @@ def get_results_json(mname, clean=True):
 s = load_sara()
 #s = clean_names(s)
 dddd = full_preproc(s)
-x = get_results_json('mist-noreply')#mixt-noreply')
+x = get_results_json('l27b-noreply')#mixt-noreply')
 #print(x)
 
 y1 = x['prediction'].values

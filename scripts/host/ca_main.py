@@ -172,12 +172,12 @@ def full_preproc(s, tokenizer, c_size=2048):
                 
                 new_chunks = chunk(te, tokenizer, c_size)
                 if len(new_chunks) == 1:
-                    new_docs.append({'doc_id':ids, 'text':te, 'sensitivity':sens})
+                    new_docs.append({'doc_id':str(ids), 'text':te, 'sensitivity':sens})
                     continue
 
                 cut = 0
                 for c in new_chunks:
-                    new_docs.append({'doc_id':ids+'_'+str(cut), 'text':c, 'sensitivity':sens})
+                    new_docs.append({'doc_id':str(ids)+'_'+str(cut), 'text':c, 'sensitivity':sens})
                     cut += 1
                 continue
 
@@ -469,7 +469,7 @@ def pipeline(mname, d, prompt_no=0, n=None):
     #print(model_responses)
     results = all_responses_json(model_responses, mname, prompt_name)
     print('Writing to', prompt_str)
-    with open(prompt_str+'.json', 'w') as f:
+    with open('/nfs/'+prompt_str+'.json', 'w') as f:
         json.dump(results, f, indent=2)
     print("Done")
 
@@ -477,7 +477,6 @@ def pipeline(mname, d, prompt_no=0, n=None):
 name = sys.argv[1]
 d = sys.argv[2]
 pno = sys.argv[3]
-n = sys.argv[4]
 
 #pipeline(mname='test-mist', d='cpu', prompt_no="0", n="1")
 #pipeline(mname=name, d=d, prompt_no=pno, n=n)

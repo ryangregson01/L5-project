@@ -142,6 +142,6 @@ def run_pipeline(model_name, m, v, r, d, prompts, end_prompt, n=None):
         results = all_responses_json(model_responses, '', '', '', model_name, prompt_name, sara_df)
         with open(prompt_str+'all_responses.json', 'w') as f:
             json.dump(results, f, indent=2)
-        #write_responses_json(results, 'results/all_model_responses.json')    
+        write_responses_json(results, 'results/all_model_responses.json')    
         #results = clean_responses_json(doc_keys, preds.tolist(), truth_labs.tolist(), model_responses, model_name, prompt_name)
         #write_responses_json(results, 'results/clean_model_responses.json')
