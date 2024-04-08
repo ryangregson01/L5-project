@@ -37,6 +37,6 @@ RUN pip install accelerate
 
 
 # CMD defines the command that containers will run when # created from this image
-# CMD ["python", "ca_main.py", "test-mist", "cpu", "0", "1"]
+# CMD ["python", "ca_main.py", "l27b-noreply", "cpu", "0", "1"]
 # pipeline(mname='test-mist', d='cpu', prompt_no=0, n=1)
 

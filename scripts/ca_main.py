@@ -18,7 +18,15 @@ import os
 import sys
 #from few import get_key_to_sims, get_sims, get_sim_text, new_get_sims
 
-from config import my_cache
+#from config import my_cache
+
+model_map = {'test-mist': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
+            'mist-noreply': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
+            'l27b-noreply': ['get_l2', 'meta-llama/Llama-2-7b-chat-hf', 'main'],
+            'mixt-noreply': ['get_model', 'TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ', 'main'], #'gptq-4bit-32g-actorder_True'], #'main'],
+            'test-mixt': ['get_model_bnb', "mistralai/Mixtral-8x7B-Instruct-v0.1", 'main']
+            }
+access_token = ''
 
 # DATASET
 def get_sara():
@@ -73,7 +81,7 @@ def get_l2_bits(version, revision, device):
 def get_model(v, r, d):
     model_name = v
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
-    model = AutoModelForCausalLM.from_pretrained(model_name, device_map=d, revision=r, trust_remote_code=False, cache_dir=my_cache)
+    model = AutoModelForCausalLM.from_pretrained(model_name, device_map=d, revision=r, trust_remote_code=False) #, cache_dir=my_cache)
     return tokenizer, model
 
 def get_model_bnb(v, r, d):
@@ -431,13 +439,6 @@ def all_responses_json(model_responses, model_name, prompt_name): #, full_p):
 
 def pipeline(mname, d, prompt_no=0, n=None):
     sara_df = load_sara()
-
-    model_map = {'test-mist': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
-            'mist-noreply': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
-            'l27b-noreply': ['get_l2', 'meta-llama/Llama-2-7b-chat-hf', 'main'],
-            'mixt-noreply': ['get_model', 'TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ', 'main'], #'gptq-4bit-32g-actorder_True'], #'main'],
-            'test-mixt': ['get_model_bnb', "mistralai/Mixtral-8x7B-Instruct-v0.1", 'main']
-            }
 
     model_list = model_map.get(mname)
     m = model_list[0]
