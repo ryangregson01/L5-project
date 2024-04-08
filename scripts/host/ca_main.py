@@ -1,11 +1,10 @@
-import ir_datasets
+#import ir_datasets
 import pandas as pd
 import numpy as np
 import re
 import email
 import gensim
 import string
-from model_map import *
 import torch
 from transformers import AutoTokenizer, GenerationConfig, AutoModelForCausalLM
 #from config import *
@@ -26,9 +25,10 @@ model_map = {'test-mist': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'm
             'mixt-noreply': ['get_model', 'TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ', 'main'], #'gptq-4bit-32g-actorder_True'], #'main'],
             'test-mixt': ['get_model_bnb', "mistralai/Mixtral-8x7B-Instruct-v0.1", 'main']
             }
-access_token = ''
+l2_token = ""
 
 # DATASET
+'''
 def get_sara():
     return ir_datasets.load('sara')
 
@@ -49,7 +49,7 @@ def load_sara():
     sara_dataset = get_sara()
     sara_df = dataset_to_df(sara_dataset)
     return sara_df
-
+'''
 def get_flan(v, r, d):
     model_name = v
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
@@ -438,7 +438,8 @@ def all_responses_json(model_responses, model_name, prompt_name): #, full_p):
 
 
 def pipeline(mname, d, prompt_no=0, n=None):
-    sara_df = load_sara()
+    #sara_df = load_sara()
+    sara_df = pd.read_csv('sara.csv')
 
     model_list = model_map.get(mname)
     m = model_list[0]
@@ -456,7 +457,7 @@ def pipeline(mname, d, prompt_no=0, n=None):
         samp = sara_df.sample(n=n, random_state=1)
         processed_sara_df = full_preproc(samp, tokenizer)
 
-    print(processed_sara_df)
+    #print(processed_sara_df)
     prompt_list = ['base', 'sens_cats', 'all_cats', 'base_few', 'sens_cats_few', 'all_cats_few', 'base_sens', 'sens_cats_sens', 'all_cats_sens', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few', 'all_cats_sens_hop1', 'all_cats_sens_hop2', 'all_cats_sens_hop3']
     prompt_no = int(prompt_no)
     prompt_name = prompt_list[prompt_no]
@@ -465,7 +466,7 @@ def pipeline(mname, d, prompt_no=0, n=None):
     prompt = get_prompt_matrix(prompt_name)
     end_prompt = '[/INST]'
     model_responses = llm_experiment(processed_sara_df, prompt, model, tokenizer, d, end_prompt)
-    print(model_responses)
+    #print(model_responses)
     results = all_responses_json(model_responses, mname, prompt_name)
     print('Writing to', prompt_str)
     with open(prompt_str+'.json', 'w') as f:
@@ -476,8 +477,10 @@ def pipeline(mname, d, prompt_no=0, n=None):
 name = sys.argv[1]
 d = sys.argv[2]
 pno = sys.argv[3]
+n = sys.argv[4]
 
 #pipeline(mname='test-mist', d='cpu', prompt_no="0", n="1")
-pipeline(mname=name, d=d, prompt_no=pno, n="1")
+#pipeline(mname=name, d=d, prompt_no=pno, n=n)
+pipeline(mname=name, d=d, prompt_no=pno)
 
 

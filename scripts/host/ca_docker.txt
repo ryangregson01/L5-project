@@ -7,6 +7,7 @@ FROM python:3.10
 # Update package lists and install libgl1-mesa-glx
 COPY ca_main.py /tmp
 COPY ca_prompts.py /tmp
+COPY sara.csv /tmp
 
 # COPY data /tmp/data
 
@@ -29,14 +30,15 @@ RUN pip3 install torch torchvision torchaudio --index-url https://download.pytor
 RUN pip install transformers
 RUN pip install pillow
 RUN pip install pandas
-RUN pip install ir_datasets
+# RUN pip install ir_datasets
 RUN pip install gensim
 RUN pip install scipy==1.12
 RUN pip install accelerate
-# RUN pip install bitsandbytes
+RUN pip install bitsandbytes
 
 
 # CMD defines the command that containers will run when # created from this image
-# CMD ["python", "ca_main.py", "l27b-noreply", "cpu", "0", "1"]
+# CMD ["python", "ca_main.py"]
+# CMD ["python", "ca_main.py", "test-mist", "cpu", "0", "1"]
 # pipeline(mname='test-mist', d='cpu', prompt_no=0, n=1)
 
