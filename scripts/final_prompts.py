@@ -271,7 +271,7 @@ State if the personal information you identified is sensitive personal informati
 {identified(reasoning)}
 [/INST] 
 
-{answer()}"""
+Answer:"""
 
 
 def all_cats_sens_hop3(document, reasoning):
@@ -323,4 +323,4 @@ def get_prompt_matrix(prompt_name):
 
 
 
-print(all_cats_sens_hop3('test', 'test2'))
+#print(all_cats_sens_hop3('test', 'test2'))

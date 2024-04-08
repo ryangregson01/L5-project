@@ -92,7 +92,7 @@ def prompt_to_reply(d, p, m, t, e, device, cot_doc=''):
     gen_text = []
     for r in response:
         gen = display_gen_text(r, e)
-        gen_text.append((gen, response[0]))
+        gen_text.append(gen) #(gen, response[0]))
     return gen_text
 
 
@@ -223,12 +223,12 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
         else:
             continue
 
-        #classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device)
-        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device, cot_doc=sample[1].text)
+        classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device)
+        #classification = prompt_to_reply(sample_text, prompt_strategy, model, tokenizer, end_prompt, device, cot_doc=sample[1].text)
         #mr[sample_id] = classification
         for i, k in enumerate(batch_ids):
-            mr[k], full_prompt[k] = classification[i]
-            #mr[k] = classification[i]
+            #mr[k], full_prompt[k] = classification[i]
+            mr[k] = classification[i]
 
             '''
             pred = post_process_classification(classification[i][0])
@@ -244,7 +244,7 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
 
         clear_memory()
 
-    return mr, full_prompt #preds, truths, mr, fpr #, full_prompt
+    return mr #, full_prompt #preds, truths, mr, fpr #, full_prompt
 
 
 def post_process_split_docs(mr, fpr, pre, df):

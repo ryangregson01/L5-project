@@ -14,7 +14,7 @@ model_map = {'l27b-meta': ['get_l2', 'meta-llama/Llama-2-7b-chat-hf', 'main'], #
             'l2bnb': ['get_l2_bits', 'meta-llama/Llama-2-13b-hf', 'main'],
             'mist-noreply': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
             'l27b-noreply': ['get_l2', 'meta-llama/Llama-2-7b-chat-hf', 'main'],
-            'mixt-noreply': ['get_model', 'TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ', 'main'],
+            'mixt-noreply': ['get_model', 'TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ', 'main'], #'gptq-4bit-32g-actorder_True'], #'main'],
             'flanxl-noreply': ['get_flan', 'google/flan-t5-xl', 'main'],
             'mist-noreply-nameless': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
             'flanxl-textchunk': ['get_flan', 'google/flan-t5-xl', 'main'], # flan chunking at 512 chars
@@ -35,8 +35,8 @@ else:
 prompts = ['text', 'cg', 'pdc2'] #, 'textfew', 'pdcfew', 'cgfew'] #, 'textqa', 'pdcqa', 'cgqa']
 prompts = ['detsens2']
 prompts = ['base', 'sens_cats', 'all_cats', 'base_sens', 'sens_cats_sens', 'all_cats_sens']
-prompts = ['base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few']
-prompts = ['all_cats_sens_hop1']
+#prompts = ['base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few']
+#prompts = [prompts[0]]
 end_prompt = '[/INST]'
 sample_size = 2
 
