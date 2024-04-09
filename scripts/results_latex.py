@@ -241,17 +241,38 @@ def prompt_performance(df):
     #df['DecimalCol'] = df['DecimalCol'].apply(lambda x: round(x, 2))
     return performance_df
 
+def fix_name(mname):                
+    if mname == 'mist-noreply' or mname=='mist7b-mist':
+        return 'Mistral'
+    elif mname == 'mixt-noreply' or mname=='mixt-4bit':
+        return 'Mixtral'
+    elif mname == 'l27b-noreply' or mname=='l27b-meta':
+        return 'Llama 2'
+
+def fix_prompts(p):
+    symbol = {'base': 'Base', 
+    'sens_cats': 'SensCat', 
+    'all_cats': 'SensCat+NonSensCat', 
+    'base_sens': 'Base+SensDesc', 
+    'sens_cats_sens': 'SensCat+SensDesc', 
+    'all_cats_sens': 'SensCat+NonSensCat+SensDesc', 
+    'base_few': 'Base+FS', 
+    'sens_cats_few': 'SensCat+FS', 
+    'all_cats_few': 'SensCat+NonSensCat+FS', 
+    'base_sens_few': 'Base+SensDesc+FS', 
+    'sens_cats_sens_few': 'SensCat+SensDesc+FS', 
+    'all_cats_sens_few': 'SensCat+NonSensCat+SensDesc+FS', 
+    'all_cats_sens_hop1': 'SensCat+NonSensCat+SensDesc+CoT'}
+
+    return symbol.get(p)
+
 def round_df(df):
     for v in df.keys():
         if v == 'model' or v == 'prompt':
             if v == 'model':
-                mname = df[v].iloc[0]
-                if mname == 'mist-noreply' or mname=='mist7b-mist':
-                    df[v] = df[v].apply(lambda x: 'Mistral')
-                elif mname == 'mixt-noreply' or mname=='mixt-4bit':
-                    df[v] = df[v].apply(lambda x: 'Mixtral')
-                elif mname == 'l27b-noreply' or mname=='l27b-meta':
-                    df[v] = df[v].apply(lambda x: 'Llama 2')
+                df[v] = df[v].apply(lambda x: fix_name(x))
+            else:
+                df[v] = df[v].apply(lambda x: fix_prompts(x))
             continue
         df[v] = df[v].apply(lambda x: round(x, 4))
     return df
@@ -264,24 +285,41 @@ data = clean_unique_docs
 X = data.doc_id.to_numpy()
 y = data.sensitivity.to_numpy()
 X_train, X_test, _, _ = train_test_split(X, y, test_size=0.8, random_state=1)
-#X_train = [] # For full zero-shot
+X_train = [] # For full zero-shot
 
 prompts = ['text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'hop1']
-prompts = ['base', 'sens_cats', 'all_cats', 'base_sens', 'sens_cats_sens', 'all_cats_sens', 'base_few']
-#prompts = ['base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few']
-prompts = ['base', 'sens_cats', 'all_cats', 'base_sens', 'sens_cats_sens', 'all_cats_sens', 'base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few']
+prompts = ['base', 'sens_cats', 'all_cats', 'base_sens', 'sens_cats_sens', 'all_cats_sens', 'base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few', 'all_cats_sens_hop1']
+
+prompts = ['base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few']
 
 model_name = ['mist-noreply', 'mixt-noreply', 'l27b-noreply', 'flanxl-noreply', 'mist-noreply-nameless']
-model_name = model_name[1]
+model_name = model_name[2]
 x = get_results_json(model_name)
-#print(x)
 average_type='binary'
 prompt_performance_df = prompt_performance(x)
-#print(prompt_performance_df)
-prompt_order = ['base', 'sens_cats', 'all_cats', 'base_sens', 'sens_cats_sens', 'all_cats_sens', 'base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few']
+'''
+df = pd.DataFrame()
+model_names = ['mist-noreply', 'mixt-noreply'] #, 'l27b-noreply']
+average_type='binary'
+for model_name in model_names:
+    x = get_results_json(model_name)
+    prompt_performance_df = prompt_performance(x)
+    if df.empty:
+        df = prompt_performance_df
+    else:
+        df = pd.concat([df, prompt_performance_df], axis=0, ignore_index=True)
+prompt_performance_df = df
+model_order = ['mist-noreply', 'mixt-noreply']
+prompt_performance_df['model'] = pd.Categorical(prompt_performance_df['model'], categories=model_order, ordered=True)
+prompt_performance_df = prompt_performance_df.sort_values('model')
+model_name = 'full'
+'''
+prompt_order = ['base', 'sens_cats', 'all_cats', 'base_sens', 'sens_cats_sens', 'all_cats_sens', 'base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few', 'all_cats_sens_hop1']
 prompt_performance_df['prompt'] = pd.Categorical(prompt_performance_df['prompt'], categories=prompt_order, ordered=True)
 prompt_performance_df = prompt_performance_df.sort_values('prompt')
-print(prompt_performance_df)
+#print(prompt_performance_df)
 
 rounded_df = round_df(prompt_performance_df)
+print(rounded_df)
+rounded_df = rounded_df.drop(columns=['Recall', 'auROC'])
 rounded_df.to_csv(model_name+'_results.csv', index=False)

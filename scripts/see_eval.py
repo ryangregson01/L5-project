@@ -108,7 +108,8 @@ def get_results_json(mname, clean=True):
     ps = ['text', 'pdc', 'cg', 'textqa', 'pdcqa', 'cgqa']
     ps = ['textfew', 'pdcfew', 'cgfew']
     ps = ['pdcfewsim', 'pdc2']
-    ps = ['base']
+    ps = ['sens_cats_sens_few']
+    ps = ['base_few']
 
     prompt = ps[0] #'text2'
     prompt_path = os.path.join(target_directory, prompt)

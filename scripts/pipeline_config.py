@@ -35,8 +35,8 @@ else:
 prompts = ['text', 'cg', 'pdc2'] #, 'textfew', 'pdcfew', 'cgfew'] #, 'textqa', 'pdcqa', 'cgqa']
 prompts = ['detsens2']
 #prompts = ['base', 'sens_cats', 'all_cats', 'base_sens', 'sens_cats_sens', 'all_cats_sens']
-prompts = ['base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few']
-prompts = ['sens_cats_sens_few', 'all_cats_sens_few']
+#prompts = ['base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few']
+prompts = ['base_sens', 'sens_cats_sens', 'all_cats_sens']
 #prompts = [prompts[0]]
 end_prompt = '[/INST]'
 sample_size = 2
