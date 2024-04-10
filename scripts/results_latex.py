@@ -289,9 +289,7 @@ X_train = [] # For full zero-shot
 
 prompts = ['text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'hop1']
 prompts = ['base', 'sens_cats', 'all_cats', 'base_sens', 'sens_cats_sens', 'all_cats_sens', 'base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few', 'all_cats_sens_hop1']
-
-prompts = ['base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few']
-
+'''
 model_name = ['mist-noreply', 'mixt-noreply', 'l27b-noreply', 'flanxl-noreply', 'mist-noreply-nameless']
 model_name = model_name[2]
 x = get_results_json(model_name)
@@ -299,7 +297,7 @@ average_type='binary'
 prompt_performance_df = prompt_performance(x)
 '''
 df = pd.DataFrame()
-model_names = ['mist-noreply', 'mixt-noreply'] #, 'l27b-noreply']
+model_names = ['mist-noreply', 'mixt-noreply', 'l27b-noreply']
 average_type='binary'
 for model_name in model_names:
     x = get_results_json(model_name)
@@ -309,14 +307,14 @@ for model_name in model_names:
     else:
         df = pd.concat([df, prompt_performance_df], axis=0, ignore_index=True)
 prompt_performance_df = df
-model_order = ['mist-noreply', 'mixt-noreply']
+model_order = ['mist-noreply', 'mixt-noreply', 'l27b-noreply']
 prompt_performance_df['model'] = pd.Categorical(prompt_performance_df['model'], categories=model_order, ordered=True)
-prompt_performance_df = prompt_performance_df.sort_values('model')
+#prompt_performance_df = prompt_performance_df.sort_values('model')
 model_name = 'full'
-'''
+
 prompt_order = ['base', 'sens_cats', 'all_cats', 'base_sens', 'sens_cats_sens', 'all_cats_sens', 'base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few', 'all_cats_sens_hop1']
 prompt_performance_df['prompt'] = pd.Categorical(prompt_performance_df['prompt'], categories=prompt_order, ordered=True)
-prompt_performance_df = prompt_performance_df.sort_values('prompt')
+prompt_performance_df = prompt_performance_df.sort_values(by=['prompt', 'model'])
 #print(prompt_performance_df)
 
 rounded_df = round_df(prompt_performance_df)
