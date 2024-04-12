@@ -36,7 +36,7 @@ def llm_inference(document, prompt, model, tokenizer, device):
             attention_mask=model_inputs.attention_mask, 
             pad_token_id=tokenizer.pad_token_id,
             do_sample=False,
-            max_new_tokens=150, # 150
+            max_new_tokens=10, # 150
         )
     decoded = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
     del model_inputs
