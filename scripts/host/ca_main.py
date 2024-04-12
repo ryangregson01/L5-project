@@ -7,7 +7,6 @@ import gensim
 import string
 import torch
 from transformers import AutoTokenizer, GenerationConfig, AutoModelForCausalLM
-#from config import *
 from transformers import AutoModelForSeq2SeqLM, BitsAndBytesConfig
 from ca_prompts import *
 import gc
@@ -16,14 +15,12 @@ import json
 import os
 import sys
 #from few import get_key_to_sims, get_sims, get_sim_text, new_get_sims
-
 #from config import my_cache
 
 model_map = {'test-mist': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
             'mist-noreply': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
             'l27b-noreply': ['get_l2', 'meta-llama/Llama-2-7b-chat-hf', 'main'],
             'mixt-noreply': ['get_model', 'TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ', 'main'], #'gptq-4bit-32g-actorder_True'], #'main'],
-            'test-mixt': ['get_model_bnb', "mistralai/Mixtral-8x7B-Instruct-v0.1", 'main']
             }
 l2_token = ""
 

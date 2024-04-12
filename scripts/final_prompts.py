@@ -71,6 +71,19 @@ Now answer:
 """
 
 
+def flip_few():
+    return f"""Example:
+Message: original message from alvarez ray sent thursday august pm to sanders richard b williams robert c cc steffes james d comnes alan robertson linda shapiro richard subject california refund proceeding privileged and confidential attorney work product attorney client communication in our litigation meeting last tuesday we learned that netting of spot purchases and sales is of paramount importance in limiting our exposure to refunds under the fercs july order in both the california and pacific northwest proceedings however in the california proceeding we are also afforded the opportunity in the order to offset our receivables against any refund that would otherwise have to be paid by us also to the extent that our receivables exceed the refund amount the order provides for payment of interest to us in accordance with cfr section a at present i am aware of the existence of three receivables as you will recall i mentioned at tuesdays meeting that we should be able to treat as a receivable for purposes of offset the revenues due us from the application of the caiso underscheduling penalty i communicated the possibility of offsetting this receivable against any potential refund at this mornings western wholesale conference call and subsequent research conducted by alan comnes indicates that the caiso owes us mm as per the caisos own numbers the caiso also owes us approximately mm due to nonpayment for one to two months of business these two figures alone totalling approximately mm exceed the estimate of our potential exposure in the california proceeding finally the negative ctc issue is another receivable due us by ious that under the plain language of the order could potentially be used to offset any refund amount i am not aware of the magnitude of this receivable but do understand that there are some sensitivities regarding this issue including concerns about revealing the amount of the credit due us it is likely that the amount would become public if it is presented in the california proceeding please give us your thoughts as to the use of the ctc receivable to offset potential refunds in the california proceeding.
+Answer: ["non-personal"].
+
+Example:
+Message: i am so sorry you guys gave him a really good life robert kean on pm please respond to to pat hilleman e mail greg smith e mail greg smith e mail colin lamb e mail maggie kean e mail nora kean e mail nora kean e mail sann evelyn gossum e mail doug karen reiman e mail jean kean e mail kathy wedig e mail melissa kean e mail phil kean e mail steve melissa kean e mail cc subject houston houston died today after a long battle with auto immune hemolytic anemia rest in peace rob kean.
+Answer: ["personal"]
+
+Now answer:
+"""
+
+
 def base_few(document):
     return f"""[INST] <<SYS>> 
 {task()}
@@ -237,6 +250,25 @@ def all_cats_sens_few(document):
 {answer()}"""
 
 
+def all_cats_sens_flip_few(document):
+    return f"""[INST] <<SYS>> 
+{task()}
+
+{collection_context()}
+
+{sens_context()}
+
+{sens_cat_info()} {non_sens_cat_info()}
+
+{question_config()} <</SYS>> 
+
+{flip_few()}
+{message(document)}
+[/INST] 
+
+{answer()}"""
+
+
 def all_cats_sens_hop1(document):
     return f"""[INST] <<SYS>> 
 Your task is to determine if the following email message contains personal information.
@@ -297,6 +329,33 @@ You have already identified if personal information is present within the messag
 
 
 
+def sim_few(d, l):
+    return f"""Example:
+Message: {d}.
+Answer: ["{l}"].
+
+Now answer:
+"""
+
+def all_cats_sens_sim_few(document, sim_doc, label):
+    return f"""[INST] <<SYS>> 
+{task()}
+
+{collection_context()}
+
+{sens_context()}
+
+{sens_cat_info()} {non_sens_cat_info()}
+
+{question_config()} <</SYS>> 
+
+{sim_few(sim_doc, label)}
+{message(document)}
+[/INST] 
+
+{answer()}"""
+
+
 
 def get_prompt_matrix(prompt_name):
     prompt_dict = {
@@ -314,7 +373,9 @@ def get_prompt_matrix(prompt_name):
         'all_cats_sens_few': all_cats_sens_few,
         'all_cats_sens_hop1': all_cats_sens_hop1,
         'all_cats_sens_hop2': all_cats_sens_hop2,
-        'all_cats_sens_hop3': all_cats_sens_hop3
+        'all_cats_sens_hop3': all_cats_sens_hop3,
+        'all_cats_sens_flip_few': all_cats_sens_flip_few,
+        'all_cats_sens_sim_few': all_cats_sens_sim_few,
         }
 
     return prompt_dict.get(prompt_name)

@@ -20,9 +20,6 @@ model_map = {'l27b-meta': ['get_l2', 'meta-llama/Llama-2-7b-chat-hf', 'main'], #
             }
 
 sens_aware = "<s> [INST] What does sensitive personal information mean? [/INST]"
-sens_aware = "<s> [INST] Would you regard names as sensitive personal information? [/INST]"
-sens_aware = "[INST] Would you regard names as sensitive personal information? How should I prompt you to not consider names as sensitive personal information for a classification task. [/INST]"
-
 
 method_id = 0
 model_id = 0

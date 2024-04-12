@@ -160,6 +160,14 @@ def new_get_sims(sim_docs, fproc, doc_len):
 
     return shot_one, label_one, shot_two, label_two
 
+def sing_get_sims(sim_docs, fproc, doc_len):
+    shot_length = 9500 - doc_len
+    lookup = {0: 'non-personal', 1:'personal'}
+    for val in sim_docs:
+        text, label = get_sim_text(fproc, val)
+        if len(text) <= shot_length:
+            return text, lookup.get(label)
+
 def get_max_sims_call(fproc, sproc, tokenizer):
     encode_map = encode_texts(fproc, tokenizer)
     max_sims_is = get_max_sims(fproc, sproc, encode_map)

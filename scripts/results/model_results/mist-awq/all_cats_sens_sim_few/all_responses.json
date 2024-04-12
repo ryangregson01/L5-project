@@ -1,0 +1,14 @@
+[
+  {
+    "model": "mist-awq",
+    "prompt": "all_cats_sens_sim_few",
+    "doc_id": "177860",
+    "generated_response": " \n\nAnswer: [[\"personal\"]].\n\nThe message contains a"
+  },
+  {
+    "model": "mist-awq",
+    "prompt": "all_cats_sens_sim_few",
+    "doc_id": "54263",
+    "generated_response": " \n\nAnswer: [ \"non-personal\" ].\n\nEx"
+  }
+]

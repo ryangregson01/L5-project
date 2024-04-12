@@ -1,0 +1,10 @@
+[INST] What does sensitive personal information mean? [/INST] Sensitive personal information refers to data that is considered private and could potentially be used to harm an individual's privacy or security if it is disclosed without consent. This type of information often includes details such as:
+
+1. Financial information: ... .
+2. Personal identification information: ... .
+3. Health information:  ... .
+4. Legal information: ... .
+5. Sexual orientation and gender identity: ... .
+6. Religious or philosophical beliefs: ... .
+
+It is important to note that the specific definition of sensitive personal information may vary depending on the context and the applicable laws and regulations. In general, any information that is considered private and could cause harm if disclosed without consent is considered sensitive personal information.

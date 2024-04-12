@@ -109,7 +109,7 @@ def get_results_json(mname, clean=True):
     ps = ['textfew', 'pdcfew', 'cgfew']
     ps = ['pdcfewsim', 'pdc2']
     ps = ['sens_cats_sens_few']
-    ps = ['base_few']
+    ps = ['all_cats_sens']
 
     prompt = ps[0] #'text2'
     prompt_path = os.path.join(target_directory, prompt)
@@ -167,7 +167,7 @@ def get_results_json(mname, clean=True):
 s = load_sara()
 #s = clean_names(s)
 dddd = full_preproc(s)
-x = get_results_json('l27b-noreply')#mixt-noreply')
+x = get_results_json('mist-awq')#mixt-noreply')
 #print(x)
 
 y1 = x['prediction'].values
@@ -184,3 +184,11 @@ tn, fp, fn, tp = confusion_matrix(y2, y1).ravel()
 #print(sum(y2))
 
 print()
+
+
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, f1_score, classification_report, confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score, fbeta_score
+f1 = f1_score(y2, y1, average='binary')
+prec = precision_score(y2, y1, average='binary')
+rec = recall_score(y2, y1, average='binary', zero_division=0)
+f2 = fbeta_score(y2, y1, average='binary', beta=2)
+print(prec, rec, f1, f2)
