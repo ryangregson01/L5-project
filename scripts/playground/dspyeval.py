@@ -55,10 +55,10 @@ def full_preproc(s, tokenizer='', c_size=2048):
 def get_metric_dict(labels, preds):
     acc = accuracy_score(labels, preds)
     bac = balanced_accuracy_score(labels, preds)
-    f1 = f1_score(labels, preds, average='weighted')
-    prec = precision_score(labels, preds, average='weighted')
-    rec = recall_score(labels, preds, average='weighted', zero_division=0)
-    f2 = fbeta_score(labels, preds, average='weighted', beta=2)
+    f1 = f1_score(labels, preds, average='binary')
+    prec = precision_score(labels, preds, average='binary')
+    rec = recall_score(labels, preds, average='binary', zero_division=0)
+    f2 = fbeta_score(labels, preds, average='binary', beta=2)
     metric_dict = {'accuracy': acc, 'precision': prec, 'recall': rec, 'f1_score': f1, 'bal accuracy': bac, 'f2_score': f2}
     return metric_dict
 
@@ -112,7 +112,7 @@ def new_get_join(data):
 
 def run_evaluation(name):
     metrics_data = {}
-    readjson = get_results_json('dsp3hopcot.json')
+    readjson = get_results_json('slim_instruct.json')
     #doc_ids = readjson['doc_id'].to_list()
     #preds = readjson['prediction'].to_list()
     #gts = readjson['ground_truth'].to_list()

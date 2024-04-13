@@ -22,7 +22,7 @@ def base(document):
 
 {answer()}"""
 
-def sens_cat_info(): return """Personal messages messages may be purely personal and do not include any relation to work being done. Personal messages that are related to work will contain comments about the quality of people's work and expressions of feelings about employee treatment."""
+def sens_cat_info(): return """Personal messages may be purely personal and do not include any relation to work being done. Personal messages that are related to work will contain comments about the quality of people's work and expressions of feelings about employee treatment."""
 
 def non_sens_cat_info(): return """Non-personal messages discuss topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support), employment arrangements (job seeking, hiring, recommendations), document editing/checking (collaboration), empty message (due to missing attachment), empty message."""
 
@@ -356,6 +356,57 @@ def all_cats_sens_sim_few(document, sim_doc, label):
 {answer()}"""
 
 
+def all_cats_dos(document):
+    return f"""[INST] <<SYS>> 
+{task()}
+
+{collection_context()}
+
+Personal messages may be purely personal and do not include any relation to work being done. Personal messages may also be related to work and contain sentiment towards colleagues (e.g., it was good working with you). {non_sens_cat_info()}
+
+{question_config()} <</SYS>> 
+
+{message(document)}
+[/INST] 
+
+{answer()}"""
+
+
+def all_cats_sens_dos(document):
+    return f"""[INST] <<SYS>> 
+{task()}
+
+{collection_context()}
+
+{sens_context()}
+
+Personal messages may be purely personal and do not include any relation to work being done. Personal messages may also be related to work and contain sentiment towards colleagues (e.g., it was good working with you). {non_sens_cat_info()}
+
+{question_config()} <</SYS>> 
+
+{message(document)}
+[/INST] 
+
+{answer()}"""
+
+def all_cats_sens_few_dos(document):
+    return f"""[INST] <<SYS>> 
+{task()}
+
+{collection_context()}
+
+{sens_context()}
+
+Personal messages may be purely personal and do not include any relation to work being done. Personal messages may also be related to work and contain sentiment towards colleagues (e.g., it was good working with you). {non_sens_cat_info()}
+
+{question_config()} <</SYS>> 
+
+{few()}
+{message(document)}
+[/INST] 
+
+{answer()}"""
+
 
 def get_prompt_matrix(prompt_name):
     prompt_dict = {
@@ -376,6 +427,9 @@ def get_prompt_matrix(prompt_name):
         'all_cats_sens_hop3': all_cats_sens_hop3,
         'all_cats_sens_flip_few': all_cats_sens_flip_few,
         'all_cats_sens_sim_few': all_cats_sens_sim_few,
+        'all_cats_dos': all_cats_dos,
+        'all_cats_sens_dos': all_cats_sens_dos,
+        'all_cats_sens_few_dos': all_cats_sens_few_dos,
         }
 
     return prompt_dict.get(prompt_name)

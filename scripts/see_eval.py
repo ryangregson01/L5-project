@@ -109,7 +109,7 @@ def get_results_json(mname, clean=True):
     ps = ['textfew', 'pdcfew', 'cgfew']
     ps = ['pdcfewsim', 'pdc2']
     ps = ['sens_cats_sens_few']
-    ps = ['all_cats_sens']
+    ps = ['all_cats_sens_few']
 
     prompt = ps[0] #'text2'
     prompt_path = os.path.join(target_directory, prompt)
@@ -167,7 +167,7 @@ def get_results_json(mname, clean=True):
 s = load_sara()
 #s = clean_names(s)
 dddd = full_preproc(s)
-x = get_results_json('mist-awq')#mixt-noreply')
+x = get_results_json('mist-noreply')
 #print(x)
 
 y1 = x['prediction'].values

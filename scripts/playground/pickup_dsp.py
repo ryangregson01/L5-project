@@ -16,8 +16,6 @@ import math
 import pandas as pd
 from transformers import AutoTokenizer
 
-login('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')
-
 def write_responses_json(results, filename):
     try:
         with open(filename, 'r') as file:
@@ -30,7 +28,7 @@ def write_responses_json(results, filename):
 
 
 def main_experiment(NN, sig, break_p):
-    model_name = "meta-llama/Llama-2-7b-chat-hf" #"TheBloke/Mixtral-8x7B-Instruct-v0.1-AWQ" ##"mistralai/Mistral-7B-Instruct-v0.2"
+    model_name = "mistralai/Mistral-7B-Instruct-v0.2" #"TheBloke/Mixtral-8x7B-Instruct-v0.1-AWQ" ##"mistralai/Mistral-7B-Instruct-v0.2"
     turbo = dspy.HFModel(model = model_name) #"meta-llama/Llama-2-7b-chat-hf")
     dspy.settings.configure(lm=turbo)
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)

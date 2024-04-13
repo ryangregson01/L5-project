@@ -19,6 +19,8 @@ model_map = {'l27b-meta': ['get_l2', 'meta-llama/Llama-2-7b-chat-hf', 'main'], #
             'mist-noreply-nameless': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
             'flanxl-textchunk': ['get_flan', 'google/flan-t5-xl', 'main'], # flan chunking at 512 chars
             'mist-noreply-verbose': ['get_model', 'mistralai/Mistral-7B-Instruct-v0.2', 'main'],
+            'mixt-verbose': ['get_model', 'TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ', 'main'],
+            'mist-awq-verbose': ['get_model', 'TheBloke/Mistral-7B-Instruct-v0.2-AWQ', 'main'],
             }
 
 model_name = sys.argv[1]
@@ -37,10 +39,10 @@ prompts = ['text', 'cg', 'pdc2'] #, 'textfew', 'pdcfew', 'cgfew'] #, 'textqa', '
 prompts = ['detsens2']
 #prompts = ['base', 'sens_cats', 'all_cats', 'base_sens', 'sens_cats_sens', 'all_cats_sens']
 #prompts = ['base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few']
-prompts = ['all_cats_sens_sim_few']
+prompts = ['all_cats_sens_dos', 'all_cats_sens_few_dos']
 #prompts = [prompts[0]]
 end_prompt = '[/INST]'
-sample_size = 2
+sample_size = 1
 
 print('Starting experiment:', model_name)
 print(prompts)
