@@ -167,6 +167,8 @@ def sing_get_sims(sim_docs, fproc, doc_len):
         text, label = get_sim_text(fproc, val)
         if len(text) <= shot_length:
             return text, lookup.get(label)
+        
+    return " ", "non-personal"
 
 def get_max_sims_call(fproc, sproc, tokenizer):
     encode_map = encode_texts(fproc, tokenizer)

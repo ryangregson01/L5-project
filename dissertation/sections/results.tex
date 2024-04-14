@@ -232,7 +232,7 @@ Prompt &
   0.8405 &
   0.3799 &
   {\ul 0.4439} &
-  0.897 &
+  0.8970 &
   {\ul 0.4094} &
   {\ul 0.4294} &
   {\ul 0.6704} \\
@@ -432,6 +432,24 @@ We have shown that information about the email category is useful as messages th
 Overall, we conclude our use of the context manager pattern improved the effectiveness of using generative LLMs in zero-shot sensitivity classification.
 
 \subsection{RQ3. What is the effect of other prompt engineering strategies on the effectiveness of sensitivity classification with generative LLMs?}
+
+To answer our final research question, we augment our prompts with popular methods seen in literature: few-shot prompting and chain-of-thought prompting.
+
 \subsubsection{What is the effect of few-shot prompting on the effectiveness of sensitivity classification with generative LLMs?}
 
+It is clear that few-shot improves the effectiveness of Mistral for identifying sensitive personal information. From Table \ref{table:results}, for Mistral we see every prompt except $SensCat+NonSensCat$ with few-shot makes a statistically significant improvement (to comparable zero-shot prompts), and all BAC and F\textsubscript{2} values are seen to increase given few-shot. For Mixtral and Llama 2, the addition of few-shot makes statistically significant differences from the pseudo-baseline zero-shot prompt; however, few-shot does not improve every prompt instance of these models. Mixtral and Llama 2 suffered from low specificity with our zero-shot prompts; however, with few-shot prompting the [/the opposite is true where] TNR is extremely high (>0.9 for all prompts). With a high TNR, one of our main metrics F\textsubscript{2} is extremely low for these model-prompt settings; therefore, we conclude few-shot with Mixtral and Llama 2 is not effective for identifying sensitive personal information.
+
+We see that few-shot prompt engineering consistently improves sensitivity classification with Mistral only. Therefore, we conclude this model is more effective than Llama 2 and Mixtral with few-shot prompting. Furthermore, we also speculate that the poor performance with the other models using few-shot could be for reasons such as poor example choices and prompt structure[/example ordering].
+
+We included two examples in-context: one sensitive, and one non-sensitive. As the second example was always non-sensitive and our causal LLMs only use/[have access to] previous context, prioritising more recent tokens, the fact that an answer with '[``non-personal"]' appears more recently may be confusing the model. [Post-study flipping them]. As messages are reasonably long, hence the examples are long, creating a greater distance/separation/window before demonstrated answers, this is a limitation of using multiple examples with few-shot prompting. [I would say I hypothesised that multiple examples should have been important/useful though].
+
+As well as example ordering, the choice of our examples could influence our results. Emails in the collection that are non-sensitive can vary across [/are relevant to] six other categories (as shown by Hearst \cite{hearst2005teaching} and Mckechnie \cite{mckechnie2024sara}, and used by our context manager prompting strategy); therefore, it would be useful to investigate using examples of multiple sensitive and non-sensitive email categories could improve the effectiveness of sensitivity classification compared to examples that have been cherry-picked or selected via cosine similarity. [(Surprisingly,) Selected examples for few-shot that were most similar document to the document to be classified performed significantly worse compared to both zero-shot and cherry-picked examples that were clearly sensitive or non-sensitive to a human reader (test statistic).] [We consider that as emails could be structured [also structured semantically] the same way by individuals retrieving ‘best’ examples will be challenging].
+
+As SARA is not a (very/an extremely) large collection we chose to find similarities between all documents using the cosine similarity; however, larger collections could employ retrieval models to find similar documents. Furthermore, ongoing research is investigating (novel) few-shot prompting strategies. Techniques such as DSPy’s bootstrapped few-shot which generate synthetic and representative few-shot samples could be explored. [This technique could be used to release prompts publicly as synthetic few-shot examples may be useful within other collections]. Methods are being explored how to retrieve the best example prompts, and we believe that similar to our context manager pattern, it could be useful to demonstrate multiple examples of sensitive and non-sensitive emails.
+
 \subsubsection{What is the effect of chain-of-thought on the effectiveness of sensitivity classification with generative LLMs?}
+
+For Chain-of-Thought (CoT), our models do not behave as we hypothesised, performing worse than no CoT. We believed taking reasoning steps/hops would elicit sensible self-explanations to better classify the email message as sensitive or non-sensitive given additional awareness/context of personal information within the email. 
+
+There is a statistically significant difference between zero-shot and CoT prompts for all of our models where the zero-shot prompt outperforms CoT techniques, shown by BAC lowering by 14.39\%, 11.85\% and 4.82\% for Mistral, Mixtral and Llama 2 respectively. In fact, CoT for Mistral and Llama 2 performs worse than the $Base$ prompt; Llama 2 even performing worse than a naive classifier. Interestingly, recall is still high using CoT with these models, and our analysis shows our self-reasoning step causes more model confusion compared to the exclusion of thought hops to describe (sensitive) personal information.
+

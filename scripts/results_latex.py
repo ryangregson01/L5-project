@@ -155,6 +155,13 @@ def get_results_json(mname, clean=True):
                 pred = 0
             else:
                 pred = 1
+
+            if 'personal' in ans and 'non' not in ans:
+                pred = 1
+            else:
+                pred = 0
+
+            
             new_data.append({'doc_id': idd, 'prediction': pred, 'ground_truth': gt})
 
         data = new_data
@@ -318,6 +325,7 @@ prompt_performance_df = prompt_performance_df.sort_values(by=['prompt', 'model']
 #print(prompt_performance_df)
 
 rounded_df = round_df(prompt_performance_df)
-print(rounded_df)
+#print(rounded_df)
 rounded_df = rounded_df.drop(columns=['Recall', 'auROC'])
-rounded_df.to_csv(model_name+'_results.csv', index=False)
+print(rounded_df)
+#rounded_df.to_csv(model_name+'_results.csv', index=False)

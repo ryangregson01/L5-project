@@ -1,1 +1,101 @@
-\section{Evaluation/Analysis}
+\section{Analysis}
+
+\begin{figure*}
+    \centering
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\linewidth]{figures/mist-zeroshot.pdf}
+        \caption{Model 1 - Zero-shot}
+        \label{fig:model1_zero}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\linewidth]{figures/mixt-zeroshot.pdf}
+        \caption{Model 2 - Zero-shot}
+        \label{fig:model2_zero}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\linewidth]{figures/l27b-zeroshot.pdf}
+        \caption{Model 3 - Zero-shot}
+        \label{fig:model3_zero}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\linewidth]{figures/mist-fewshot.pdf}
+        \caption{Model 1 - Few-shot}
+        \label{fig:model1_few}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\linewidth]{figures/mixt-fewshot.pdf}
+        \caption{Model 2 - Few-shot}
+        \label{fig:model2_few}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\linewidth]{figures/l27b-fewshot.pdf}
+        \caption{Model 3 - Few-shot}
+        \label{fig:model3_few}
+    \end{subfigure}
+    \hfill
+    \caption{Comparative results of Zero-shot and Few-shot learning across three models.}
+    \label{fig:gains}
+\end{figure*}
+
+Our results show that our prompting strategies do improve sensitivity classification, where McNemar’s statistical tests show these strategies produce statistically significantly different classifications from a base prompting strategy. For the best performing model, Mistral, these are significant improvements in sensitivity classification. We show/see our gains given our prompting strategies is greater than our losses compared to a baseline with Mistral (Figure \ref{}). Furthermore, few-shot alongside our prompting strategies with Mistral demonstrate gains are correctly identifying sensitive documents, albeit at the cost of now misclassifying some non-sensitive documents as sensitive. As our objective aims to identify and protect sensitive personal information, we can justify/conclude that Mistral’s performance makes it feasible for this task. Analysis of the gains made by Mixtral with our prompting strategies shows encouraging improvements to sensitivity classification, where improvements/gains are made to both non-sensitive and sensitive correct classification when zero-shot (Figure \ref{}). However, with few-shot applied to Mixtral, the losses in classifying sensitive documents are noticeably poor, where the model is much more likely to classify non-sensitive documents correctly instead. Finally, (Figure \ref{} and Figure \ref{}) show Llama 2’s significant issues with correctly identifying sensitive personal information, and our prompt engineering efforts improve non-sensitive classifications. [Llama 2 Base has a TPR of 0.9184]. 
+
+\subsection{Misclassified documents} 
+
+\subsubsection{Entirely misclassified/All wrong} 
+\begin{table}[!htb]
+\caption{Entirely misclassified documents}
+\label{table:all_wrong}
+\begin{tabular}{@{}p{0.25in}p{1.2in}p{2in}@{}}
+\toprule
+DocID &
+  Message Content &
+  Verbose Response \\ \midrule
+54671 &
+  http://www.pserc-.wisc.edu/index\_-home.html &
+  {[}“non-personal”{]}. This message appears to be a URL and does not contain any personal information. \\
+54566 &
+  http://www.ssrn-.com/ &
+  The message does not contain any personal information or comments related to work or employees. It is a simple URL link. \\
+54662 &
+  http://www.housing-finance.org/Country-\%20Specific\%20Inform-ation/country\_specific-\_information.htm &
+  This message appears to be a URL and does not contain any personal information. \\
+54674 &
+  http://www.vaionl-ine.it/ &
+  The message does not contain any personal information or expressions of feelings related to work or employees. It appears to be a URL or web address, likely related to a company's internal systems or resources. \\ \bottomrule
+\end{tabular}
+\end{table}
+
+From Table \ref{table:misclassified}, we see a larger proportion of sensitive documents are misclassified across all classifiers. The Llama 2 model identifies more sensitive documents over the variable prompts; however, we believe this model is still not as sensible as Mistral because given our Base prompt Llama 2 achieves an extremely high TPR of 0.9184, whereas the inclusion of few-shot appears to flip most predictions, where from Table \ref{table:results} shows Llama 2 with Base+FS with an extremely high TNR of 0.9695 and low TPR of 0.0960. These two prompts, base and base augmented with few-shot already covers many documents lowering the number of fully misclassified documents and demonstrating Llama 2’s lack of confidence at classifying sensitive documents confidently when zero-shot. Moreover, we have 4 sensitive documents that are entirely misclassified by all model-prompt settings. Inspecting these 4 messages, we see they are each single message threads where the message body is only a shared link. Hearst’s Enron email annotations categorise these emails as personal but in a professional context. Our verbose responses of our best classifier, Mistral with $SensCat+Non-SensCat+SensDesc+FS$ (which also correctly identifies the most sensitive documents across all prompt strategies with Mistral), are shown by Table \ref{table:all_wrong}. Other prompt-model settings with verbose generation for these documents respond similarly; stating URLs are non-sensitive, or that they have not been given enough information to conclude there is sensitive personal information within the message, hence justify this as non-sensitive/non-personal. We note some verbose responses were able to correctly identify SSRN is an acronym for ‘Social Science Research Network’ but did not show any other interesting understanding beyond this. This shows that LLMs with limited surrounding context given these very short emails could benefit from more external context. We notice an interesting feature within the message header when inspecting these full documents: the sender and receiver are the same person using a different email address (from j.kaminski@enron.com, to vkaminski@aol.com), which are addresses owned by Vincent Julian Kaminski, a managing director at Enron [[footnote{\url{https://en.wikipedia.org/wiki/Vincent_Kaminski}}]]. Another very similar email, also sent by Vincent to himself and containing a single hyperlink is “http://www.housingfinance.org/Country\%20Specific-\%20Information/Fact\%20book\%20(e)\%2099.pdf” which has a misclassification rate of 0.9487. Llama 2 with Base prompt and Base+SensDesc make correct predictions for this hyperlink; however, we have concluded that Llama 2 given these prompting strategies lacks the strength of a successful sensitivity classifier by not identifying the nuanced sensitive personal information as both experimental settings achieve an extremely high TPR and low precision meaning nearly every document is classified as sensitive. However, both strategies also do not include our guided definition of sensitive personal information (SensCat), which may allow them to select sensitive information by not being instructed about the sensitive categories of interest within this work-related collection.
+
+From our inspection of entirely misclassified documents, we suggest that email header metadata could be useful for classifying sensitive personal information; in particular, the email correspondents. Further context could be given to the model, such as the number of correspondents and their relationships if this is known or mined in advance. Related work to identify social media relationships for sensitivity aware applications also shows this contributes to ... [CITE]. 
+-[Issue with model classifying names as sensitive personal information naively.]
+
+\subsubsection{Top 50 misclassified documents}
+We evaluate the top 50 overall misclassified documents (where other models top 50 misclassified messages share the overall top 5 with Mistral at 34, Mixtral at 30 and Llama 2 at 16). From Table \ref{table:misclassified} we see there are 7 non-sensitive documents misclassified and 43 sensitive documents within the top 50 misclassified messages.
+
+Non-sensitive documents that are misclassified discuss company business and strategy (which is the most common non-sensitive category) and employment arrangements. Moreover, the employment arrangement emails make direct criticisms and opinions about individuals. Inspecting one of Mistral’s verbose responses: ‘it is important to note that the message contains negative comments about specific individuals, which may be considered sensitive or confidential if shared outside of a small circle of trusted colleagues’ [/ref to appendix figure], demonstrates that our prompting strategy to provide context on sensitive personal information as defined by Mckechnie’s utilisation of personal information within a professional context has confused the LLM. This sentiment towards a colleague has a non-sensitive ground truth, and our instructions to identify comments about colleagues and employee treatment have likely encouraged the LLM that these opinions are sensitive. The exclusion of our prompt explanation of sensitive categories, with prompt strategy SensDesc, correctly identifies this email. However, we believe prompting with SensCats context provides important information to create more sensible sensitivity classifications as shown by the overall gains in prediction correctness (Figure \ref{fig:gains}).
+
+\begin{table}[]
+\caption{Top 50 Misclassified Documents}
+\label{table:misclassified}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+Model   & \multicolumn{2}{c}{All Wrong} & \multicolumn{2}{c}{Top 50} \\ \midrule
+        & Non-Sensitive   & Sensitive   & Non-Sensitive  & Sensitive \\
+Mistral & 6               & 47          & 6              & 44        \\
+Mixtral & 14              & 30          & 17             & 33        \\
+Llama 2 & 3               & 4           & 13             & 37        \\
+All     & 0               & 4           & 7              & 43        \\ \bottomrule
+\end{tabular}
+\end{table}
+
+There is a higher proportion of misclassified sensitive documents. From manually inspecting these documents, we see misclassifications of purely personal information within emails with little surrounding context. One highly misclassified purely personal message includes an email sent as a test (Figure/Appendix \ref{}). This email does not expose sensitive personal information, but is also not work-related, hence is treated as purely personal. Verbose responses show the keyword ‘Enron’ in the message creates a relationship to work. Therefore, our prompting strategy stating personal messages are not related to work (SensCat) is not useful here. Within a larger collection, few-shot examples that are similar to these test messages may be useful for correctly classifying this type of message as personal. 
+
+The majority of misclassified sensitive emails are related to work, and from our analysis, we see a misclassified sensitive document containing the statement ‘I heard you were a big hit,’ within an email thread that should be treated as personal but in a professional context is not correctly identified. We are interested in exploring if these LLMs could utilise their pre-trained understanding and follow our instructions for sensitivity classification. Therefore, to assist zero-shot learning, we actively interact with the LLMs, evaluating if we can improve sensitivity classification for this document. Mistral can successfully explain that this statement is a form of sentiment towards a colleague (Figure \ref{} / or inline). We further embed this response as a hint within our system prompt; however, the classification is still incorrect with a verbose response explaining “It does not contain any sensitive personal information. The phrase “I heard you were a big hit is” a compliment and does not reveal any personal information”. Despite understanding this term is a comment about a person which aligns with our SensCat system context, the model still incorrectly classifies the message as non-sensitive. This non-automated approach demonstrates generative LLMs capabilities at describing the content within documents for user feedback; however, difficulty following/interpreting defined instructions limits the classification performance (here). 
+
+Overall, we find from exploring the most/highest/regularly/commonly misclassified documents demonstrates that pre-trained LLMs do not always fully understand how to interpret sensitive personal information that is within the professional context of SARA[/emails]. We believe further exploration of instructions to interpret information about sensitive personal information would be useful for identifying (currently) misclassified sensitive information. 
