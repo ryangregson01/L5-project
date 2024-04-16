@@ -1,6 +1,6 @@
 #!/bin/bash
 
-my_array=("mixt-noreply" "l27b-noreply" "l270b-4bit")
+my_array=("mixt-noreply" "l27b-noreply" "mist-noreply")
 device="auto"
 
 for model in "${my_array[@]}"; do

@@ -156,10 +156,10 @@ def get_results_json(mname, clean=True):
             else:
                 pred = 1
 
-            if 'personal' in ans and 'non' not in ans:
-                pred = 1
-            else:
-                pred = 0
+            #if 'personal' in ans and 'non' not in ans:
+            #    pred = 1
+            #else:
+            #    pred = 0
 
             
             new_data.append({'doc_id': idd, 'prediction': pred, 'ground_truth': gt})
@@ -291,8 +291,9 @@ from sklearn.model_selection import train_test_split
 data = clean_unique_docs
 X = data.doc_id.to_numpy()
 y = data.sensitivity.to_numpy()
+np.random.seed(1)
 X_train, X_test, _, _ = train_test_split(X, y, test_size=0.8, random_state=1)
-X_train = [] # For full zero-shot
+#X_train = [] # For full zero-shot
 
 prompts = ['text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'hop1']
 prompts = ['base', 'sens_cats', 'all_cats', 'base_sens', 'sens_cats_sens', 'all_cats_sens', 'base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few', 'all_cats_sens_hop1']

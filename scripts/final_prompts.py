@@ -372,7 +372,57 @@ Personal messages may be purely personal and do not include any relation to work
 {answer()}"""
 
 
-def all_cats_sens_dos(document):
+
+def base_sim_few(document, sim_doc, label):
+    return f"""[INST] <<SYS>> 
+{task()}
+
+{collection_context()}
+
+{question_config()} <</SYS>> 
+
+{sim_few(sim_doc, label)}
+{message(document)}
+[/INST] 
+
+{answer()}"""
+
+
+def sens_cats_sim_few(document, sim_doc, label):
+    return f"""[INST] <<SYS>> 
+{task()}
+
+{collection_context()}
+
+{sens_cat_info()}
+
+{question_config()} <</SYS>> 
+
+{sim_few(sim_doc, label)}
+{message(document)}
+[/INST] 
+
+{answer()}"""
+
+
+def all_cats_sim_few(document, sim_doc, label):
+    return f"""[INST] <<SYS>> 
+{task()}
+
+{collection_context()}
+
+{sens_cat_info()} {non_sens_cat_info()}
+
+{question_config()} <</SYS>> 
+
+{sim_few(sim_doc, label)}
+{message(document)}
+[/INST] 
+
+{answer()}"""
+
+
+def base_sens_sim_few(document, sim_doc, label):
     return f"""[INST] <<SYS>> 
 {task()}
 
@@ -380,16 +430,16 @@ def all_cats_sens_dos(document):
 
 {sens_context()}
 
-Personal messages may be purely personal and do not include any relation to work being done. Personal messages may also be related to work and contain sentiment towards colleagues (e.g., it was good working with you). {non_sens_cat_info()}
-
 {question_config()} <</SYS>> 
 
+{sim_few(sim_doc, label)}
 {message(document)}
 [/INST] 
 
 {answer()}"""
 
-def all_cats_sens_few_dos(document):
+
+def sens_cats_sens_sim_few(document, sim_doc, label):
     return f"""[INST] <<SYS>> 
 {task()}
 
@@ -397,15 +447,36 @@ def all_cats_sens_few_dos(document):
 
 {sens_context()}
 
-Personal messages may be purely personal and do not include any relation to work being done. Personal messages may also be related to work and contain sentiment towards colleagues (e.g., it was good working with you). {non_sens_cat_info()}
+{sens_cat_info()}
 
 {question_config()} <</SYS>> 
 
-{few()}
+{sim_few(sim_doc, label)}
 {message(document)}
 [/INST] 
 
 {answer()}"""
+
+
+def all_cats_sens_sim_few(document, sim_doc, label):
+    return f"""[INST] <<SYS>> 
+{task()}
+
+{collection_context()}
+
+{sens_context()}
+
+{sens_cat_info()} {non_sens_cat_info()}
+
+{question_config()} <</SYS>> 
+
+{sim_few(sim_doc, label)}
+{message(document)}
+[/INST] 
+
+{answer()}"""
+
+
 
 
 def get_prompt_matrix(prompt_name):
@@ -428,8 +499,11 @@ def get_prompt_matrix(prompt_name):
         'all_cats_sens_flip_few': all_cats_sens_flip_few,
         'all_cats_sens_sim_few': all_cats_sens_sim_few,
         'all_cats_dos': all_cats_dos,
-        'all_cats_sens_dos': all_cats_sens_dos,
-        'all_cats_sens_few_dos': all_cats_sens_few_dos,
+        'base_sim_few': base_sim_few,
+        'sens_cats_sim_few': sens_cats_sim_few,
+        'all_cats_sim_few': all_cats_sim_few,
+        'base_sens_sim_few': base_sens_few,
+        'sens_cats_sens_sim_few': sens_cats_sens_few,
         }
 
     return prompt_dict.get(prompt_name)

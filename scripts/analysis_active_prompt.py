@@ -11,7 +11,7 @@ Your task is to determine if the following email message contains sensitive pers
 
 You are reviewing emails from the company Enron that are related to the California energy crisis, trading discrepancies, and other messages occurring near the end of the company's life.
 
-Personal messages may be purely personal and do not include any relation to work being done. Personal messages may also be related to work and contain sentiment towards colleagues (e.g., it was good working with you). Non-personal messages discuss topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support), employment arrangements (job seeking, hiring, recommendations), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
+Personal messages may be purely personal and do not include any relation to work being done. Personal messages may also be related to work and contain comments about the quality of people's work (e.g., it was good working with you). Non-personal messages discuss topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support), employment arrangements (job seeking, hiring, recommendations), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
 
 Which one of the attributes: "personal", or "non-personal" describes the following message? The message should be classified as "personal" if any part of the message contains sensitive personal information. The hint should help you answer.
 Always answer in the form of a Python list containing the appropriate attribute. <</SYS>> 
@@ -32,7 +32,7 @@ tokenizer, model = get_model_version('get_model', 'TheBloke/Mistral-7B-Instruct-
 #samp = sara_df.sample(n=n, random_state=1)
 processed_sara_df = full_preproc(sara_df, tokenizer)
 
-document = '[INST] Explain what: "I heard you were a big hit" means. [/INST]'
+document = '[INST] Explain the sentence "i heard you were a big hit". [/INST]'
 #'This looks like a run-of-the-mill conference except that the guest list is fairly senior.'
 
 if tokenizer.pad_token is None:
