@@ -1,0 +1,13 @@
+In this paper, we proposed novel prompt engineering strategies to improve the zero-shot performance of open-source generative LLMs in sensitivity classification. We use instructions to influence LLMs understanding of sensitive personal information within emails using context management ($S\_EC$, $NS\_EC$, $PS$), few-shot prompting ($FS$), and chain-of-thought prompting ($CoT$). Our experiments on the SARA dataset found that simple text classification ($Base$) prompting strategies were not sufficient to classify sensitive personal information. We also found that with the introduction of our prompt engineering strategies, classifying sensitive personal information was feasible; where all our prompting strategies introducing context within the system prompt made some significant improvements (according to McNemar’s test) compared to our $Base$ prompt strategy. Furthermore, we found that few-shot prompting made significant improvements for Mistral; however, our proposed $CoT$ strategy was ineffective. The best performing model and prompt was Mistral with context about sensitive email categories, sensitive personal information laws and few-shot examples ($S\_EC+PS+FS$). Furthermore, Mistral-$S\_EC+PS+FS$ as a sensitivity classifier performed similarly to existing machine learning strategies which require some training data. This demonstrates the capabilities of pre-trained LLMs at classifying sensitive personal information via inexpensive prompting instead of fine-tuning.
+
+\subsection{Future Work}
+Todo: 1. Prompt optimisation – to search similar and better prompts – using DSPy. Furthermore, DSPy’s fewshotbootstrap method can generate synthetic few-shot examples to also train other classifiers. Posing question: could prompted LLMs that generate synthetic examples be useful in replicating collections to improve sensitivity identification.
+
+2. Use generated output to assist other classifiers and retrieval models. Generated output can be used as hints. However, we saw from our analysis with this single example hints do not always change the model outcome. Outputs could be used to ‘teach’/enhance smaller models.
+
+3. Instruction-based LLMs are queried (such as ChatGPT). These could be used with search queries to explore sensitivity-aware searching.
+
+\vspace{0.4cm}
+{\bf Acknowledgments.}
+I would like to thank my supervisor, Dr. Graham McDonald, for his valuable comments and advice throughout the year.
+
