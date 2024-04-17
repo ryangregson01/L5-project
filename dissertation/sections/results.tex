@@ -1,6 +1,7 @@
 \section{Results}
 
 \begin{table*}[!h]
+\centering
 \caption{Results. Significance testing where p<0.05. $\dagger$ shows comparison to Base, and $\ddagger$ shows comparisons to non-fewshot prompts. Note p<0.01 for all current significance holds true except Mixtral with SensCat (compared to Base) with 0.0137... . [Underlined values are per prompt - this could be changed per model - improve readability.]}
 \label{table:results}
 \begin{tabular}{@{}lclccccccc@{}}
@@ -45,7 +46,7 @@ Prompt &
   {\ul 0.2390} &
   {\ul 0.4298} &
   {\ul 0.5492} \\ \cmidrule(l){3-10}
-\multirow{3}{*}{SensCat} &
+\multirow{3}{*}{S\_EC} &
   $\dagger$ \hspace{0.46em} &
   Mistral &
   {\ul 0.8653} &
@@ -75,7 +76,7 @@ Prompt &
   0.2745 &
   0.4353 &
   0.6090 \\ \cmidrule(l){3-10}
-\multirow{3}{*}{SensCat+NonSensCat} &
+\multirow{3}{*}{S\_EC+NS\_EC} &
   $\dagger$ \hspace{0.46em} &
   Mistral &
   {\ul 0.8564} &
@@ -105,7 +106,7 @@ Prompt &
   0.2497 &
   0.3553 &
   0.5718 \\ \cmidrule(l){3-10}
-\multirow{3}{*}{Base+SensDesc} &
+\multirow{3}{*}{PS} &
   &
   Mistral &
   {\ul 0.7827} &
@@ -135,7 +136,7 @@ Prompt &
   0.2352 &
   {\ul 0.4242} &
   0.5404 \\ \cmidrule(l){3-10}
-\multirow{3}{*}{SensCat+SensDesc} &
+\multirow{3}{*}{S\_EC+PS} &
   $\dagger$ \hspace{0.46em} &
   Mistral &
   {\ul 0.8653} &
@@ -165,7 +166,7 @@ Prompt &
   0.2692 &
   0.4265 &
   0.6009 \\ \cmidrule(l){3-10}
-\multirow{3}{*}{SensCat+NonSensCat+SensDesc} &
+\multirow{3}{*}{S\_EC+NS\_EC+PS} &
   $\dagger$ \hspace{0.46em} &
   Mistral &
   {\ul 0.8571} &
@@ -226,7 +227,7 @@ Prompt &
   0.0960 &
   0.0716 &
   0.5154 \\ \cmidrule(l){3-10}
-\multirow{3}{*}{SensCat+FS} &
+\multirow{3}{*}{S\_EC+FS} &
   $\dagger$ $\ddagger$ &
   Mistral &
   0.8405 &
@@ -256,7 +257,7 @@ Prompt &
   0.2403 &
   0.1952 &
   0.5675 \\ \cmidrule(l){3-10}
-\multirow{3}{*}{SensCat+NonSensCat+FS} &
+\multirow{3}{*}{S\_EC+NS\_EC+FS} &
   $\dagger$ \hspace{0.46em} &
   Mistral &
   0.8437 &
@@ -286,7 +287,7 @@ Prompt &
   0.2574 &
   0.2035 &
   0.5744 \\ \cmidrule(l){3-10}
-\multirow{3}{*}{Base+SensDesc+FS} &
+\multirow{3}{*}{PS+FS} &
   $\dagger$ $\ddagger$ &
   Mistral &
   0.8374 &
@@ -316,7 +317,7 @@ Prompt &
   0.0775 &
   0.0591 &
   0.5066 \\ \cmidrule(l){3-10}
-\multirow{3}{*}{SensCat+SensDesc+FS} &
+\multirow{3}{*}{S\_EC+PS+FS} &
   $\dagger$ $\ddagger$ &
   Mistral &
   0.8259 &
@@ -346,7 +347,7 @@ Prompt &
   0.2222 &
   0.1864 &
   0.5595 \\ \cmidrule(l){3-10}
-\multirow{3}{*}{SensCat+NonSensCat+SensDesc+FS} &
+\multirow{3}{*}{S\_EC+NS\_EC+PS+FS} &
   $\dagger$ $\ddagger$ &
   Mistral &
   0.8342 &
@@ -376,7 +377,7 @@ Prompt &
   0.3009 &
   0.2751 &
   0.5967 \\ \cmidrule(l){3-10}
-\multirow{3}{*}{SensCat+NonSensCat+SensDesc+CoT} &
+\multirow{3}{*}{S\_EC+NS\_EC+PS+CoT} &
   $\dagger$ $\ddagger$ &
   Mistral &
   0.5667 &
@@ -409,27 +410,44 @@ Prompt &
 \end{tabular}
 \end{table*}
 
-\subsection{RQ1. How effective are generative LLMs for identifying sensitive personal information within emails.}
+Our results discuss the feasibility of using zero-shot generative LLMs to automatically identify sensitive personal information, and what strategies improve their performance. Table \ref{table:results} contains the results of Mistral, Mixtral, and Llama 2 for SARA. All of these models are instruction-finetuned, making them appropriate to use for classification and reasoning-based tasks.
 
-We first analyse the effectiveness of different generative LLMs. Table \ref{table:results} contains the results of Mistral, Mixtral, and Llama 2 for SARA. All of these models are instruction-finetuned, making them appropriate to use for classification and reasoning-based tasks. We observe that Mistral models outperform Llama 2. Mistral obtains its highest BAC and F\textsubscript{2} with prompt $SensCat+SensDesc+FS$ at 0.6796 BAC and 0.4515 F\textsubscript{2}, and Mixtral with prompt $SensCat+NonSensCat+SensDesc$ achieves 0.6590 BAC and 0.4712 F\textsubscript{2}, whereas Llama 2 (with prompt $SensCat$) achieves 0.6090 BAC and 0.4353 F\textsubscript{2} at its best. Mistral's performance over Llama 2 is also in agreement with other tasks [CITE]. We conclude Mistral models are better in our task of identifying sensitive personal information. /[We conclude Mistral is (statistically) significantly better than Llama 2 for identifying sensitive personal information within our email collection using McNemar’s test (statistic value - is it feasible to compare differing models and promtps - two changed variables when we do it across best model settings.)]. Interestingly, the Mixtral model that is larger than Mistral does not outperform Mistral in sensitivity classification. We believe there are some differences between these models regarding the overall effectiveness of sensitivity identification. Each model with its best prompt settings have statistically significant differences (McNemar's p-value of $1.6659\cdot{10^{-41}}$) [if allowed with model and prompt change], where they disagree on 496 documents: Mistral correctly classifying 394 documents (9 sensitive, 385 non-sensitive) and Mixtral correctly classifying 103 different documents (48 sensitive, 54 non-sensitive) that each other could not correctly classify. This agrees with/explains Mixtral's higher F\textsubscript{2}-score as the more recall-oriented model is protecting more sensitive documents. [Maybe for prompt engineering few-shot - more focused RQ - Furthermore, we see from Table \ref{table:results} that zero-shotting Mixtral 
-with single context management prompt engineering techniques makes greater improvements to a base prompting approach compared to the other models/Mistral model. However, the addition of few-shot prompting reduces the quality of Mixtral's responses/classifications which is the opposite behaviour of Mistral. We see that Mixtral with few-shot prompting struggles to correctly identify sensitive documents, with recall (TNR) being (negatively) impacted [and significantly lowered].
+\subsection{RQ1. How effective are generative LLMs for identifying sensitive personal information within emails?}
 
-The Mistral and Llama 2 models are both implemented using the transformer decoder architecture. However, our results show that Mistral outperforms Llama 2 under multiple conditions, except our $Base$ and $SensCat$ prompt. Llama 2 is highly confused during classifying sensitive personal information in SARA, and this is shown by low specificity (TNR) scores given zero-shot prompts. Mixtral's shortfalls follow the same trend as Llama 2; however, incorrect classifications are less severe with Mixtral. On the other hand, Mistral is more rationale at detecting sensitive personal information, and this is shown by the greater F\textsubscript{1}-score across all prompts except $Base$. We suggest that the Mistral LLM has better decision-making capabilities when identifying sensitive personal information, and that Llama 2 is over-protective of personally identifiable information as analysis of responses show that Mistral can deduce that personal information is not always sensitive personal information, which Llama 2 struggles with more. [– qualitative example of Llama 2 incorrect vs Mistral correct/ref analysis]. This is important as models reasoning that names are sensitive personal information are less useful as sensitivity classifiers because they cannot distinguish personal information that is inherent to email documents and hence should be deemed as non-sensitive for most documents to sensitive personal information of interest. We do not have insights into the training data of these models due to the current competitive nature of pre-training LLMs; however, Meta has aimed to censor toxic generation from their models, hence may be over-protective to attributes such as names.
+We first analyse the effectiveness of different generative LLMs given a base classification prompting strategy that is motivated by the literature. The top row of Table \ref{table:results} shows the performance of this strategy. We observe that Mistral, Mixtral and Llama 2 obtain BAC and F\textsubscript{2} scores of 0.5338 and 0.1908, 0.5244 and 0.3423, and 0.5492 and 0.4298 respectively. These scores are better than entirely naive random classifiers which do not protect many or any sensitive documents effectively; however, compared to other machine learning techniques in the literature this base prompt is ineffective at sensibly performing sensitivity review \cite{mckechnie2024sara}. Furthermore, different models behave differently given this same base prompt instruction: Mistral is ineffective at correctly identifying sensitive documents, shown by a low TPR of 0.1939, whereas Llama 2 is overly protective of sensitive documents as shown by the highest TPR of 0.9184. Mixtral makes judgements between these models, misclassifying both classes in similar proportions. Overall, in answer to RQ1, we say that generative LLMs are not very effective in detecting sensitive personal information given a simple base prompting strategy.
 
-\textbf{Comparison to previous work.} We compare our zero-shot generative LLMs to naive baselines and traditional machine learning techniques used in previous work \cite{mckechnie2024sara}. From Table \ref{table:ml} we observe that LLMs given little explanation within the prompt about the task perform slightly better than our baselines stratified random sampling and most frequent classification. This slight improvement suggests that these models pre-trained knowledge of personal sensitive information does not entirely align with the sensitive personal information present in emails such as SARA; however, they are more useful than naive approaches. [CoT L2 is worse than random - comment in analysis.]. With our best performing system prompt, we achieve more accurate sensitivity classifications, where our generative LLMs alongside prompt engineering do perform statistically significantly better than both baselines. Machine learning techniques logistic regression and SVM perform similar to our best performing model settings, with (BAC and F2-scores). There is/not a statistical difference between X and Y. Furthermore, supervised machine learning strategies are rarely confused given non-sensitive documents, whereas our zero-shot strategy with generative LLMs often overpredict sensitivity. This is shown by the much lower TPR when using our generative LLMs. 
+\subsection{RQ2. How effective are generative LLMs when applying prompt engineering techniques for identifying sensitive personal information?}
+We now analyse the effectiveness of our prompt engineering strategies overall across the entire experiment, then focus on the impact of each prompting strategy to answer our subsequent research questions. Within our experiment, we observe that Mistral models outperform Llama 2. Mistral obtains its highest BAC and F\textsubscript{2} with prompt $S\_EC+PS+FS$ at 0.6796 BAC and 0.4515 F\textsubscript{2}, and Mixtral with prompt $S\_EC+NS\_EC+PS$ achieves 0.6590 BAC and 0.4712 F\textsubscript{2}, whereas Llama 2 (with prompt $S\_EC$) achieves 0.6090 BAC and 0.4353 F\textsubscript{2} at its best. Mistral's performance over Llama 2 is also in agreement with other tasks \cite{jiang2023mistral}. We conclude Mistral models are better at our task of identifying sensitive personal information. Interestingly, the Mixtral model that is larger than Mistral does not outperform Mistral in sensitivity classification. We believe there are some differences between these models regarding the overall effectiveness of sensitivity identification. Each model with its best prompt setting has significant differences, where they disagree on 496 documents: Mistral correctly classifying 394 documents (9 sensitive, 385 non-sensitive) and Mixtral correctly classifying 103 different documents (48 sensitive, 54 non-sensitive) that each other could not correctly classify. This explains Mixtral's higher F\textsubscript{2}-score as the more recall-oriented model is protecting more sensitive documents. 
 
-[Reiterate I believe these false positives are due to zero-shotting and pre-trained knowledge of PII. Furthermore, there is a large cost increase to use LLMs over machine learning strategies.]
+The Mistral and Llama 2 models are both implemented using the transformer decoder architecture. However, our results show that Mistral outperforms Llama 2 over multiple conditions, except our $Base$ and $S\_EC$ prompt. Llama 2 is highly confused during classifying sensitive personal information in SARA, and this is shown by low specificity (TNR) scores given zero-shot prompts. Mixtral's shortfalls follow the same trend as Llama 2; however, incorrect classifications are less severe with Mixtral. On the other hand, Mistral is more rationale at detecting sensitive personal information, and this is shown by the greater F\textsubscript{1}-score across all prompts except $Base$. We suggest that the Mistral LLM has better decision-making capabilities when identifying sensitive personal information, and that Llama 2 is over-protective of personally identifiable information as analysis of responses show that Mistral can deduce that personal information is not always sensitive personal information, which Llama 2 struggles with more \ref{analysis}. This is important because models that treat names as sensitive personal information are less effective as sensitivity classifiers. They fail to distinguish between personal information inherent to email documents, which should generally be considered non-sensitive, and truly sensitive personal information that is of interest. We do not have insights into the training data of these models due to the current competitive nature of pre-training LLMs; however, Meta has aimed to censor toxic generation from their models, hence may be over-protective to attributes such as names. Overall, despite shortcomings of these generative LLMs, we conclude that applying prompt engineering did improve the overall effectiveness of sensitivity classification due to improved metrics compared to $Base$ prompt approaches. Furthermore, we conclude that we are most confident in the Mistral LLM as this obtains the highest BAC score which is one of our main evaluation measures, as well as a good F\textsubscript{2} score. 
 
-Overall, in answer to RQ1, we say that generative LLMs can be useful for detecting sensitive personal information. However, their utility in email collections should be considered carefully due to their pre-trained understanding of PII and (sensitive) personal information.
+\textbf{Comparison to previous work.} We compare sensitivity classifications made by our generative LLMs to naive baselines and traditional machine learning techniques used in previous work \cite{mckechnie2024sara}; following their downsampling training strategy that uses a train-test split of 20:80. Table \ref{table:ml} includes Mistral with a $Base$ prompting approach, and Mistral with the best performing prompt strategy, $S\_EC+PS+FS$, where we exclude the samples used as training data by our trained classifiers. We observe that our baseline prompt performs slightly better than our naive baselines stratified random sampling (Random) and most frequent (MF) classification. However, with our best performing system prompt, we achieve more accurate sensitivity classifications, where our generative LLMs alongside prompt engineering do perform significantly better than both baselines. Machine learning techniques logistic regression (LR) and support vector machine (SVM) perform similar to our best performing model settings where LR has BAC 0.7074 and F\textsubscript{2} 0.5211 (both highest), SVM has BAC 0.6863 and F\textsubscript{2} 0.4845, and zero-shot Mistral with $S\_EC+PS+FS$ has BAC 0.6827 and F\textsubscript{2} 0.4603 on our separated test collection. Supervised machine learning strategies have more effective recall than the Mistral models, making them more effective at identifying and protecting sensitive documents. Notably, from Table \ref{table:results}, the top performing Mixtral prompt scoring BAC 0.6590 across the whole collection, identifies more sensitive documents (higher TPR of 0.6837) than the traditional machine learning techniques while still producing sensible sensitivity classifications; unlike model-prompt variations that classify nearly every document as sensitive. However, this Mixtral model prompt setting still performs worse than our traditional machine learning strategies considering our two main metrics BAC and F\textsubscript{2} due to its limitation of overpredicting sensitivity.
 
-\subsection{RQ2. What is the effect of the context manager prompt engineering strategy on the effectiveness of zero-shot classification with generative LLMs?}
-We now analyse the effectiveness of introducing context within the prompt to enhance zero-shot generative LLMs. Table \ref{table:results} shows the performance of our different prompt engineering techniques, where we focus on introduced context with the prompt strategies $SensCat$, $NonSensCat$ and $SensDesc$ without any few-shot prompting. We see that our contextual phrases within prompts does improve the classification effectiveness, with significant differences across all strategies except $SensDesc$ with Mistral and Llama 2. However, the addition of $SensDesc$ with $SensCat$ and $SensCat+NonSensCat$ does further improve the classification performance of these prompts compared to the exclusion of $SensDesc$ with Mistral and Mixtral; therefore, we suggest this context is useful. For Mistral and Mixtral, the combination of all three contextual prompts achieves the best classification performance, and Llama 2 performs best with just the $SensCat$ context. Therefore, we conclude our additional context about sensitive personal information and email categories suitable for Enron's email collection lead to statistically significant improvements to zero-shot sensitivity classification. 
+Overall, in answer to RQ1.2, we say that it is impressive that these generative LLMs can effectively classify sensitive personal information without training; however, our approach does not significantly improve on current machine learning approaches such as logistic regression and SVMs, instead obtaining similar results to these classifiers compared to our best performing model-prompt setting. Therefore, their utility in sensitivity classification should be considered carefully due to their more expensive computational cost compared to machine learning techniques.
 
-We believe prompt instructions can be used similarly to features [/as natural language features] for what justifies sensitive personal information within an email, because this context has improved classification of sensitive documents. This effect is true for Mistral and is shown by the increasing TPR. Furthermore, we find using prompt instructions explaining other types of documents that would be present within the document collection further enhances sensitivity classification. We see this from the increase of TNR compared to approaches without email category context and improvements to the precision metrics (mitigating model confusion). We conclude this contextual information helps to guide the model in classification alongside it’s pre-trained knowledge of sensitive personal information by providing both informative focus to sensitive personal information, and further knowledge about the potential contents of the email documents. This can be used/utilised through LLMs linguistic understanding [/ability to understand both semantic and context] to infer a final sensitive or non-sensitive (document) class that agrees with both its pre-trained understanding and our provided system context. 
+\begin{table}[]
+\small
+\caption{Results for SARA's test split, using traditional approaches, Mistral-$Base$, and Mistral-$S\_EC+PS+FS$}
+\label{table:ml}
+\begin{tabular}{@{}p{0.45in}p{0.26in}p{0.26in}p{0.26in}p{0.26in}p{0.26in}p{0.26in}p{0.26in}@{}}
+\toprule
+Strategy      & Acc             & Prec            & TPR             & TNR             & $F_{1}$         & $F_{2}$         & BAC             \\ \midrule
+Random        & 0.4976          & 0.1291          & 0.5062          & 0.4964          & 0.2058          & 0.3196          & 0.5013          \\
+MF & \textbf{0.8714} & 0.0000          & 0.0000          & 1.0000          & 0.0000          & 0.0000          & 0.5000          \\
+SVM           & 0.7651          & 0.2919          & 0.5802          & 0.7923          & 0.3884          & 0.4845          & 0.6863          \\
+LR            & 0.7468          & 0.2873          & \textbf{0.6543} & 0.7605          & 0.3992          & \textbf{0.5211} & \textbf{0.7074} \\
+Mistral-Base  & 0.7825          & 0.1782          & 0.1914          & 0.8698          & 0.1845          & 0.1886          & 0.5306          \\
+Mistral-Best  & 0.8230          & \textbf{0.3620} & 0.4938          & \textbf{0.8716} & \textbf{0.4178} & 0.4603          & 0.6827          \\ \bottomrule
+\end{tabular}
+\end{table}
 
-We have shown that information about the email category is useful as messages that belong to sensitive and non-sensitive categories improve given this additional context. This is also shown by a comparison of category confusion given the Hearst annotations for the 8 email coarse categories [confusion plot/heatmap - showing weights/heats of improvements]. From Figure \ref{fig:heatmap} we see that all categories improved compared to the base prompt. Interestingly, the inclusion of non-sensitive email categories improves the classification of sensitive email documents, where we believed this contextual information would in fact mitigate false positives by exposing the model to be aware of the type of document it is classifying, which in turn may have introduced more true (and false) negatives. Furthermore, emails discussing employment arrangements are proportionally the most misclassified non-sensitive email category; where opinions about candidates are (often) stated between hiring managers [/others]. We believe/conclude this type of email document is similar to discussing sensitive personal information but in a professional context and the LLMs struggle to identify these messages as non-sensitive.
 
-Overall, we conclude our use of the context manager pattern improved the effectiveness of using generative LLMs in zero-shot sensitivity classification.
+\subsection{RQ3. What is the effect of the context manager prompt engineering strategy on the effectiveness of zero-shot classification with generative LLMs?}
+We now analyse the effectiveness of introducing context within the prompt to enhance zero-shot generative LLMs. Table \ref{table:results} shows the performance of our different prompt engineering techniques, where we focus on introduced context with the prompt strategies $S\_EC$, $NS\_EC$ and $PS$ without any few-shot prompting. We see that our contextual phrases within prompts does improve the classification effectiveness, with significant differences across all strategies except $PS$ with Mistral and Llama 2. However, the addition of $PS$ with $S\_EC$ and $S\_EC+NS\_EC$ does further improve the classification performance of these prompts compared to the exclusion of $PS$ with Mistral and Mixtral; therefore, we suggest this context is useful. For Mistral and Mixtral, the combination of all three contextual prompts achieves the best classification performance, and Llama 2 performs best with just the $S\_EC$ context. Therefore, we conclude our additional context about sensitive personal information and email categories suitable for Enron's email collection lead to statistically significant improvements to zero-shot sensitivity classification. 
+
+We believe prompt instructions can be used as natural language features for what justifies sensitive personal information within an email, because this context has improved classification of sensitive documents. This effect is true for Mistral and is shown by the increasing TPR. Furthermore, we find using prompt instructions explaining other types of documents that would be present within the document collection further enhances sensitivity classification. We see this from the increase of TNR compared to approaches without email category context and improvements to the precision metrics (mitigating model confusion). Interestingly, the inclusion of non-sensitive email categories improves the classification of sensitive email documents, where we see improvements to TPR for Mistral and Mixtral comparing $S\_EC$ and $NS\_EC$. We believed this contextual information would in fact mitigate false positives by exposing the model to be aware of the type of document it is classifying, which in turn may have introduced more true (and false) negatives. We conclude this contextual information helps to guide the model in classification alongside it’s pre-trained knowledge of sensitive personal information by providing both informative focus to sensitive personal information, and further knowledge about the potential contents of the email documents. This can be utilised through LLMs linguistic understanding to infer a final sensitive or non-sensitive class that agrees with both its pre-trained understanding and our provided system context.
+
+Overall, in answer to RQ3, the use of the context manager pattern improved the effectiveness of using generative LLMs in zero-shot sensitivity classification.
 
 \subsection{RQ3. What is the effect of other prompt engineering strategies on the effectiveness of sensitivity classification with generative LLMs?}
 
@@ -437,19 +455,18 @@ To answer our final research question, we augment our prompts with popular metho
 
 \subsubsection{What is the effect of few-shot prompting on the effectiveness of sensitivity classification with generative LLMs?}
 
-It is clear that few-shot improves the effectiveness of Mistral for identifying sensitive personal information. From Table \ref{table:results}, for Mistral we see every prompt except $SensCat+NonSensCat$ with few-shot makes a statistically significant improvement (to comparable zero-shot prompts), and all BAC and F\textsubscript{2} values are seen to increase given few-shot. For Mixtral and Llama 2, the addition of few-shot makes statistically significant differences from the pseudo-baseline zero-shot prompt; however, few-shot does not improve every prompt instance of these models. Mixtral and Llama 2 suffered from low specificity with our zero-shot prompts; however, with few-shot prompting the [/the opposite is true where] TNR is extremely high (>0.9 for all prompts). With a high TNR, one of our main metrics F\textsubscript{2} is extremely low for these model-prompt settings; therefore, we conclude few-shot with Mixtral and Llama 2 is not effective for identifying sensitive personal information.
+It is clear that few-shot improves the effectiveness of Mistral for identifying sensitive personal information. From Table \ref{table:results}, for Mistral we see every prompt except $S\_EC+NS\_EC$ with few-shot makes a statistically significant improvement (to comparable zero-shot prompts), and all BAC and F\textsubscript{2} values are seen to increase given few-shot. For Mixtral and Llama 2, the addition of few-shot makes statistically significant differences from the pseudo-baseline zero-shot prompt; however, few-shot does not improve every prompt instance of these models. Mixtral and Llama 2 suffered from low specificity with our zero-shot prompts; however, with few-shot prompting the opposite is true, where TNR is extremely high (>0.90 for all few-shot prompts). With a high TNR, one of our main metrics F\textsubscript{2} is extremely low for these model-prompt settings; therefore, we conclude few-shot with Mixtral and Llama 2 is not effective for identifying sensitive personal information.
 
-We see that few-shot prompt engineering consistently improves sensitivity classification with Mistral only. Therefore, we conclude this model is more effective than Llama 2 and Mixtral with few-shot prompting. Furthermore, we also speculate that the poor performance with the other models using few-shot could be for reasons such as poor example choices and prompt structure[/example ordering].
+We see that few-shot prompt engineering consistently improves sensitivity classification with Mistral only. Therefore, we conclude this model is more effective than Llama 2 and Mixtral with few-shot prompting. Furthermore, we also speculate that the poor performance with the other models using few-shot could be for reasons such as poor example choices and example ordering.
 
-We included two examples in-context: one sensitive, and one non-sensitive. As the second example was always non-sensitive and our causal LLMs only use/[have access to] previous context, prioritising more recent tokens, the fact that an answer with '[``non-personal"]' appears more recently may be confusing the model. [Post-study flipping them]. As messages are reasonably long, hence the examples are long, creating a greater distance/separation/window before demonstrated answers, this is a limitation of using multiple examples with few-shot prompting. [I would say I hypothesised that multiple examples should have been important/useful though].
+We included two examples in-context: one sensitive, and one non-sensitive. As the second example was always non-sensitive and our causal LLMs only use previous context, prioritising more recent tokens, the fact that an answer with a non-sensitive label appears more recently may be confusing the model. As messages are reasonably long, the examples are long, which creates a greater distance between demonstrated answers, which could impact the usefulness of few-shot prompting. Furthermore, we conduct a short experiment during post-hoc analysis, to assess if class ordering impacts few-shot prompting and find insignificant differences using a single model-prompt setting: Mixtral with $S\_EC+NS\_EC+PS$ because of the large decrease compared to the zero-shot prompt without few-shot examples. Despite this, we do not conclude this reordering of examples makes no impact due to our short post-hoc experiment.
 
-As well as example ordering, the choice of our examples could influence our results. Emails in the collection that are non-sensitive can vary across [/are relevant to] six other categories (as shown by Hearst \cite{hearst2005teaching} and Mckechnie \cite{mckechnie2024sara}, and used by our context manager prompting strategy); therefore, it would be useful to investigate using examples of multiple sensitive and non-sensitive email categories could improve the effectiveness of sensitivity classification compared to examples that have been cherry-picked or selected via cosine similarity. [(Surprisingly,) Selected examples for few-shot that were most similar document to the document to be classified performed significantly worse compared to both zero-shot and cherry-picked examples that were clearly sensitive or non-sensitive to a human reader (test statistic).] [We consider that as emails could be structured [also structured semantically] the same way by individuals retrieving ‘best’ examples will be challenging].
+As well as example ordering, the choice of our examples could influence our results. Emails in the collection that are non-sensitive are relevant to six other categories as shown by Hearst \cite{hearst2005teaching} and Mckechnie \cite{mckechnie2024sara}, and used by our context manager prompting strategy. Therefore, it would be useful to investigate using examples of multiple sensitive and non-sensitive email categories could improve the effectiveness of sensitivity classification compared to examples that have been cherry-picked given clear sensitive or non-sensitive information to a human reader. We also consider that as emails could be structured the same way by individuals, retrieving ‘best’ examples will be challenging. 
 
-As SARA is not a (very/an extremely) large collection we chose to find similarities between all documents using the cosine similarity; however, larger collections could employ retrieval models to find similar documents. Furthermore, ongoing research is investigating (novel) few-shot prompting strategies. Techniques such as DSPy’s bootstrapped few-shot which generate synthetic and representative few-shot samples could be explored. [This technique could be used to release prompts publicly as synthetic few-shot examples may be useful within other collections]. Methods are being explored how to retrieve the best example prompts, and we believe that similar to our context manager pattern, it could be useful to demonstrate multiple examples of sensitive and non-sensitive emails.
+Furthermore, ongoing research is investigating novel few-shot prompting strategies. Techniques such as DSPy’s bootstrapped few-shot which generate synthetic and representative few-shot samples could be explored. This technique could be used to release prompts with examples publicly as synthetic few-shot examples may be useful within other collections. Other methods also are being explored for how to retrieve the best example prompts, and we believe that similar to our context manager pattern, it could be useful to demonstrate multiple examples of sensitive and non-sensitive emails.
 
 \subsubsection{What is the effect of chain-of-thought on the effectiveness of sensitivity classification with generative LLMs?}
 
-For Chain-of-Thought (CoT), our models do not behave as we hypothesised, performing worse than no CoT. We believed taking reasoning steps/hops would elicit sensible self-explanations to better classify the email message as sensitive or non-sensitive given additional awareness/context of personal information within the email. 
+For Chain-of-Thought (CoT), our models do not behave as we hypothesised, performing worse than no CoT. We believed taking reasoning steps would elicit sensible self-explanations to better classify the email message as sensitive or non-sensitive given additional context of personal information within the email.
 
-There is a statistically significant difference between zero-shot and CoT prompts for all of our models where the zero-shot prompt outperforms CoT techniques, shown by BAC lowering by 14.39\%, 11.85\% and 4.82\% for Mistral, Mixtral and Llama 2 respectively. In fact, CoT for Mistral and Llama 2 performs worse than the $Base$ prompt; Llama 2 even performing worse than a naive classifier. Interestingly, recall is still high using CoT with these models, and our analysis shows our self-reasoning step causes more model confusion compared to the exclusion of thought hops to describe (sensitive) personal information.
-
+There is a statistically significant difference between zero-shot and CoT prompts for all of our models where the zero-shot prompt outperforms CoT techniques, shown by BAC lowering by 14.39\%, 11.85\% and 4.82\% for Mistral, Mixtral and Llama 2 respectively. In fact, CoT for Mistral and Llama 2 performs worse than the $Base$ prompt; Llama 2 even performing worse than a naive random classifier. Interestingly, recall is still high using CoT with these models, and we believe our self-reasoning step highlighting personal information causes more model confusion compared to the exclusion of thought hops to describe sensitive personal information. Overall, we conclude that our proposed CoT strategy is ineffective for improving sensitivity classification.
