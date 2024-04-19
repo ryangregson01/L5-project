@@ -11,6 +11,7 @@
 \usepackage{subcaption}
 \usepackage{tabularx}
 \usepackage{url}
+\usepackage[labelfont={bf},textfont={bf}]{caption}
 
 \begin{document}
 
@@ -31,7 +32,8 @@
 \section{Introduction}
 \input{sections/intro}
 
-\section{Background/Related work}
+% Section: Background/Related Work
+\section{Background}
 \input{sections/background}
 
 % Section: Approach/Methods
@@ -46,9 +48,11 @@
 \section{Conclusions}
 \input{sections/conclusions}
 
+\vspace{0.5cm}
 \bibliographystyle{abbrv}
 %\bibliographystyle{unsrt}
 \bibliography{bib/intro, bib/background, bib/approach, bib/experimental-setup}
 
+\input{sections/appendix}
 
 \end{document}

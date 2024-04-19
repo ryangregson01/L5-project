@@ -1,12 +1,17 @@
-# Sensitivity-Aware Search
+# Automatic Sensitivity Identification with Generative AI
 
 ## Project Description
 
-Many collections of documents, such as emails, cannot be released to the public because they contain sensitive information. Previous literature has addressed the task of opening collections containing sensitive information by framing the problem as a classification task. However, there has been recent interest in the idea of sensitivity- aware search (SAS) - retrieval models that provide the user with documents relevant to their query, while minimising the number of likely sensitive documents returned.
+Many collections of documents, such as emails, cannot be released to the public because they contain sensitive information. Previous literature has addressed the task of opening collections containing sensitive information by framing the problem as a classification task. We use a novel approach for sensitivity classification using zero-shot generative LLMs. We explore prompt engineering strategies to elicit better responses from these models.
 
-Previously proposed sensitivity-aware retrieval models have used a learning-to-rank approach and integrated sensitivity features. However, cross-encoder based neural re-rankers have yielded large gains in retrieval effectiveness in many search tasks over recent years. Furthermore, the retrieval performance of such cross-encoder re-rankers can be enhanced by prioritising documents for rescoring that are syntactically similar to those already scored highly by the reranker, a process called graph adaptive reranking (GAR).[1]
+## Link
+https://github.com/ryangregson01/L5-project
 
-In this project, the student will propose and develop a novel sensitivity-aware search retrieval model and evaluate its effectiveness compared to sensitivity-aware search models from the literature and variants of GAR tailored for sensitivity-aware search.
+This repository has been used for the entire development of the project. It includes code used in our experiment and during development where we trialled different approaches.
 
-[1] Sean MacAvaney, Nicola Tonellotto, and Craig Macdonald. 2022. Adaptive reranking with a corpus graph. In Proceedings of the 31st ACM International Conference on Information & Knowledge Management. 1491–1500.
+## Project Structure Overview:
+* dissertation/ Source for the project dissertation
+* notebooks/ The Jupyter notebooks used at the start of our project development, before we moved to more maintainable scripts.
+* scripts/ Source code for the project.
+* reports/ Reports saved from meetings. Moved to shared Notion site.
 

@@ -52,6 +52,8 @@ x = decoded[0]
 x = x[x.find('[/INST]')+8:]
 print(x)
 
+exit(0)
+
 hint = x
 doc = processed_sara_df[processed_sara_df.doc_id=='175662'].iloc[0].text
 document = prompt_hint(doc, hint)

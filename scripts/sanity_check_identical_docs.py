@@ -53,11 +53,6 @@ def no_reply_proc(s, tokenizer='', c_size=2048):
             unique_df.append({'doc_id': idd, 'text':text, 'sensitivity':sensitivity})    
         return pd.DataFrame.from_dict(unique_df)
     
-    def remove_unnecessary(x):
-        stop_words_extra = [' from ', ' e ', ' mail ', ' cc ', 'forwarded', ' by ', 'original ', ' message ', ' enron ', ' on ', ' pm ', ' am ']
-        for w in stop_words_extra:
-            x = re.sub(w, ' ', x)
-        return x
 
     def main(s):
         #s = clean_names(s)
@@ -72,7 +67,6 @@ def no_reply_proc(s, tokenizer='', c_size=2048):
         new_dict = {'doc_id': ids, 'text': texts, 'sensitivity':sens}
         preproc_df = pd.DataFrame.from_dict(new_dict)
         preproc_df = remove_doubles(preproc_df)
-        #preproc_df['text'] = preproc_df['text'].apply(lambda x: remove_unnecessary(x))
         return preproc_df
 
     return main(s)
@@ -284,6 +278,86 @@ def round_df(df):
         df[v] = df[v].apply(lambda x: round(x, 4))
     return df
 
+
+
+def no_reply_proc_but_matching(s, tokenizer='', c_size=2048):
+    def clean_names(data, replaced=''):
+        nlp = spacy.load("en_core_web_sm")
+        anon_text = []
+        for d in data.text:
+            doc = nlp(d)
+            anonymized_text = d
+            for ent in doc.ents:
+                if ent.label_ == "PERSON":
+                    anonymized_text = anonymized_text.replace(ent.text, replaced)
+            anon_text.append(anonymized_text)
+        #data = data.reset_index()
+        new_list = [{'doc_id':r.doc_id, 'text':anon_text[i], 'sensitivity':r.sensitivity} for i, r in data.iterrows()]
+        return pd.DataFrame.from_dict(new_list)
+    
+    def preprocess(e):
+        message = email.message_from_string(e)
+        clean = message.get_payload()
+        clean = re.sub('\S*@\S*\s?', '', clean)
+        clean = re.sub('\s+', ' ', clean)
+        clean = re.sub("\'", "", clean)
+        clean = gensim.utils.simple_preprocess(str(clean), deacc=True, min_len=1, max_len=100) 
+        return clean
+
+    def remove_doubles(df):
+        already_exists = []
+        unique_df = []
+        already_exists_texts_to_ids = {}
+        pair_up = []
+        for i, s in enumerate(df.iterrows()):
+            idd = s[1].doc_id
+            text = s[1].text
+            sensitivity = s[1].sensitivity
+            if text in already_exists:
+                matching = already_exists_texts_to_ids.get(text)
+                pair_up.append((matching, idd))
+                continue
+            already_exists.append(text)
+            already_exists_texts_to_ids[text] = idd
+            unique_df.append({'doc_id': idd, 'text':text, 'sensitivity':sensitivity})
+
+        return pair_up
+    
+
+    def main(s):
+        #s = clean_names(s)
+        processed_emails = [preprocess(a) for a in s.text]
+        ids = s.doc_id.tolist()
+        sens = s.sensitivity.tolist()
+        texts = []
+        for i, text in enumerate(s.text):
+            new_email = ' '.join(processed_emails[i])
+            texts.append(new_email)
+
+        new_dict = {'doc_id': ids, 'text': texts, 'sensitivity':sens}
+        preproc_df = pd.DataFrame.from_dict(new_dict)
+        preproc_df = remove_doubles(preproc_df)
+        return preproc_df
+
+    return main(s)
+
+
+
+
+
+
+
+def double_pairs(df, pair_list):
+    additional = []
+    for pair in pair_list:
+        find = df[df.doc_id==pair[0]].iloc[0]
+        additional.append( {'doc_id': pair[1], 'prediction': find.prediction, 'ground_truth': find.ground_truth, 'model': find.model, 'prompt': find.prompt} )
+        break
+
+    add_df = pd.DataFrame.from_dict(additional)
+    return pd.concat([df, add_df], ignore_index=True)
+
+
 s = load_sara()
 clean_unique_docs = no_reply_proc(s)
 
@@ -291,27 +365,23 @@ from sklearn.model_selection import train_test_split
 data = clean_unique_docs
 X = data.doc_id.to_numpy()
 y = data.sensitivity.to_numpy()
-np.random.seed(1)
 X_train, X_test, _, _ = train_test_split(X, y, test_size=0.8, random_state=1)
-#X_train = [] # For full zero-shot
+X_train = [] # For full zero-shot
 
-prompts = ['text', 'pdc2', 'cg', 'textfew', 'pdcfew', 'cgfew', 'hop1']
 prompts = ['base', 'sens_cats', 'all_cats', 'base_sens', 'sens_cats_sens', 'all_cats_sens', 'base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few', 'all_cats_sens_hop1']
-#prompts = ['base_sim_few', 'sens_cats_sim_few', 'all_cats_sim_few', 'base_sens_sim_few', 'sens_cats_sens_sim_few', 'all_cats_sens_sim_few']
 
-'''
-model_name = ['mist-noreply', 'mixt-noreply', 'l27b-noreply', 'flanxl-noreply', 'mist-noreply-nameless']
-model_name = model_name[2]
-x = get_results_json(model_name)
-average_type='binary'
-prompt_performance_df = prompt_performance(x)
-'''
 df = pd.DataFrame()
-model_names = ['mist-noreply', 'mixt-noreply', 'l27b-noreply']
-#model_names = ['mixt-noreply']
+model_names = ['mist-noreply'] #, 'mixt-noreply', 'l27b-noreply']
 average_type='binary'
 for model_name in model_names:
     x = get_results_json(model_name)
+    matching = no_reply_proc_but_matching(s)
+    df_in = x[(x.model=='mist-noreply') & (x.prompt=='all_cats_sens_few')]
+    x = double_pairs(df_in, matching)
+    #exit(0)
+
+
+
     prompt_performance_df = prompt_performance(x)
     if df.empty:
         df = prompt_performance_df
@@ -324,7 +394,7 @@ prompt_performance_df['model'] = pd.Categorical(prompt_performance_df['model'], 
 model_name = 'full'
 
 prompt_order = ['base', 'sens_cats', 'all_cats', 'base_sens', 'sens_cats_sens', 'all_cats_sens', 'base_few', 'sens_cats_few', 'all_cats_few', 'base_sens_few', 'sens_cats_sens_few', 'all_cats_sens_few', 'all_cats_sens_hop1']
-#prompt_order = ['base_sim_few', 'sens_cats_sim_few', 'all_cats_sim_few', 'base_sens_sim_few', 'sens_cats_sens_sim_few', 'all_cats_sens_sim_few']
+prompt_performance_df['prompt'] = pd.Categorical(prompt_performance_df['prompt'], categories=prompt_order, ordered=True)
 prompt_performance_df = prompt_performance_df.sort_values(by=['prompt', 'model'])
 #print(prompt_performance_df)
 
