@@ -11,7 +11,7 @@ def message(d): return f"""Message: {d}. """
 
 def answer(): return """Answer: ["""
 
-def sens_cat_info(): return """Personal messages messages may be purely personal and do not include any relation to work being done. Personal messages that are related to work will contain comments about the quality of people's work and expressions of feelings about employee treatment."""
+def sens_cat_info(): return """Personal messages may be purely personal and do not include any relation to work being done. Personal messages that are related to work will contain comments about the quality of people's work and expressions of feelings about employee treatment."""
 
 def non_sens_cat_info(): return """Non-personal messages discuss topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support), employment arrangements (job seeking, hiring, recommendations), document editing/checking (collaboration), empty message (due to missing attachment), empty message."""
 
@@ -38,7 +38,7 @@ Your task is to determine if the following email message contains sensitive pers
 
 You are reviewing emails from the company Enron that are related to the California energy crisis, trading discrepancies, and other messages occurring near the end of the company's life.
 
-Personal messages messages may be purely personal and do not include any relation to work being done. Personal messages that are related to work will contain comments about the quality of people's work and expressions of feelings about employee treatment. Non-personal messages discuss topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support), employment arrangements (job seeking, hiring, recommendations), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
+Personal messages may be purely personal and do not include any relation to work being done. Personal messages that are related to work will contain comments about the quality of people's work and expressions of feelings about employee treatment. Non-personal messages discuss topics such as company business and strategy, logistic arrangements (meeting scheduling, technical support), employment arrangements (job seeking, hiring, recommendations), document editing/checking (collaboration), empty message (due to missing attachment), empty message.
 
 Which one of the attributes: "personal", or "non-personal" describes the following message? 
 Always answer in the form of a Python list containing the appropriate attribute. <</SYS>> """
@@ -54,7 +54,7 @@ You are reviewing emails from the company Enron that are related to the Californ
 
 You are protecting sensitive personal information that would be exempt under Section 40 of the Freedom of Information Act in the United Kingdom.
 
-Personal messages messages may be purely personal and do not include any relation to work being done. Personal messages that are related to work will contain comments about the quality of people's work and expressions of feelings about employee treatment.
+Personal messages may be purely personal and do not include any relation to work being done. Personal messages that are related to work will contain comments about the quality of people's work and expressions of feelings about employee treatment.
 
 Which one of the attributes: "personal", or "non-personal" describes the following message? 
 Always answer in the form of a Python list containing the appropriate attribute. <</SYS>> 

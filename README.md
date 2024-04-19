@@ -11,7 +11,8 @@ This repository has been used for the entire development of the project. It incl
 
 ## Project Structure Overview:
 * dissertation/ Source for the project dissertation
-* notebooks/ The Jupyter notebooks used at the start of our project development, before we moved to more maintainable scripts.
-* scripts/ Source code for the project.
+* notebooks/ The Jupyter notebooks used at the start of our project development, before we moved to more maintainable scripts. README discusses purpose of each notebook.
+* scripts/ Source code for the project. README in folder describes purpose of each file.
 * reports/ Reports saved from meetings. Moved to shared Notion site.
+* results_notebook - has been kept outside of development notebook space. This was used to obtain all of our results and conclusions for our dissertation. Note some cells are not relevant as we only choose the most informative and useful analysis of our results to discuss.
 
