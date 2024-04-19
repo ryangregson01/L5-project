@@ -1,7 +1,6 @@
 from dataset import load_sara
 from preprocess_sara import proccutit, full_preproc
 from models import get_model_version
-from prompts import *
 from model import llm_experiment, post_process_split_docs
 import time
 import numpy as np

@@ -4,8 +4,6 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig
 import gc
 import time
 import numpy as np
-from prompts import *
-from prompts_matrix import hop2, hop3, pdc, fewshotsimone
 from final_prompts import all_cats_sens_hop1, all_cats_sens_hop2, all_cats_sens_hop3
 
 
@@ -149,9 +147,9 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
     full_prompt = {}
 
     # proc is the sampled dataset, get key_to_sims for fewshot
-    full_proc = full_preproc(load_sara(), tokenizer)
-    proc = dataset
-    key_to_sims = get_key_to_sims(full_proc, proc, tokenizer)
+    #full_proc = full_preproc(load_sara(), tokenizer)
+    #proc = dataset
+    #key_to_sims = get_key_to_sims(full_proc, proc, tokenizer)
 
     ds = dataset.sort_values(by=["text"],key=lambda x:x.str.len())
     dataset = ds
@@ -213,15 +211,16 @@ def llm_experiment(dataset, prompt_strategy, model, tokenizer, device, end_promp
             continue
         
         '''
-
+        '''
         document = sample_text
         idd = sample_id
         l = key_to_sims.get(idd)
         len_doc = len(document)
         shot, label = sing_get_sims(l, full_proc, len_doc)
         prompt_input = prompt_strategy(sample_text, shot, label)
+        '''
 
-        #prompt_input = prompt_strategy(sample_text) #, thought) #, few_sens_ex, few_nonsens_ex)
+        prompt_input = prompt_strategy(sample_text) #, thought) #, few_sens_ex, few_nonsens_ex)
         batch.append(prompt_input)
         batch_ids.append(sample_id)
         if len(batch) == cur_bs or (count > 0):
