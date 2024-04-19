@@ -47,12 +47,6 @@ def load_sara():
     sara_df = dataset_to_df(sara_dataset)
     return sara_df
 '''
-def get_flan(v, r, d):
-    model_name = v
-    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
-    model = AutoModelForSeq2SeqLM.from_pretrained(model_name, device_map=d, revision=r, trust_remote_code=False)
-    return tokenizer, model
-
 
 # MODELS LOAD
 def get_l2(version, revision, device):
@@ -125,24 +119,6 @@ def full_preproc(s, tokenizer, c_size=2048):
             already_exists.append(text)
             unique_df.append({'doc_id': idd, 'text':text, 'sensitivity':sensitivity})    
         return pd.DataFrame.from_dict(unique_df)
-
-    def get_replies(df):
-        place = []
-        for i, tex in enumerate(df.text):
-            words = tex.split()
-            for j, word in enumerate(words):
-
-                if 'forwarded' == word:
-                    if words[j+1] == 'by':
-                        place.append((i, j))
-                        continue
-
-                if 'original' == word:
-                    if words[j+1] == 'message':
-                        place.append((i, j))
-                        continue
-
-        return place
 
     def chunk(text, tokenizer, c_size):
         new_chunks = []

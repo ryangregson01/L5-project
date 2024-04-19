@@ -1,0 +1,2 @@
+Experiments in old_analysis have been removed from the codebase.
+These evaluations motivated development and results can be found within earlier commits.
