@@ -104,13 +104,7 @@ def get_results_json(mname, clean=True):
     #print("Path to results", target_directory)
     prompt_results = os.listdir(target_directory)
     main_results = []
-    ps = ['gdpr_qa', 'context1_qa', 'context2_qa', 'workemail_qa', 'context1_fewshot_qa', 'context1_class']
-    ps = ['text', 'pdc', 'cg', 'textqa', 'pdcqa', 'cgqa']
-    ps = ['textfew', 'pdcfew', 'cgfew']
-    ps = ['pdcfewsim', 'pdc2']
-    ps = ['sens_cats_sens_few']
-    ps = ['base_few', 'sens_cats_few', 'all_cats_few', 'base_sim_few', 'sens_cats_sim_few', 'all_cats_sim_few']
-    ps = ['all_cats_sens_sim_few']
+    ps = ['all_cats_sens_few']
 
     prompt = ps[0] #'text2'
     prompt_path = os.path.join(target_directory, prompt)
